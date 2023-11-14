@@ -10,7 +10,6 @@
 		<PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
 		<PackageReference Include="Syncfusion.Licensing" Version="23.1.39" />
 		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="23.1.39" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="host.json">

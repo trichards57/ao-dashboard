@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Configuration;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +21,13 @@ public class VorReceiver
     private readonly CosmosClient cosmosClient;
     private readonly IConfiguration configuration;
     private const string Partition = "VOR";
-    private const int BatchSize = 100;
+    private readonly int BatchSize;
 
     public VorReceiver(CosmosClient cosmosClient, IConfiguration configuration)
     {
-        var licenseCode = ConfigurationManager.AppSettings["SyncfusionLicenseCode"];
+        var licenseCode = configuration["SyncfusionLicenseCode"];
+
+        BatchSize = configuration.GetValue("BatchSize", 100);
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(licenseCode);
 
@@ -117,7 +118,7 @@ public class VorReceiver
 
         var headerRow = sheet.Rows[0];
 
-        var container = cosmosClient.GetContainer(configuration["CosmosDbDatabase"], configuration["CosmosDbContainer"]);
+        var container = cosmosClient.GetVorContainer(configuration);
 
         if (updateVors)
         {

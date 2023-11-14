@@ -54,7 +54,7 @@ namespace VorReceiver
 
             log.LogInformation($"Received call-signs {string.Join(", ", parts)}.");
 
-            var container = cosmosClient.GetContainer(configuration["CosmosDbDatabase"], configuration["CosmosDbContainer"]);
+            var container = cosmosClient.GetVorContainer(configuration);
 
             var items = container.GetItemLinqQueryable<Vehicle>().Where(v => parts.Contains(v.CallSign.ToUpper().Trim())).ToFeedIterator();
 
