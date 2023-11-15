@@ -13,6 +13,7 @@ using System.Globalization;
 using VorReceiver.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Cosmos.Linq;
+using System.Threading;
 
 namespace VorReceiver;
 
@@ -106,6 +107,9 @@ public class VorReceiver
         {
             log.LogInformation($"Historic log.  Will not update VOR status.");
         }
+
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-GB");
 
         using var excelEngine = new ExcelEngine();
         var excelApp = excelEngine.Excel;
