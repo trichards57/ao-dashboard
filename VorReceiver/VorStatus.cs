@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using VorReceiver.Model;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace VorReceiver;
 
@@ -120,7 +121,7 @@ public class VorStatusResultConverter : JsonConverter<VorStatusResult>
             if (value.DueBack.HasValue)
             {
                 writer.WritePropertyName("dueBack");
-                writer.WriteValue(value.DueBack);
+                writer.WriteValue(value.DueBack.Value.ToString("o", CultureInfo.InvariantCulture));
             }
 
             if (!string.IsNullOrWhiteSpace(value.Summary))
