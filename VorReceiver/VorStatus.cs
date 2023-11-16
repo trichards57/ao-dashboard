@@ -134,7 +134,7 @@ public class VorStatusResultConverter : JsonConverter<VorStatusResult>
     }
 }
 
-
+[JsonConverter(typeof(VorStatusResultConverter))]
 public readonly record struct VorStatusResult
 {
     [JsonProperty("isVor")]
