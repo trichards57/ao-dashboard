@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Vehicle.cs" company="Tony Richards">
+// <copyright file="Region.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -22,7 +22,7 @@ public enum Region
     /// </summary>
     [EnumMember(Value = "unknown")]
     Unknown = 0,
-    
+
     /// <summary>
     /// The North East region.
     /// </summary>
@@ -69,5 +69,5 @@ public enum Region
     /// The South West region.
     /// </summary>
     [EnumMember(Value = "sw")]
-    SouthWest = 8
+    SouthWest = 8,
 }

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Vehicle.cs" company="Tony Richards">
+// <copyright file="VehicleType.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -22,7 +22,7 @@ public enum VehicleType
     /// </summary>
     [EnumMember(Value ="other")]
     Other = 0,
-    
+
     /// <summary>
     /// A front-line ambulance.
     /// </summary>

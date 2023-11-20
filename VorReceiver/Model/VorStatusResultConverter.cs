@@ -23,7 +23,9 @@ public class VorStatusResultConverter : JsonConverter<VorStatusResult>
     public override void WriteJson(JsonWriter writer, VorStatusResult value, JsonSerializer serializer)
     {
         if (!value.IsVor)
+        {
             writer.WriteValue(false);
+        }
         else
         {
             writer.WriteStartObject();
