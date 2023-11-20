@@ -1,4 +1,11 @@
-﻿using Microsoft.Azure.Cosmos.Fluent;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Startup.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +16,9 @@ using VorReceiver;
 
 namespace VorReceiver;
 
+/// <summary>
+/// Class to manage the function startup.
+/// </summary>
 public class Startup : FunctionsStartup
 {
     private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
@@ -17,6 +27,7 @@ public class Startup : FunctionsStartup
         .AddEnvironmentVariables()
         .Build();
 
+    /// <inheritdoc/>
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddSingleton(s =>

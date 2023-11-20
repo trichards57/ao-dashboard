@@ -1,101 +1,93 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Vehicle.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 
 namespace VorReceiver.Model;
 
-public class Incident
-{
-    [JsonProperty("comments")]
-    public string Comments { get; set; }
-
-    [JsonProperty("description")]
-    public string Description { get; set; }
-
-    [JsonProperty("endDate")]
-    public DateOnly EndDate { get; set; }
-
-    [JsonProperty("startDate")]
-    public DateOnly StartDate { get; set; }
-
-    [JsonProperty("estimatedEndDate")]
-    public DateOnly? EstimatedEndDate { get; set; }
-}
-
-[JsonConverter(typeof(StringEnumConverter))]
-public enum VehicleType
-{
-    [EnumMember(Value ="other")]
-    Other = 0,
-    [EnumMember(Value = "frontline")]
-    FrontLineAmbulance = 1,
-    [EnumMember(Value = "awd")]
-    AllWheelDrive = 2,
-    [EnumMember(Value = "ora")]
-    OffRoadAmbulance = 3
-}
-
-[JsonConverter(typeof(StringEnumConverter))]
-public enum Region
-{
-    [EnumMember(Value = "unknown")]
-    Unknown = 0,
-    [EnumMember(Value = "ne")]
-    NorthEast = 1,
-    [EnumMember(Value = "nw")]
-    NortWest = 2,
-    [EnumMember(Value = "ee")]
-    EastOfEngland = 3,
-    [EnumMember(Value = "wm")]
-    WestMidlands = 4,
-    [EnumMember(Value = "em")]
-    EastMidlands = 5,
-    [EnumMember(Value = "lo")]
-    London = 6,
-    [EnumMember(Value = "se")]
-    SouthEast = 7,
-    [EnumMember(Value = "sw")]
-    SouthWest = 8
-}
-
+/// <summary>
+/// A vehicle with it's reported VOR incidents.
+/// </summary>
 public class Vehicle
 {
+    /// <summary>
+    /// Gets or sets the radio call sign for the vehicle.
+    /// </summary>
     [JsonProperty("callSign")]
     public string CallSign { get; set; }
 
+    /// <summary>
+    /// Gets the item's partition key.
+    /// </summary>
     [JsonProperty("partition")]
     public string Partition => "VOR";
 
+    /// <summary>
+    /// Gets or sets the incidents associated with the vehicle.
+    /// </summary>
     [JsonProperty("incidents")]
     public List<Incident> Incidents { get; set; } = new List<Incident>();
 
+    /// <summary>
+    /// Gets or sets the registration of the vehicle.
+    /// </summary>
     [JsonProperty("id")]
     public string Registration { get; set; }
 
+    /// <summary>
+    /// Gets or sets the database entrie's ETAG.
+    /// </summary>
     [JsonProperty("_etag")]
     public string Etag { get; set; }
 
+    /// <summary>
+    /// Gets or sets the body type of the vehicle.
+    /// </summary>
     [JsonProperty("body")]
     public string BodyType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the make of the vehicle.
+    /// </summary>
     [JsonProperty("make")]
     public string Make { get; set; }
 
+    /// <summary>
+    /// Gets or sets the model of the vehicle.
+    /// </summary>
     [JsonProperty("model")]
     public string Model { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the vehicle is currently off-the-road.
+    /// </summary>
     [JsonProperty("isVor")]
     public bool IsVor { get; set; }
 
-    [JsonProperty("district", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate), DefaultValue("Unknown")]
+    /// <summary>
+    /// Gets or sets the owning district.
+    /// </summary>
+    [JsonProperty("district", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue("Unknown")]
     public string Distict { get; set; } = "Unknown";
 
-    [JsonProperty("region", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate), DefaultValue("Unknown")]
+    /// <summary>
+    /// Gets or sets the owning region.
+    /// </summary>
+    [JsonProperty("region", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue("Unknown")]
     public Region Region { get; set; } = Region.Unknown;
 
-    [JsonProperty("type", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate), DefaultValue(VehicleType.Other)]
+    /// <summary>
+    /// Gets or sets the vehicle type.
+    /// </summary>
+    [JsonProperty("type", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    [DefaultValue(VehicleType.Other)]
     public VehicleType VehicleType { get; set; } = VehicleType.Other;
 }

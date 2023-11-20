@@ -1,34 +1,49 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------
+// <copyright file="VorReceiver.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Syncfusion.XlsIO;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Azure.Cosmos;
 using System.Globalization;
-using VorReceiver.Model;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Azure.Cosmos.Linq;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using VorReceiver.Model;
 
 namespace VorReceiver;
 
+/// <summary>
+/// Function to receive VOR data.
+/// </summary>
 public class VorReceiver
 {
+    private const string Partition = "VOR";
+    private readonly int batchSize;
     private readonly CosmosClient cosmosClient;
     private readonly IConfiguration configuration;
-    private const string Partition = "VOR";
-    private readonly int BatchSize;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VorReceiver"/> class.
+    /// </summary>
+    /// <param name="cosmosClient">The client used to access CosmosDB.</param>
+    /// <param name="configuration">The function configuration files.</param>
     public VorReceiver(CosmosClient cosmosClient, IConfiguration configuration)
     {
         var licenseCode = configuration["SyncfusionLicenseCode"];
 
-        BatchSize = configuration.GetValue("BatchSize", 100);
+        batchSize = configuration.GetValue("BatchSize", 100);
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(licenseCode);
 
@@ -36,6 +51,12 @@ public class VorReceiver
         this.configuration = configuration;
     }
 
+    /// <summary>
+    /// Function to accept a VOR status file.
+    /// </summary>
+    /// <param name="req">The HTTP Request received.</param>
+    /// <param name="log">The logger for the function.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [FunctionName("vor-receiver")]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
@@ -56,7 +77,7 @@ public class VorReceiver
                 Instance = req.Path,
                 Status = StatusCodes.Status400BadRequest,
                 Title = "No file received.",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             });
         }
 
@@ -68,7 +89,7 @@ public class VorReceiver
 
         var parameters = req.GetQueryParameterDictionary();
 
-        if (!parameters.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly fileDate))
+        if (!parameters.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fileDate))
         {
             try
             {
@@ -84,7 +105,7 @@ public class VorReceiver
                     Instance = req.Path,
                     Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     Title = "Invalid report date.",
-                    Status = StatusCodes.Status400BadRequest
+                    Status = StatusCodes.Status400BadRequest,
                 });
             }
         }
@@ -126,7 +147,7 @@ public class VorReceiver
 
         if (updateVors)
         {
-            var iterator = container.GetItemLinqQueryable<Vehicle>().Where(v => v.Partition==Partition).ToFeedIterator();
+            var iterator = container.GetItemLinqQueryable<Vehicle>().Where(v => v.Partition == Partition).ToFeedIterator();
             var batchTasks = new List<Task<TransactionalBatchResponse>>();
 
             while (iterator.HasMoreResults)
@@ -146,7 +167,7 @@ public class VorReceiver
                         batch.ReplaceItem(item.Registration, item);
                         c += 1;
 
-                        if (c >= BatchSize)
+                        if (c >= batchSize)
                         {
                             batchTasks.Add(batch.ExecuteAsync());
                             c = 0;
@@ -194,7 +215,9 @@ public class VorReceiver
             var description = cols[columns["Description"] - 1].Text?.Trim() ?? "";
             var estimatedReturnCol = columns.GetValueOrDefault("EstimatedRepairDate");
             if (estimatedReturnCol == default)
+            {
                 estimatedReturnCol = columns.GetValueOrDefault("ExpectedFinishDate");
+            }
 
             DateOnly? estimatedReturn = null;
 
@@ -255,7 +278,7 @@ public class VorReceiver
                 {
                     res = await container.UpsertItemAsync(vehicle, new PartitionKey(vehicle.Partition), new ItemRequestOptions
                     {
-                        IfMatchEtag = vehicle.Etag
+                        IfMatchEtag = vehicle.Etag,
                     });
                     log.LogTrace($"Updated {reg}.");
                     updates++;
@@ -272,8 +295,9 @@ public class VorReceiver
                     count++;
                 }
 
-                cost += (res?.RequestCharge ?? 0);
-            } while (retry && count < 3);
+                cost += res?.RequestCharge ?? 0;
+            }
+            while (retry && count < 3);
 
             if (count == 3)
             {
