@@ -67,3 +67,8 @@ button:hover {
   background-color: var(--color-dark-primary);
   color: white;
 }
+
+button[disabled="true"] {
+  color: var(--color-secondary);
+  cursor: wait;
+}

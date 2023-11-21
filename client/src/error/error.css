@@ -1,0 +1,20 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  background-color: var(--color-accent);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  margin-top: 1rem;;
+}
+
+.card {
+  padding: 1rem;
+  box-shadow: 0 0 0.5rem var(--color-shadow);
+  border-radius: 0.25rem;
+  background-color: white;
+}

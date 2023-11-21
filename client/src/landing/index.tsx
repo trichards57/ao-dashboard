@@ -1,10 +1,26 @@
+import { useEffect } from "react";
+import useUser from "../hooks/useUser";
 import "./home.css";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+  const { isLoading, data } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (data) {
+        navigate("/home");
+      }
+    }
+  }, [navigate, isLoading, data]);
+
   return (
     <div className="card">
       <h1>AO Dashboard</h1>
-      <button type="button">Sign in with Azure AD</button>
+      <button type="button" disabled={isLoading}>
+        Sign in with Azure AD
+      </button>
     </div>
   );
 }
