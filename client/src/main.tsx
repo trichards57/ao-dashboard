@@ -1,11 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import Landing from './landing'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Landing from "./landing";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const router = createBrowserRouter([{ path: "/", element: <Landing /> }]);
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Landing />
-  </React.StrictMode>,
-)
- 
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);
