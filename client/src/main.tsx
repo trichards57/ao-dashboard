@@ -7,9 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ErrorBoundary } from "react-error-boundary";
 import Error from "./error";
+import Home from "./home";
 
 const router = createBrowserRouter([
   { path: "/", element: <Landing /> },
+  { path: "/home", element: <Home /> },
   { path: "*", element: <Error /> },
 ]);
 const client = new QueryClient();

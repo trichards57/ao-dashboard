@@ -50,7 +50,8 @@ h1 {
   margin-bottom: 1rem;
 }
 
-button {
+button,
+a.button {
   font-family: "Whitney Semi Bold", "Helvetica", "Arial", sans-serif;
   border-radius: 0.6rem;
   border: 1px solid transparent;
@@ -61,14 +62,27 @@ button {
   color: var(--color-text);
   cursor: pointer;
   transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
+  box-shadow: 0 0 0.1rem var(--color-shadow);
 }
 
-button:hover {
+button:hover,
+a.button:hover {
   background-color: var(--color-dark-primary);
   color: white;
 }
 
-button[disabled="true"] {
-  color: var(--color-secondary);
-  cursor: wait;
+button[disabled="true"],
+a.button[aria-disabled="true"] {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  cursor: not-allowed;
+}
+
+a.button {
+  display: block;
+}
+
+button + button,
+a.button + a.button {
+  margin-top: 0.25rem;
 }
