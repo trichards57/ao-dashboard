@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import useRequireLoggedIn from "../hooks/useRequireLoggedIn";
 
 export default function Home() {
@@ -15,9 +16,9 @@ export default function Home() {
       <a aria-disabled="true" className="button" href="/vehicles/capacity">
         Capacity and Travel Warnings
       </a>
-      <a className="button" href="/vehicles/config">
+      <Link className="button" to="/vehicles/config">
         Configure Vehicles
-      </a>
+      </Link>
     </div>
   );
 }

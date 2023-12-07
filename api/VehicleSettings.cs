@@ -19,8 +19,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using VorReceiver;
+using VorReceiver.Model;
 
-namespace VorReceiver.Model;
+namespace API;
 
 /// <summary>
 /// The details describing a vehicle.
@@ -178,11 +180,37 @@ public class VehicleSettings
     {
         var district = req.Query["district"];
         var region = req.Query["region"];
+        var callsign = req.Query["callsign"];
 
         var container = cosmosClient.GetVorContainer(configuration);
         FeedIterator<VehicleSettingsDetail> items;
 
-        if (string.IsNullOrWhiteSpace(region))
+        if (!string.IsNullOrWhiteSpace(callsign))
+        {
+            if (!string.IsNullOrWhiteSpace(district) || !string.IsNullOrWhiteSpace(region))
+            {
+                log.LogError("Call Sign must not be specified if District or Region is provided.");
+
+                return new BadRequestObjectResult(new ProblemDetails
+                {
+                    Detail = "Call Sign must not be specified if District or Region is provided.",
+                    Instance = req.Path,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Title = "Invalid parameter combination.",
+                    Status = StatusCodes.Status400BadRequest,
+                });
+            }
+
+            items = container.GetItemLinqQueryable<Vehicle>().Where(v => v.CallSign.Equals(callsign, StringComparison.InvariantCultureIgnoreCase)).Select(v => new VehicleSettingsDetail
+            {
+                CallSign = v.CallSign,
+                District = v.Distict,
+                Region = v.Region,
+                Registration = v.Registration,
+                Type = v.VehicleType,
+            }).ToFeedIterator();
+        }
+        else if (string.IsNullOrWhiteSpace(region))
         {
             if (!string.IsNullOrWhiteSpace(district))
             {
