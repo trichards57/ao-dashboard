@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using API.Support;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,7 @@ public class Startup : FunctionsStartup
 
             return new CosmosClientBuilder(connectionString)
                 .Build();
-        });
+        })
+            .AddTransient<ICosmosLinqQuery, CosmosLinqQueryHelper>();
     }
 }

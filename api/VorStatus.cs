@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -46,7 +45,7 @@ public class VorStatus
     /// <param name="req">The HTTP Request received.</param>
     /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    [FunctionName("vor-status")]
+    [Function("vor-status")]
     public async Task<IActionResult> Run(
     [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
     ILogger log)
@@ -54,8 +53,7 @@ public class VorStatus
         double cost = 0;
         log.LogInformation("Received request.");
 
-        var parameters = req.GetQueryParameterDictionary();
-        var callsignsValid = parameters.TryGetValue("callsigns", out var callsigns);
+        var callsignsValid = req.Query.TryGetValue("callsigns", out var callsigns);
 
         if (!callsignsValid || string.IsNullOrWhiteSpace(callsigns))
         {
@@ -71,7 +69,7 @@ public class VorStatus
             });
         }
 
-        var parts = callsigns.Split(",").Select(s => s.Trim().ToUpperInvariant());
+        var parts = callsigns[0].Split(",").Select(s => s.Trim().ToUpperInvariant());
 
         log.LogInformation($"Received call-signs {string.Join(", ", parts)}.");
 

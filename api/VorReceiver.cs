@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Syncfusion.XlsIO;
@@ -57,7 +56,7 @@ public class VorReceiver
     /// <param name="req">The HTTP Request received.</param>
     /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    [FunctionName("vor-receiver")]
+    [Function("vor-receiver")]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
         ILogger log)
@@ -87,9 +86,7 @@ public class VorReceiver
 
         log.LogInformation($"Received file {file.FileName} of size {file.Length} bytes.");
 
-        var parameters = req.GetQueryParameterDictionary();
-
-        if (!parameters.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fileDate))
+        if (!req.Query.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fileDate))
         {
             try
             {
@@ -113,13 +110,13 @@ public class VorReceiver
         log.LogInformation($"File date is {fileDate}.");
 
         var updateVors = fileDate == DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date);
-        var forceUpdateValid = parameters.TryGetValue("update-vors", out var forceUpdate);
+        var forceUpdateValid = req.Query.TryGetValue("update-vors", out var forceUpdate);
 
         if (updateVors)
         {
             log.LogInformation($"File date is from today.  Will update VOR status.");
         }
-        else if (forceUpdateValid && forceUpdate.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+        else if (forceUpdateValid && forceUpdate[0].Equals("true", StringComparison.InvariantCultureIgnoreCase))
         {
             log.LogInformation($"'update-vors' is set to true.  Will update VOR status.");
             updateVors = true;

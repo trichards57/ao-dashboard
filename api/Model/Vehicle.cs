@@ -75,7 +75,7 @@ public class Vehicle
     /// </summary>
     [JsonProperty("district", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     [DefaultValue("Unknown")]
-    public string Distict { get; set; } = "Unknown";
+    public string District { get; set; } = "Unknown";
 
     /// <summary>
     /// Gets or sets the owning region.

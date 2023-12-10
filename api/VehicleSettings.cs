@@ -5,12 +5,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using API.Support;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -63,22 +63,14 @@ public class VehicleSettingsDetail
 /// <summary>
 /// Functions to manage vehicle settings.
 /// </summary>
-public class VehicleSettings
+/// <remarks>
+/// Initializes a new instance of the <see cref="VehicleSettings"/> class.
+/// </remarks>
+/// <param name="cosmosClient">The client used to access CosmosDB.</param>
+/// <param name="configuration">The function configuration files.</param>
+public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosLinqQuery, IConfiguration configuration)
 {
     private const string Partition = "VOR";
-    private readonly CosmosClient cosmosClient;
-    private readonly IConfiguration configuration;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VehicleSettings"/> class.
-    /// </summary>
-    /// <param name="cosmosClient">The client used to access CosmosDB.</param>
-    /// <param name="configuration">The function configuration files.</param>
-    public VehicleSettings(CosmosClient cosmosClient, IConfiguration configuration)
-    {
-        this.cosmosClient = cosmosClient;
-        this.configuration = configuration;
-    }
 
     /// <summary>
     /// A function to change a vehicle's settings.
@@ -86,7 +78,7 @@ public class VehicleSettings
     /// <param name="req">The HTTP Request received.</param>
     /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    [FunctionName("set-vehicle-settings")]
+    [Function("set-vehicle-settings")]
     public async Task<IActionResult> Set(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "vehicle-settings")] HttpRequest req,
         ILogger log)
@@ -138,7 +130,7 @@ public class VehicleSettings
             {
                 CallSign = item.CallSign,
                 Registration = item.Registration,
-                Distict = item.District,
+                District = item.District,
                 Region = item.Region,
                 VehicleType = item.Type,
             };
@@ -155,7 +147,7 @@ public class VehicleSettings
 
             newItem.CallSign = item.CallSign;
             newItem.Registration = item.Registration;
-            newItem.Distict = item.District;
+            newItem.District = item.District;
             newItem.Region = item.Region;
             newItem.VehicleType = item.Type;
 
@@ -173,7 +165,7 @@ public class VehicleSettings
     /// <param name="req">The HTTP Request received.</param>
     /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    [FunctionName("get-vehicle-settings")]
+    [Function("get-vehicle-settings")]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "vehicle-settings")] HttpRequest req,
         ILogger log)
@@ -201,14 +193,14 @@ public class VehicleSettings
                 });
             }
 
-            items = container.GetItemLinqQueryable<Vehicle>().Where(v => v.CallSign.Equals(callsign, StringComparison.InvariantCultureIgnoreCase)).Select(v => new VehicleSettingsDetail
+            items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Where(v => v.CallSign.Equals(callsign, StringComparison.InvariantCultureIgnoreCase)).Select(v => new VehicleSettingsDetail
             {
                 CallSign = v.CallSign,
-                District = v.Distict,
+                District = v.District,
                 Region = v.Region,
                 Registration = v.Registration,
                 Type = v.VehicleType,
-            }).ToFeedIterator();
+            }));
         }
         else if (string.IsNullOrWhiteSpace(region))
         {
@@ -229,14 +221,14 @@ public class VehicleSettings
             // Get all vehicles.
             log.LogInformation("Getting all vehicles.");
 
-            items = container.GetItemLinqQueryable<Vehicle>().Select(v => new VehicleSettingsDetail
+            items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Select(v => new VehicleSettingsDetail
             {
                 CallSign = v.CallSign,
-                District = v.Distict ?? "Unknown",
+                District = v.District ?? "Unknown",
                 Region = v.Region,
                 Registration = v.Registration,
                 Type = v.VehicleType,
-            }).ToFeedIterator();
+            }));
         }
         else if (string.IsNullOrWhiteSpace(district))
         {
@@ -244,14 +236,14 @@ public class VehicleSettings
 
             log.LogInformation($"Getting all vehicles for {actualRegion}");
 
-            items = container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion).Select(v => new VehicleSettingsDetail
+            items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion).Select(v => new VehicleSettingsDetail
             {
                 CallSign = v.CallSign,
-                District = v.Distict,
+                District = v.District,
                 Region = v.Region,
                 Registration = v.Registration,
                 Type = v.VehicleType,
-            }).ToFeedIterator();
+            }));
         }
         else
         {
@@ -259,14 +251,14 @@ public class VehicleSettings
 
             log.LogInformation($"Getting all vehicles for district {district} of region {actualRegion}.");
 
-            items = container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion && v.Distict == district).Select(v => new VehicleSettingsDetail
+            items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion && v.District == district).Select(v => new VehicleSettingsDetail
             {
                 CallSign = v.CallSign,
-                District = v.Distict,
+                District = v.District,
                 Region = v.Region,
                 Registration = v.Registration,
                 Type = v.VehicleType,
-            }).ToFeedIterator();
+            }));
         }
 
         var result = new List<VehicleSettingsDetail>();
