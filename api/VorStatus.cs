@@ -23,41 +23,30 @@ namespace VorReceiver;
 /// <summary>
 /// Function to get the current VOR status of a vehicle.
 /// </summary>
-public class VorStatus
+/// <remarks>
+/// Initializes a new instance of the <see cref="VorStatus"/> class.
+/// </remarks>
+/// <param name="cosmosClient">The client used to access CosmosDB.</param>
+/// <param name="configuration">The function configuration files.</param>
+/// <param name="logger">The logger for the function.</param>
+public class VorStatus(CosmosClient cosmosClient, IConfiguration configuration, ILogger<VorStatus> logger)
 {
-    private readonly CosmosClient cosmosClient;
-    private readonly IConfiguration configuration;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="VorStatus"/> class.
-    /// </summary>
-    /// <param name="cosmosClient">The client used to access CosmosDB.</param>
-    /// <param name="configuration">The function configuration files.</param>
-    public VorStatus(CosmosClient cosmosClient, IConfiguration configuration)
-    {
-        this.cosmosClient = cosmosClient;
-        this.configuration = configuration;
-    }
-
     /// <summary>
     /// Function to get the VOR status of the vehicle(s).
     /// </summary>
     /// <param name="req">The HTTP Request received.</param>
-    /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Function("vor-status")]
-    public async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
-    ILogger log)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
     {
         double cost = 0;
-        log.LogInformation("Received request.");
+        logger.LogInformation("Received request.");
 
         var callsignsValid = req.Query.TryGetValue("callsigns", out var callsigns);
 
         if (!callsignsValid || string.IsNullOrWhiteSpace(callsigns))
         {
-            log.LogError("No callsigns received.");
+            logger.LogError("No callsigns received.");
 
             return new BadRequestObjectResult(new ProblemDetails()
             {
@@ -71,7 +60,7 @@ public class VorStatus
 
         var parts = callsigns[0].Split(",").Select(s => s.Trim().ToUpperInvariant());
 
-        log.LogInformation($"Received call-signs {string.Join(", ", parts)}.");
+        logger.LogInformation($"Received call-signs {string.Join(", ", parts)}.");
 
         var container = cosmosClient.GetVorContainer(configuration);
 
@@ -112,7 +101,7 @@ public class VorStatus
             }
         }
 
-        log.LogInformation($"Request completed.  {cost} RUs expended.");
+        logger.LogInformation($"Request completed.  {cost} RUs expended.");
 
         return new OkObjectResult(results);
     }

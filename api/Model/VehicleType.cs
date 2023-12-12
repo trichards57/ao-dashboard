@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
@@ -14,7 +13,8 @@ namespace VorReceiver.Model;
 /// <summary>
 /// Represents the type of the vehicle.
 /// </summary>
-[JsonConverter(typeof(StringEnumConverter))]
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumMemberConverter))]
+[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
 public enum VehicleType
 {
     /// <summary>

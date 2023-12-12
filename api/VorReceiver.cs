@@ -32,13 +32,15 @@ public class VorReceiver
     private readonly int batchSize;
     private readonly CosmosClient cosmosClient;
     private readonly IConfiguration configuration;
+    private readonly ILogger<VorReceiver> logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="VorReceiver"/> class.
     /// </summary>
     /// <param name="cosmosClient">The client used to access CosmosDB.</param>
     /// <param name="configuration">The function configuration files.</param>
-    public VorReceiver(CosmosClient cosmosClient, IConfiguration configuration)
+    /// <param name="logger">The logger for the function.</param>
+    public VorReceiver(CosmosClient cosmosClient, IConfiguration configuration, ILogger<VorReceiver> logger)
     {
         var licenseCode = configuration["SyncfusionLicenseCode"];
 
@@ -48,27 +50,25 @@ public class VorReceiver
 
         this.cosmosClient = cosmosClient;
         this.configuration = configuration;
+        this.logger = logger;
     }
 
     /// <summary>
     /// Function to accept a VOR status file.
     /// </summary>
     /// <param name="req">The HTTP Request received.</param>
-    /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Function("vor-receiver")]
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
-        ILogger log)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
     {
         double cost = 0;
-        log.LogInformation("Received request.");
+        logger.LogInformation("Received request.");
 
         var form = await req.ReadFormAsync();
 
         if (form.Files.Count != 1)
         {
-            log.LogError("No file received.");
+            logger.LogError("No file received.");
 
             return new BadRequestObjectResult(new ProblemDetails()
             {
@@ -80,11 +80,11 @@ public class VorReceiver
             });
         }
 
-        log.LogInformation("Received uploaded file.");
+        logger.LogInformation("Received uploaded file.");
 
         var file = form.Files[0];
 
-        log.LogInformation($"Received file {file.FileName} of size {file.Length} bytes.");
+        logger.LogInformation($"Received file {file.FileName} of size {file.Length} bytes.");
 
         if (!req.Query.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fileDate))
         {
@@ -94,7 +94,7 @@ public class VorReceiver
             }
             catch (FormatException)
             {
-                log.LogError($"No date provided and filename {file.FileName} does not start with a valid date.");
+                logger.LogError($"No date provided and filename {file.FileName} does not start with a valid date.");
 
                 return new BadRequestObjectResult(new ProblemDetails()
                 {
@@ -107,23 +107,23 @@ public class VorReceiver
             }
         }
 
-        log.LogInformation($"File date is {fileDate}.");
+        logger.LogInformation($"File date is {fileDate}.");
 
         var updateVors = fileDate == DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date);
         var forceUpdateValid = req.Query.TryGetValue("update-vors", out var forceUpdate);
 
         if (updateVors)
         {
-            log.LogInformation($"File date is from today.  Will update VOR status.");
+            logger.LogInformation($"File date is from today.  Will update VOR status.");
         }
         else if (forceUpdateValid && forceUpdate[0].Equals("true", StringComparison.InvariantCultureIgnoreCase))
         {
-            log.LogInformation($"'update-vors' is set to true.  Will update VOR status.");
+            logger.LogInformation($"'update-vors' is set to true.  Will update VOR status.");
             updateVors = true;
         }
         else
         {
-            log.LogInformation($"Historic log.  Will not update VOR status.");
+            logger.LogInformation($"Historic log.  Will not update VOR status.");
         }
 
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
@@ -184,11 +184,11 @@ public class VorReceiver
 
             if (Array.Exists(res, task => !task.IsSuccessStatusCode))
             {
-                log.LogError("VOR Status Clear failed");
+                logger.LogError("VOR Status Clear failed");
             }
             else
             {
-                log.LogInformation("VOR Status Cleared");
+                logger.LogInformation("VOR Status Cleared");
                 cost += res.Sum(t => t.RequestCharge);
             }
         }
@@ -277,17 +277,17 @@ public class VorReceiver
                     {
                         IfMatchEtag = vehicle.Etag,
                     });
-                    log.LogTrace($"Updated {reg}.");
+                    logger.LogTrace($"Updated {reg}.");
                     updates++;
                 }
                 catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
                 {
-                    log.LogWarning($"Concurrency clash found.");
+                    logger.LogWarning($"Concurrency clash found.");
                     retry = true;
                 }
                 catch (CosmosException)
                 {
-                    log.LogWarning($"Error accessing CosmosDb.  Retry {count}.");
+                    logger.LogWarning($"Error accessing CosmosDb.  Retry {count}.");
                     retry = true;
                     count++;
                 }
@@ -298,11 +298,11 @@ public class VorReceiver
 
             if (count == 3)
             {
-                log.LogError($"Ran out of retries. Skipping {reg}.");
+                logger.LogError($"Ran out of retries. Skipping {reg}.");
             }
         }
 
-        log.LogInformation($"File completed.  {updates} items updated.  {cost} RUs expended.");
+        logger.LogInformation($"File completed.  {updates} items updated.  {cost} RUs expended.");
 
         excelApp.Workbooks.Close();
 

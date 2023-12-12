@@ -7,6 +7,7 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace VorReceiver.Model;
 
@@ -18,30 +19,35 @@ public class Incident
     /// <summary>
     /// Gets or sets the comments associated with the incident.
     /// </summary>
+    [JsonPropertyName("comments")]
     [JsonProperty("comments")]
     public string Comments { get; set; }
 
     /// <summary>
     /// Gets or sets the description of the incident.
     /// </summary>
+    [JsonPropertyName("description")]
     [JsonProperty("description")]
     public string Description { get; set; }
 
     /// <summary>
     /// Gets or sets the date the incident has ended.
     /// </summary>
+    [JsonPropertyName("endDate")]
     [JsonProperty("endDate")]
     public DateOnly EndDate { get; set; }
 
     /// <summary>
     /// Gets or sets the date the incident started.
     /// </summary>
+    [JsonPropertyName("startDate")]
     [JsonProperty("startDate")]
     public DateOnly StartDate { get; set; }
 
     /// <summary>
     /// Gets or sets the date the incident was expected to end.
     /// </summary>
+    [JsonPropertyName("estimatedEndDate")]
     [JsonProperty("estimatedEndDate")]
     public DateOnly? EstimatedEndDate { get; set; }
 }

@@ -5,9 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Newtonsoft.Json;
 using System;
 using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace VorReceiver.Model;
 
@@ -17,32 +18,33 @@ namespace VorReceiver.Model;
 public class VorStatusResultConverter : JsonConverter<VorStatusResult>
 {
     /// <inheritdoc/>
-    public override VorStatusResult ReadJson(JsonReader reader, Type objectType, VorStatusResult existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException();
+    /// <exception cref="NotImplementedException">Not implemented.</exception>
+    public override VorStatusResult Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    public override void WriteJson(JsonWriter writer, VorStatusResult value, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, VorStatusResult value, JsonSerializerOptions options)
     {
         if (!value.IsVor)
         {
-            writer.WriteValue(false);
+            writer.WriteBooleanValue(false);
         }
         else
         {
             writer.WriteStartObject();
 
             writer.WritePropertyName("isVor");
-            writer.WriteValue(value.IsVor);
+            writer.WriteBooleanValue(value.IsVor);
 
             if (value.DueBack.HasValue)
             {
                 writer.WritePropertyName("dueBack");
-                writer.WriteValue(value.DueBack.Value.ToString("o", CultureInfo.InvariantCulture));
+                writer.WriteStringValue(value.DueBack.Value.ToString("o", CultureInfo.InvariantCulture));
             }
 
             if (!string.IsNullOrWhiteSpace(value.Summary))
             {
                 writer.WritePropertyName("summary");
-                writer.WriteValue(value.Summary.Trim());
+                writer.WriteStringValue(value.Summary.Trim());
             }
 
             writer.WriteEndObject();

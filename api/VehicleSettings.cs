@@ -13,11 +13,12 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using VorReceiver;
 using VorReceiver.Model;
@@ -32,31 +33,31 @@ public class VehicleSettingsDetail
     /// <summary>
     /// Gets or sets the registration of the vehicle.
     /// </summary>
-    [JsonProperty("reg")]
+    [JsonPropertyName("reg")]
     public string Registration { get; set; }
 
     /// <summary>
     /// Gets or sets the radio call sign for the vehicle.
     /// </summary>
-    [JsonProperty("callSign")]
+    [JsonPropertyName("callSign")]
     public string CallSign { get; set; }
 
     /// <summary>
     /// Gets or sets the owning district.
     /// </summary>
-    [JsonProperty("district")]
+    [JsonPropertyName("district")]
     public string District { get; set; }
 
     /// <summary>
     /// Gets or sets the owning region.
     /// </summary>
-    [JsonProperty("region")]
+    [JsonPropertyName("region")]
     public Region Region { get; set; }
 
     /// <summary>
     /// Gets or sets the vehicle type.
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public VehicleType Type { get; set; }
 }
 
@@ -67,8 +68,10 @@ public class VehicleSettingsDetail
 /// Initializes a new instance of the <see cref="VehicleSettings"/> class.
 /// </remarks>
 /// <param name="cosmosClient">The client used to access CosmosDB.</param>
+/// <param name="cosmosLinqQuery">Helper function to enable GetFeedIterator to be tested.</param>
 /// <param name="configuration">The function configuration files.</param>
-public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosLinqQuery, IConfiguration configuration)
+/// <param name="logger">The logger for this function.</param>
+public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosLinqQuery, IConfiguration configuration, ILogger<VehicleSettings> logger)
 {
     private const string Partition = "VOR";
 
@@ -76,35 +79,32 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
     /// A function to change a vehicle's settings.
     /// </summary>
     /// <param name="req">The HTTP Request received.</param>
-    /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Function("set-vehicle-settings")]
-    public async Task<IActionResult> Set(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "vehicle-settings")] HttpRequest req,
-        ILogger log)
+    public async Task<IActionResult> Set([HttpTrigger(AuthorizationLevel.Function, "post", Route = "vehicle-settings")] HttpRequest req)
     {
         var body = new StreamReader(req.Body).ReadToEnd();
 
-        var item = JsonConvert.DeserializeObject<VehicleSettingsDetail>(body);
+        var item = JsonSerializer.Deserialize<VehicleSettingsDetail>(body);
         var container = cosmosClient.GetVorContainer(configuration);
 
         var valResults = new ValidationProblemDetails();
 
         if (string.IsNullOrWhiteSpace(item.Registration))
         {
-            log.LogError("Registration is blank.");
+            logger.LogError("Registration is blank.");
             valResults.Errors["Registration"] = new[] { "Registration must be provided." };
         }
 
         if (!Enum.IsDefined(item.Region))
         {
-            log.LogError("Region is invalid.");
+            logger.LogError("Region is invalid.");
             valResults.Errors["Region"] = new[] { "Region must be provided." };
         }
 
         if (!Enum.IsDefined(item.Type))
         {
-            log.LogError("Type is invalid.");
+            logger.LogError("Type is invalid.");
             valResults.Errors["Type"] = new[] { "Type must be provided." };
         }
 
@@ -115,7 +115,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
             valResults.Title = "Bad Request";
             valResults.Status = StatusCodes.Status400BadRequest;
 
-            log.LogError("Invalid data received.");
+            logger.LogError("Invalid data received.");
             return new BadRequestObjectResult(valResults);
         }
 
@@ -137,7 +137,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
 
             await container.CreateItemAsync(newItem);
 
-            log.LogInformation($"New item created : {item.Registration}");
+            logger.LogInformation($"New item created : {item.Registration}");
 
             return new CreatedResult($"/api/vehicle-settings/{item.Registration}", item);
         }
@@ -153,7 +153,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
 
             await container.UpsertItemAsync(newItem);
 
-            log.LogInformation($"Item updated : {item.Registration}");
+            logger.LogInformation($"Item updated : {item.Registration}");
 
             return new OkObjectResult(item);
         }
@@ -163,12 +163,9 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
     /// Function to get the set of vehicle settings.
     /// </summary>
     /// <param name="req">The HTTP Request received.</param>
-    /// <param name="log">The logger for the function.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [Function("get-vehicle-settings")]
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "vehicle-settings")] HttpRequest req,
-        ILogger log)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "vehicle-settings")] HttpRequest req)
     {
         var district = req.Query["district"];
         var region = req.Query["region"];
@@ -181,7 +178,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
         {
             if (!string.IsNullOrWhiteSpace(district) || !string.IsNullOrWhiteSpace(region))
             {
-                log.LogError("Call Sign must not be specified if District or Region is provided.");
+                logger.LogError("Call Sign must not be specified if District or Region is provided.");
 
                 return new BadRequestObjectResult(new ProblemDetails
                 {
@@ -206,7 +203,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
         {
             if (!string.IsNullOrWhiteSpace(district))
             {
-                log.LogError("Region must not be empty if district is provided.");
+                logger.LogError("Region must not be empty if district is provided.");
 
                 return new BadRequestObjectResult(new ProblemDetails
                 {
@@ -219,7 +216,7 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
             }
 
             // Get all vehicles.
-            log.LogInformation("Getting all vehicles.");
+            logger.LogInformation("Getting all vehicles.");
 
             items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Select(v => new VehicleSettingsDetail
             {
@@ -232,9 +229,9 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
         }
         else if (string.IsNullOrWhiteSpace(district))
         {
-            var actualRegion = JsonConvert.DeserializeObject<Region>($"\"{region}\"");
+            var actualRegion = JsonSerializer.Deserialize<Region>($"\"{region}\"");
 
-            log.LogInformation($"Getting all vehicles for {actualRegion}");
+            logger.LogInformation($"Getting all vehicles for {actualRegion}");
 
             items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion).Select(v => new VehicleSettingsDetail
             {
@@ -247,9 +244,9 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
         }
         else
         {
-            var actualRegion = JsonConvert.DeserializeObject<Region>($"\"{region}\"");
+            var actualRegion = JsonSerializer.Deserialize<Region>($"\"{region}\"");
 
-            log.LogInformation($"Getting all vehicles for district {district} of region {actualRegion}.");
+            logger.LogInformation($"Getting all vehicles for district {district} of region {actualRegion}.");
 
             items = cosmosLinqQuery.GetFeedIterator(container.GetItemLinqQueryable<Vehicle>().Where(v => v.Region == actualRegion && v.District == district).Select(v => new VehicleSettingsDetail
             {
