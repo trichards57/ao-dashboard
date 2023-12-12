@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using Moq;
@@ -13,7 +14,7 @@ namespace API.Tests;
 
 public class VehicleSettingsTests
 {
-    private List<Vehicle> TestData => new() {
+    private static List<Vehicle> TestData => new() {
         new() { CallSign = "WR111", Region = Region.SouthWest, District = "BAS" },
         new() { CallSign = "WR112", Region = Region.SouthWest, District = "Devon" },
         new() { CallSign = "WR113", Region = Region.SouthWest, District = "BAS" },
@@ -43,9 +44,9 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeAssignableTo<IEnumerable<VehicleSettingsDetail>>()
@@ -73,9 +74,9 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeAssignableTo<IEnumerable<VehicleSettingsDetail>>()
@@ -103,9 +104,9 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeAssignableTo<IEnumerable<VehicleSettingsDetail>>()
@@ -131,9 +132,9 @@ public class VehicleSettingsTests
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
         var helper = GetFeedIteratorHelper();
 
-        var settingsFunction = new VehicleSettings(client, helper, config);
+        var settingsFunction = new VehicleSettings(client, helper, config, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeAssignableTo<IEnumerable<VehicleSettingsDetail>>()
@@ -165,9 +166,9 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<BadRequestObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>()
@@ -199,9 +200,9 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<BadRequestObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>()
@@ -233,9 +234,9 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
 
-        var result = await settingsFunction.Run(request.Object, NullLogger.Instance);
+        var result = await settingsFunction.Run(request.Object);
 
         result.Should().BeOfType<BadRequestObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>()
