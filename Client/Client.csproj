@@ -8,6 +8,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="wwwroot\sample-data\**" />
+	  <Content Remove="wwwroot\sample-data\**" />
+	  <EmbeddedResource Remove="wwwroot\sample-data\**" />
+	  <None Remove="wwwroot\sample-data\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Remove="stylecop.json" />
 	</ItemGroup>
 
@@ -16,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
 		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.15.0.81779">
@@ -30,10 +38,6 @@
 
 	<ItemGroup>
 		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="wwwroot\sample-data\" />
 	</ItemGroup>
 
 </Project>
