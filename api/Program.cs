@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
+    .ConfigureAppConfiguration(c => c.AddUserSecrets<Program>())
     .ConfigureServices(s =>
     {
         s.AddSingleton(sp =>
