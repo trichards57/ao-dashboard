@@ -16,7 +16,9 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["API_Prefix"] ?? builder.HostEnvironment.BaseAddress) });
-builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, EasyAuthStateProvider>();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddOptions();
+builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();

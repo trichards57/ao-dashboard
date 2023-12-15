@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
@@ -80,7 +81,7 @@ public class EasyAuthStateProvider(HttpClient client) : AuthenticationStateProvi
     {
         try
         {
-            var data = await client.GetFromJsonAsync<AuthData>("/");
+            var data = await client.GetFromJsonAsync<AuthData>("/.auth/me");
 
             var identity = new ClaimsIdentity(data.ClientPrincipal.Claims.Select(c => new Claim(c.Type, c.Value)), data.ClientPrincipal.IdentityProvider);
             identity.AddClaim(new Claim(ClaimTypes.Name, data.ClientPrincipal.UserDetails));
@@ -96,8 +97,9 @@ public class EasyAuthStateProvider(HttpClient client) : AuthenticationStateProvi
 
             return new AuthenticationState(principal);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Debug.WriteLine($"Did not log in. {ex.Message}.");
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
     }
