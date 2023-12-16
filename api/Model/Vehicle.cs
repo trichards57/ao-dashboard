@@ -6,11 +6,12 @@
 // -----------------------------------------------------------------------
 
 using Newtonsoft.Json;
+using Shared;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace VorReceiver.Model;
+namespace API.Model;
 
 /// <summary>
 /// A vehicle with it's reported VOR incidents.

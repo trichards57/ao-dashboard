@@ -1,3 +1,4 @@
+using API.Model;
 using API.Support;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using VorReceiver.Model;
+using Shared;
 
 namespace API.Tests;
 

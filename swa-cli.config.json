@@ -9,7 +9,7 @@
       "apiVersion": "8.0",
       "appBuildCommand": "dotnet publish -c Release -o bin",
       "apiBuildCommand": "dotnet publish -c Release",
-      "run": "dotnet watch run",
+      "run": "dotnet watch run --non-interactive",
       "appDevserverUrl": "http://localhost:5168"
     }
   }

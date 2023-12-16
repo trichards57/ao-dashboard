@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using API.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -19,9 +20,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using VorReceiver.Model;
 
-namespace VorReceiver;
+namespace API;
 
 /// <summary>
 /// Function to receive VOR data.
@@ -87,7 +87,6 @@ public class VorReceiver
         logger.LogInformation($"Received file {file.FileName} of size {file.Length} bytes.");
 
         if (!req.Query.TryGetValue("date", out var date) || !DateOnly.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fileDate))
-        {
             try
             {
                 fileDate = DateOnly.Parse(file.FileName.Split(" ")[0], CultureInfo.InvariantCulture, DateTimeStyles.None);
@@ -105,7 +104,6 @@ public class VorReceiver
                     Status = StatusCodes.Status400BadRequest,
                 });
             }
-        }
 
         logger.LogInformation($"File date is {fileDate}.");
 
@@ -113,18 +111,14 @@ public class VorReceiver
         var forceUpdateValid = req.Query.TryGetValue("update-vors", out var forceUpdate);
 
         if (updateVors)
-        {
             logger.LogInformation($"File date is from today.  Will update VOR status.");
-        }
         else if (forceUpdateValid && forceUpdate[0].Equals("true", StringComparison.InvariantCultureIgnoreCase))
         {
             logger.LogInformation($"'update-vors' is set to true.  Will update VOR status.");
             updateVors = true;
         }
         else
-        {
             logger.LogInformation($"Historic log.  Will not update VOR status.");
-        }
 
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
         Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-GB");
@@ -157,7 +151,6 @@ public class VorReceiver
                 var c = 0;
 
                 foreach (var item in response)
-                {
                     if (item.IsVor)
                     {
                         item.IsVor = false;
@@ -172,20 +165,15 @@ public class VorReceiver
                             await Task.Delay(250);
                         }
                     }
-                }
 
                 if (c > 0)
-                {
                     batchTasks.Add(batch.ExecuteAsync());
-                }
             }
 
             var res = await Task.WhenAll(batchTasks);
 
             if (Array.Exists(res, task => !task.IsSuccessStatusCode))
-            {
                 logger.LogError("VOR Status Clear failed");
-            }
             else
             {
                 logger.LogInformation("VOR Status Cleared");
@@ -194,9 +182,7 @@ public class VorReceiver
         }
 
         foreach (var c in headerRow.Cells)
-        {
             columns[c.Text.Replace(" ", "")] = c.Column;
-        }
 
         var updates = 0;
 
@@ -212,16 +198,14 @@ public class VorReceiver
             var description = cols[columns["Description"] - 1].Text?.Trim() ?? "";
             var estimatedReturnCol = columns.GetValueOrDefault("EstimatedRepairDate");
             if (estimatedReturnCol == default)
-            {
                 estimatedReturnCol = columns.GetValueOrDefault("ExpectedFinishDate");
-            }
 
             DateOnly? estimatedReturn = null;
 
             if (estimatedReturnCol != default)
             {
                 var estimatedReturnDateTime = cols[estimatedReturnCol - 1].DateTime;
-                estimatedReturn = estimatedReturnDateTime == DateTime.MinValue ? (DateOnly?)null : DateOnly.FromDateTime(estimatedReturnDateTime);
+                estimatedReturn = estimatedReturnDateTime == DateTime.MinValue ? null : DateOnly.FromDateTime(estimatedReturnDateTime);
             }
 
             Vehicle vehicle;
@@ -265,9 +249,7 @@ public class VorReceiver
                 }
 
                 if (updateVors)
-                {
                     vehicle.IsVor = true;
-                }
 
                 ItemResponse<Vehicle> res = null;
 
@@ -297,9 +279,7 @@ public class VorReceiver
             while (retry && count < 3);
 
             if (count == 3)
-            {
                 logger.LogError($"Ran out of retries. Skipping {reg}.");
-            }
         }
 
         logger.LogInformation($"File completed.  {updates} items updated.  {cost} RUs expended.");

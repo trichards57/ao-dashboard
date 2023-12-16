@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Text.Json.Serialization;
 
-namespace VorReceiver.Model;
+namespace API.Model;
 
 /// <summary>
 /// A VOR incident.

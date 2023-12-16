@@ -8,7 +8,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 
-namespace VorReceiver;
+namespace API;
 
 /// <summary>
 /// Helper functions for working with CosmosDb containers.

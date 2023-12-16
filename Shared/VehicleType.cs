@@ -8,7 +8,7 @@
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
-namespace VorReceiver.Model;
+namespace Shared;
 
 /// <summary>
 /// Represents the type of the vehicle.
@@ -20,7 +20,7 @@ public enum VehicleType
     /// <summary>
     /// Any other vehicle.
     /// </summary>
-    [EnumMember(Value ="other")]
+    [EnumMember(Value = "other")]
     Other = 0,
 
     /// <summary>

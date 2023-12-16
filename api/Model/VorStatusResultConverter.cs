@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace VorReceiver.Model;
+namespace API.Model;
 
 /// <summary>
 /// Converts VorStatusResults to and from JSON.
@@ -25,9 +25,7 @@ public class VorStatusResultConverter : JsonConverter<VorStatusResult>
     public override void Write(Utf8JsonWriter writer, VorStatusResult value, JsonSerializerOptions options)
     {
         if (!value.IsVor)
-        {
             writer.WriteBooleanValue(false);
-        }
         else
         {
             writer.WriteStartObject();

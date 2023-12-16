@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Text.Json.Serialization;
 
-namespace VorReceiver.Model;
+namespace API.Model;
 
 /// <summary>
 /// Represents the current status of a vehicle.

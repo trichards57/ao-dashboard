@@ -8,7 +8,7 @@
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
-namespace VorReceiver.Model;
+namespace Shared;
 
 /// <summary>
 /// Represents the region a vehicle belongs to.

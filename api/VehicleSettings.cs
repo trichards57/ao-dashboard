@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using API.Model;
 using API.Support;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,8 +22,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using VorReceiver;
-using VorReceiver.Model;
 
 namespace API;
 
@@ -83,7 +83,9 @@ public class VehicleSettings(CosmosClient cosmosClient, ICosmosLinqQuery cosmosL
     [Function("set-vehicle-settings")]
     public async Task<IActionResult> Set([HttpTrigger(AuthorizationLevel.Function, "post", Route = "vehicle-settings")] HttpRequest req)
     {
-        var body = new StreamReader(req.Body).ReadToEnd();
+        using var bodyReader = new StreamReader(req.Body);
+
+        var body = await bodyReader.ReadToEndAsync();
 
         var item = JsonSerializer.Deserialize<VehicleSettingsDetail>(body);
         var container = cosmosClient.GetVorContainer(configuration);
