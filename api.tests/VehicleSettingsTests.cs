@@ -53,7 +53,7 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -83,7 +83,7 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -113,7 +113,7 @@ public class VehicleSettingsTests
         helper.Setup(s => s.GetFeedIterator(It.IsAny<IQueryable<VehicleSettingsDetail>>()))
             .Returns(new Func<IQueryable<VehicleSettingsDetail>, FeedIterator<VehicleSettingsDetail>>(GetFeedIterator));
 
-        var settingsFunction = new VehicleSettings(client, helper.Object, config, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client, helper.Object, config, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -141,7 +141,7 @@ public class VehicleSettingsTests
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
         var helper = GetFeedIteratorHelper();
 
-        var settingsFunction = new VehicleSettings(client, helper, config, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client, helper, config, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -175,7 +175,7 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -209,7 +209,7 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
@@ -243,7 +243,7 @@ public class VehicleSettingsTests
         request.Setup(s => s.Query).Returns(queryCollection);
         request.Setup(s => s.Path).Returns("/api/vehicle-settings");
 
-        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, (ILogger<VehicleSettings>)NullLogger.Instance);
+        var settingsFunction = new VehicleSettings(client.Object, null, config.Object, NullLogger<VehicleSettings>.Instance);
 
         var result = await settingsFunction.Run(request.Object);
 
