@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------
+// <copyright file="VehicleSettingsTests.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using API.Model;
 using API.Support;
 using FluentAssertions;
@@ -15,7 +22,8 @@ namespace API.Tests;
 
 public class VehicleSettingsTests
 {
-    private static List<Vehicle> TestData => new() {
+    private static List<Vehicle> TestData => new()
+    {
         new() { CallSign = "WR111", Region = Region.SouthWest, District = "BAS" },
         new() { CallSign = "WR112", Region = Region.SouthWest, District = "Devon" },
         new() { CallSign = "WR113", Region = Region.SouthWest, District = "BAS" },
@@ -31,7 +39,7 @@ public class VehicleSettingsTests
         {
             { "district", "" },
             { "region", "" },
-            { "callsign", "" }
+            { "callsign", "" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -61,7 +69,7 @@ public class VehicleSettingsTests
         {
             { "district", "" },
             { "region", "sw" },
-            { "callsign", "" }
+            { "callsign", "" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -91,7 +99,7 @@ public class VehicleSettingsTests
         {
             { "district", "BAS" },
             { "region", "sw" },
-            { "callsign", "" }
+            { "callsign", "" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -121,7 +129,7 @@ public class VehicleSettingsTests
         {
             { "district", "" },
             { "region", "" },
-            { "callsign", "WR111" }
+            { "callsign", "WR111" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -149,7 +157,7 @@ public class VehicleSettingsTests
         {
             { "district", "BAS" },
             { "region", "" },
-            { "callsign", "" }
+            { "callsign", "" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -183,7 +191,7 @@ public class VehicleSettingsTests
         {
             { "district", "BAS" },
             { "region", "" },
-            { "callsign", "WR111" }
+            { "callsign", "WR111" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -217,7 +225,7 @@ public class VehicleSettingsTests
         {
             { "district", "" },
             { "region", "sw" },
-            { "callsign", "WR111" }
+            { "callsign", "WR111" },
         };
 
         var queryCollection = new QueryCollection(query);
@@ -244,20 +252,6 @@ public class VehicleSettingsTests
             .Which.Detail.Should().Be("Call Sign must not be specified if District or Region is provided.");
     }
 
-    private FeedIterator<VehicleSettingsDetail> GetFeedIterator(IEnumerable<VehicleSettingsDetail> items)
-    {
-        var feedResponse = new Mock<FeedResponse<VehicleSettingsDetail>>();
-        feedResponse.Setup(s => s.GetEnumerator()).Returns(() => items.GetEnumerator());
-        var feedIterator = new Mock<FeedIterator<VehicleSettingsDetail>>();
-        feedIterator.SetupSequence(s => s.HasMoreResults)
-            .Returns(true)
-            .Returns(false);
-        feedIterator.Setup(s => s.ReadNextAsync(default))
-            .ReturnsAsync(feedResponse.Object);
-
-        return feedIterator.Object;
-    }
-
     private static CosmosClient GetCosmosClient(List<Vehicle> data)
     {
         var container = new Mock<Container>(MockBehavior.Strict);
@@ -276,6 +270,20 @@ public class VehicleSettingsTests
         config.Setup(s => s.GetSection("CosmosDbDatabase")).Returns(configSection.Object);
         config.Setup(s => s.GetSection("CosmosDbContainer")).Returns(configSection.Object);
         return config.Object;
+    }
+
+    private FeedIterator<VehicleSettingsDetail> GetFeedIterator(IEnumerable<VehicleSettingsDetail> items)
+    {
+        var feedResponse = new Mock<FeedResponse<VehicleSettingsDetail>>();
+        feedResponse.Setup(s => s.GetEnumerator()).Returns(() => items.GetEnumerator());
+        var feedIterator = new Mock<FeedIterator<VehicleSettingsDetail>>();
+        feedIterator.SetupSequence(s => s.HasMoreResults)
+            .Returns(true)
+            .Returns(false);
+        feedIterator.Setup(s => s.ReadNextAsync(default))
+            .ReturnsAsync(feedResponse.Object);
+
+        return feedIterator.Object;
     }
 
     private ICosmosLinqQuery GetFeedIteratorHelper()

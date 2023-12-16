@@ -11,12 +11,25 @@ using System.Linq;
 
 namespace API.Support;
 
-public interface ICosmosLinqQuery 
+/// <summary>
+/// Interface that represents a FeedIterator helper.
+/// </summary>
+public interface ICosmosLinqQuery
 {
+    /// <summary>
+    /// Gets a feed iterator for the provided query.
+    /// </summary>
+    /// <typeparam name="T">The query item type.</typeparam>
+    /// <param name="query">The query.</param>
+    /// <returns>The feed iterator for the query.</returns>
     FeedIterator<T> GetFeedIterator<T>(IQueryable<T> query);
 }
 
+/// <summary>
+/// The default FeedIterator helper for Cosmos LINQ queries.
+/// </summary>
 internal class CosmosLinqQueryHelper : ICosmosLinqQuery
 {
+    /// <inheritdoc/>
     public FeedIterator<T> GetFeedIterator<T>(IQueryable<T> query) => query.ToFeedIterator();
 }

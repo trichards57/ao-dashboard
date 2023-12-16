@@ -74,6 +74,7 @@ public class VorStatus(CosmosClient cosmosClient, IConfiguration configuration, 
             cost += response.RequestCharge;
 
             foreach (var item in response)
+            {
                 if (item.IsVor)
                 {
                     var incident = item.Incidents.OrderByDescending(s => s.StartDate).FirstOrDefault();
@@ -86,12 +87,16 @@ public class VorStatus(CosmosClient cosmosClient, IConfiguration configuration, 
                     };
                 }
                 else
+                {
                     results[item.CallSign.ToUpperInvariant().Trim()] = new VorStatusResult { IsVor = false };
+                }
+            }
         }
 
-        foreach (var p in parts)
-            if (!results.ContainsKey(p))
-                results[p] = new VorStatusResult { IsVor = false };
+        foreach (var p in parts.Where(p => !results.ContainsKey(p)))
+        {
+            results[p] = new VorStatusResult { IsVor = false };
+        }
 
         logger.LogInformation($"Request completed.  {cost} RUs expended.");
 
