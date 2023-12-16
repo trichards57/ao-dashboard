@@ -81,15 +81,15 @@ This project provides a dashboard to support managing ambulances.  Current funct
 <details>
   <summary>Client</summary>
   <ul>
-    <li><a href="https://www.typescriptlang.org/">Typescript</a></li>
-    <li><a href="https://reactjs.org/">React.js</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8">.NET 8</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-8.0">Blazor</a></li>
   </ul>
 </details>
 
 <details>
   <summary>Server</summary>
   <ul>
-    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6">.NET 6</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8">.NET 8</a></li>
     <li><a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview?pivots=programming-language-csharp">Azure Functions</a></li>
   </ul>
 </details>
@@ -126,12 +126,11 @@ This project provides a dashboard to support managing ambulances.  Current funct
 <!-- Roadmap -->
 ## Roadmap
 
-* [ ] Vehicle Configuration
+* [x] Vehicle Configuration
 * [ ] VOR Status Display
 * [ ] Upcoming Workload Display
 * [ ] Vehicle Booking Clashes
 * [ ] Capacity Warnings
-
 
 <!-- Contributing -->
 ## Contributing
@@ -145,7 +144,6 @@ Contributions are always welcome!
 
 See `contributing.md` for ways to get started.
 
-
 <!-- Code of Conduct -->
 ### Code of Conduct
 
@@ -156,12 +154,10 @@ Please read the [Code of Conduct](https://github.com/trichards57/ao-dashboard/bl
 
 Distributed under the MIT License. See LICENSE for more information.
 
-
 <!-- Contact -->
 ## Contact
 
 Project Link: [https://github.com/trichards57/ao-dashboard](https://github.com/trichards57/ao-dashboard)
-
 
 <!-- Acknowledgments -->
 ## Acknowledgements
