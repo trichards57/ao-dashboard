@@ -4,15 +4,17 @@ on:
   push:
     branches:
       - new/ui
+      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - new/ui
+      - main
 
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +37,7 @@ jobs:
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     name: Close Pull Request Job
     steps:
       - name: Close Pull Request
