@@ -1,0 +1,128 @@
+﻿@page "/vehicles/config"
+@using System.ComponentModel.DataAnnotations
+@using Shared
+@inject HttpClient HttpClient
+
+<div class="card">
+    <h1>Vehicle Configuration</h1>
+    <EditForm class="call-sign-form" Model="callSignModel" OnValidSubmit="LoadVehicle">
+        <DataAnnotationsValidator />
+        <label for="call-sign">Call Sign:</label>
+        <InputText id="call-sign" type="text" placeholder="WR123" @oninput="ClearData" @bind-Value="callSignModel.CallSign" disabled="@isRunning" />
+        <button type="submit" disabled="@isRunning">Load</button>
+        <ValidationMessage For="() => callSignModel.CallSign" />
+    </EditForm>
+    @if (dataLoaded)
+    {
+        <EditForm class="vehicle-form" Model="vehicleModel" OnValidSubmit="SaveVehicle">
+            <label for="registration">Registration:</label>
+            <InputText id="registration" type="text" placeholder="X632NBK" @oninput="ClearSaved" @bind-Value="vehicleModel.Registration" disabled="@isRunning" />
+            <ValidationMessage For="() => vehicleModel.Registration" />
+            <label for="region">Region:</label>
+            <InputSelect id="region" @oninput="ClearSaved" @bind-Value="vehicleModel.Region" disabled="@isRunning">
+                <option value="@Region.Unknown">Unknown</option>
+                <option value="@Region.NorthEast">North East</option>
+                <option value="@Region.NorthWest">North West</option>
+                <option value="@Region.EastOfEngland">East of England</option>
+                <option value="@Region.WestMidlands">West Midlands</option>
+                <option value="@Region.EastMidlands">East Midlands</option>
+                <option value="@Region.London">London</option>
+                <option value="@Region.SouthWest">South West</option>
+                <option value="@Region.SouthEast">South East</option>
+            </InputSelect>
+            <label for="district">District:</label>
+            <InputText id="district" type="text" placeholder="District" @oninput="ClearSaved" @bind-Value="vehicleModel.District" disabled="@isRunning" />
+            <ValidationMessage For="() => vehicleModel.District" />
+            <label for="vehicle-type">Type:</label>
+            <InputSelect id="vehicle-type" @oninput="ClearSaved" @bind-Value="vehicleModel.VehicleType" disabled="@isRunning">
+                <option value="@VehicleType.Other">Other</option>
+                <option value="@VehicleType.FrontLineAmbulance">Front Line</option>
+                <option value="@VehicleType.AllWheelDrive">All Wheel Drive</option>
+                <option value="@VehicleType.OffRoadAmbulance">Off Road Ambulance</option>
+            </InputSelect>
+            <button type="submit" disabled="@(isRunning || dataSaved)">
+                Save
+            </button>
+        </EditForm>
+    }
+    <a href="/" class="button">
+        Back
+    </a>
+</div>
+
+@code {
+    private CallSignInputModel callSignModel = new();
+    private VehicleInputModel vehicleModel = new();
+    private bool isRunning = false;
+    private bool dataLoaded = false;
+    private bool dataSaved = false;
+
+    private void ClearData()
+    {
+        dataLoaded = false;
+    }
+
+    private void ClearSaved()
+    {
+        dataSaved = false;
+    }
+
+    private async Task SaveVehicle()
+    {
+        isRunning = true;
+
+        var data = new VehicleSettingsDetail
+            {
+                CallSign = callSignModel.CallSign,
+                District = vehicleModel.District,
+                Region = vehicleModel.Region,
+                Registration = vehicleModel.Registration,
+                Type = vehicleModel.VehicleType,
+            };
+
+        var result = await HttpClient.PostAsJsonAsync("/api/vehicle-settings", data);
+
+        isRunning = false;
+        dataSaved = true;
+    }
+
+    private async Task LoadVehicle()
+    {
+        isRunning = true;
+
+        var data = await HttpClient.GetFromJsonAsync<IList<VehicleSettingsDetail>>($"/api/vehicle-settings?callsign={callSignModel.CallSign}");
+
+        if (data?.Count == 1)
+        {
+            vehicleModel.Region = data[0].Region;
+            vehicleModel.Registration = data[0].Registration;
+            vehicleModel.District = data[0].District;
+            vehicleModel.VehicleType = data[0].Type;
+        }
+        else
+        {
+            vehicleModel = new();
+        }
+
+        isRunning = false;
+        dataLoaded = true;
+        dataSaved = true;
+    }
+
+    private class CallSignInputModel
+    {
+        [Required(ErrorMessage = "You need to give a valid vehicle callsign (e.g. WR123).")]
+        [RegularExpression("^[a-zA-Z]{2}\\d{3}$", ErrorMessage = "You need to give a valid vehicle callsign (e.g. WR123).")]
+        public string CallSign { get; set; } = "";
+    }
+
+    private class VehicleInputModel
+    {
+        [Required(ErrorMessage = "You need to give a vehicle registration.")]
+        public string Registration { get; set; } = "";
+        public Region Region { get; set; } = Region.Unknown;
+        [Required(ErrorMessage = "You need to enter a District.")]
+        public string District { get; set; } = "";
+        public VehicleType VehicleType { get; set; } = VehicleType.Other;
+    }
+}

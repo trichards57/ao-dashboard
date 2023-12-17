@@ -1,0 +1,33 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<div class="card">
+    <h1>AO Dashboard</h1>
+    <AuthorizeView>
+        <NotAuthorized>
+            <a class="button" role="button" href="/.auth/login/aad">
+                Sign in with Azure AD
+            </a>
+        </NotAuthorized>
+        <Authorizing>
+            <a class="button" role="button" area-disabled>
+                Sign in with Azure AD
+            </a>
+        </Authorizing>
+        <Authorized>
+            <a aria-disabled class="button" href="/vehicles/status">
+                VOR Status
+            </a>
+            <a aria-disabled class="button" href="/vehicles/upcoming">
+                Upcoming Work
+            </a>
+            <a aria-disabled class="button" href="/vehicles/capacity">
+                Capacity and Travel Warnings
+            </a>
+            <a class="button" href="/vehicles/config">
+                Configure Vehicles
+            </a>
+        </Authorized>
+    </AuthorizeView>
+</div>
