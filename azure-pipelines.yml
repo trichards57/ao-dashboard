@@ -14,3 +14,4 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
+    arguments: '--collect "Code coverage"'
