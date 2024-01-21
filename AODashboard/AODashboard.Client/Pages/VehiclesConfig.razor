@@ -1,0 +1,189 @@
+﻿@page "/vehicles/config"
+@attribute [Authorize(Policy = "CanEditVehicles")]
+
+@using System.ComponentModel.DataAnnotations
+@using AODashboard.Client.Services
+@using AODashboard.Client.Model
+@using AODashboard.Client.Validation
+@using AODashboard.Logging
+@rendermode InteractiveAuto
+
+@inject IVehicleService VehicleService
+@inject ISnackbar Snackbar
+@inject ILogger<VehiclesConfig> Logger
+
+<PageTitle>AO Dashboard - Vehicle Configuration</PageTitle>
+
+<MudText Typo="Typo.h1">Vehicle Configuration</MudText>
+
+<MudGrid>
+    <MudItem xs="12">
+        <EditForm Model="searchModel" OnValidSubmit="LoadVehicle" FormName="LoadVehicleForm">
+            <DataAnnotationsValidator />
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Vehicle Registration" id="registration" InputType="InputType.Search" TextChanged="ClearData" OnlyValidateIfDirty="true" @bind-Value="searchModel.Registration" Disabled="@isRunning" For="@(() => searchModel.Registration)" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Search</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </EditForm>
+    </MudItem>
+    @if (dataLoaded)
+    {
+        @if (isNew)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Info">That registration wasn't found. Check you have it right, and if you do you can enter the details below to set it up.</MudAlert>
+            </MudItem>
+        }
+
+        <MudItem xs="12">
+            <EditForm class="vehicle-form" Model="vehicleModel" OnValidSubmit="SaveVehicle" FormName="EditVehicleForm">
+                <DataAnnotationsValidator />
+                <ServerValidation @ref="serverValidation" />
+                <MudCard>
+                    <MudCardContent>
+                        <MudTextField Label="Call-Sign" id="call-sign" InputType="InputType.Text" @bind-Value="vehicleModel.CallSign" Disabled="@isRunning" For="@(() => vehicleModel.CallSign)" />
+                        <MudSelect T="Region" Label="Region" id="region" @bind-Value="@vehicleModel.Region" Disabled="@isRunning" For="@(() => vehicleModel.Region)">
+                            <MudSelectItem Value="@Region.Unknown">Unknown</MudSelectItem>
+                            <MudSelectItem Value="@Region.NorthEast">North East</MudSelectItem>
+                            <MudSelectItem Value="@Region.NorthWest">North West</MudSelectItem>
+                            <MudSelectItem Value="@Region.EastOfEngland">East of England</MudSelectItem>
+                            <MudSelectItem Value="@Region.WestMidlands">West Midlands</MudSelectItem>
+                            <MudSelectItem Value="@Region.EastMidlands">East Midlands</MudSelectItem>
+                            <MudSelectItem Value="@Region.London">London</MudSelectItem>
+                            <MudSelectItem Value="@Region.SouthWest">South West</MudSelectItem>
+                            <MudSelectItem Value="@Region.SouthEast">South East</MudSelectItem>
+                        </MudSelect>
+                        <MudTextField Label="District" id="district" InputType="InputType.Text" @bind-Value="vehicleModel.District" Disabled="@isRunning" For="@(() => vehicleModel.District)" />
+                        <MudTextField Label="Hub" id="hub" InputType="InputType.Text" @bind-Value="vehicleModel.Hub" Disabled="@isRunning" For="@(() => vehicleModel.Hub)" />
+                        <MudSelect T="VehicleType" Label="Type" id="vehicle-type" @bind-Value="@vehicleModel.VehicleType" Disabled="@isRunning" For="@(() => vehicleModel.VehicleType)">
+                            <MudSelectItem Value="@VehicleType.Other">Other</MudSelectItem>
+                            <MudSelectItem Value="@VehicleType.FrontLineAmbulance">Front Line</MudSelectItem>
+                            <MudSelectItem Value="@VehicleType.AllWheelDrive">All Wheel Drive</MudSelectItem>
+                            <MudSelectItem Value="@VehicleType.OffRoadAmbulance">Off Road Ambulance</MudSelectItem>
+                        </MudSelect>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="@(isRunning)">Save</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    private CallSignInputModel searchModel = new();
+    private VehicleInputModel vehicleModel = new();
+    private ServerValidation? serverValidation;
+    private bool isRunning = false;
+    private bool dataLoaded = false;
+    private bool isNew = false;
+
+    private void ClearData(string _)
+    {
+        dataLoaded = false;
+    }
+
+    private async Task SaveVehicle()
+    {
+        isRunning = true;
+        Snackbar.Clear();
+        serverValidation?.ClearErrors();
+
+        var data = new UpdateVehicleSettings
+            {
+                Registration = searchModel.Registration,
+                District = vehicleModel.District,
+                Region = vehicleModel.Region,
+                Hub = vehicleModel.Hub,
+                CallSign = vehicleModel.CallSign,
+                VehicleType = vehicleModel.VehicleType,
+            };
+
+        try
+        {
+            await VehicleService.UpdateSettingsAsync(data);
+            Snackbar.Add("Vehicle configuration saved.", Severity.Success);
+        }
+        catch (InvalidRequestException ex)
+        {
+            if (ex.ProblemDetails?.Errors != null)
+            {
+                serverValidation?.DisplayErrors(ex.ProblemDetails.Errors);
+            }
+            else
+            {
+                RequestLogging.UnexpectedError(Logger, "Error updating a vehicle configuration.", ex);
+                Snackbar.Add("There was an error sending the update to the server.  You might try again, refresh the page, or coming back later.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            RequestLogging.UnexpectedError(Logger, "Error updating a vehicle configuration.", ex);
+            Snackbar.Add("There was an error sending the update to the server.  You might try again, refresh the page, or coming back later.", Severity.Error);
+        }
+        finally
+        {
+            isRunning = false;
+        }
+    }
+
+    private async Task LoadVehicle()
+    {
+        isRunning = true;
+        isNew = false;
+        Snackbar.Clear();
+
+        try
+        {
+            var data = await VehicleService.GetByRegistrationAsync(searchModel.Registration);
+
+            if (data != null)
+            {
+                vehicleModel.Region = data.Value.Region;
+                vehicleModel.CallSign = data.Value.CallSign;
+                vehicleModel.District = data.Value.District;
+                vehicleModel.Hub = data.Value.Hub;
+                vehicleModel.VehicleType = data.Value.VehicleType;
+            }
+            else
+            {
+                vehicleModel = new();
+                isNew = true;
+            }
+
+            dataLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("There was an error talking to the server.  You might try refreshing, or coming back later.", Severity.Error);
+            RequestLogging.UnexpectedError(Logger, "Error retrieving a vehicle configuration.", ex);
+        }
+        finally
+        {
+            isRunning = false;
+        }
+    }
+
+    private class CallSignInputModel
+    {
+        [Required(ErrorMessage = "You need to give a vehicle registration.")]
+        public string Registration { get; set; } = "";
+    }
+
+    private class VehicleInputModel
+    {
+        [Required(ErrorMessage = "You need to give the vehicle a call-sign.")]
+        public string CallSign { get; set; } = "";
+        public Region Region { get; set; } = Region.Unknown;
+        [Required(ErrorMessage = "You need to enter a District.")]
+        public string District { get; set; } = "";
+        [Required(ErrorMessage = "You need to enter a hub.")]
+        public string Hub { get; set; } = "";
+        public VehicleType VehicleType { get; set; } = VehicleType.Other;
+    }
+}
