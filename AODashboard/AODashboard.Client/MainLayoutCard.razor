@@ -1,0 +1,14 @@
+﻿<PageTitle>AO Dashboard - @Title</PageTitle>
+
+<div class="card">
+    <h1>@Title</h1>
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "";
+}
