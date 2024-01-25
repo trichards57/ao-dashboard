@@ -18,12 +18,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\AODashboard.Shared\AODashboard.Shared.csproj" />
 		<ProjectReference Include="..\AODashboard.Client\AODashboard.Client.csproj" />
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Collection.EntityFrameworkCore" Version="9.0.0" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="Azure.Identity" Version="1.10.4" />
 		<PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.1" />
@@ -36,7 +38,7 @@
 		<PackageReference Include="Microsoft.Identity.Web" Version="2.16.1" />
 		<PackageReference Include="Microsoft.Identity.Web.GraphServiceClient" Version="2.16.1" />
 		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.16.1" />
-		<PackageReference Include="MudBlazor" Version="6.13.0" />
+		<PackageReference Include="MudBlazor" Version="6.14.0" />
 		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.17.0.82934">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

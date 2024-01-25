@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using AODashboard.Client.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace AODashboard.Data;
 
@@ -22,16 +23,18 @@ public class Vehicle
     /// <summary>
     /// Gets or sets the vehicle's call-sign.
     /// </summary>
+    [MaxLength(6)]
     public string CallSign { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the incidents associated with this vehicle.
     /// </summary>
-    public List<Incident> Incidents { get; set; } = new List<Incident>();
+    public List<Incident> Incidents { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the vehicle's registration.
     /// </summary>
+    [MaxLength(7)]
     public string Registration { get; set; } = "";
 
     /// <summary>

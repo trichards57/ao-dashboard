@@ -23,7 +23,7 @@
     <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.1" />
-    <PackageReference Include="MudBlazor" Version="6.13.0" />
+    <PackageReference Include="MudBlazor" Version="6.14.0" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.17.0.82934">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,6 +32,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AODashboard.Shared\AODashboard.Shared.csproj" />
   </ItemGroup>
 
 </Project>

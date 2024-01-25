@@ -82,8 +82,8 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
             vehicle = new Vehicle
             {
                 Id = Guid.NewGuid(),
-                CallSign = vorIncident.CallSign,
-                Registration = vorIncident.Registration,
+                CallSign = vorIncident.CallSign.ToUpper().Trim().Replace(" ", ""),
+                Registration = vorIncident.Registration.ToUpper().Trim().Replace(" ", ""),
                 BodyType = vorIncident.BodyType,
                 Make = vorIncident.Make,
                 Model = vorIncident.Model,
@@ -125,6 +125,10 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
         when (ex.InnerException is SqlException sqlEx && sqlEx.Number == 2601 && sqlEx.Message.Contains("CallSign"))
         {
             throw new DuplicateCallSignException($"The call-sign {vehicle.CallSign} is already in use by a different call-sign.", ex);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw ex;
         }
     }
 

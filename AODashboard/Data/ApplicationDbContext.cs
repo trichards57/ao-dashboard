@@ -52,6 +52,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         var ralGuid = new Guid("AE832A97-CDDE-4C7D-AAD3-16943FEB7E67");
         var dalGuid = new Guid("872C8D27-13EE-4805-9604-FBA55BD26477");
         var lalGuid = new Guid("10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB");
+        var auditGuid = new Guid("CC0CB0FD-EB11-467A-A01F-D92357249A6B");
 
         modelBuilder.Entity<Role>().HasData(
             new Role { Id = adminGuid, Name = "Administrator", SensitivePermissions = PermissionLevel.ReadWrite, Permissions = PermissionLevel.ReadWrite, VehicleConfiguration = PermissionLevel.ReadWrite, VorData = PermissionLevel.ReadWrite },
@@ -60,7 +61,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             new Role { Id = lalGuid, Name = "LAL", SensitivePermissions = PermissionLevel.Forbid, Permissions = PermissionLevel.Forbid, VehicleConfiguration = PermissionLevel.Read, VorData = PermissionLevel.Read });
 
         modelBuilder.Entity<AuditLog>().HasData(
-            new AuditLog { Id = Guid.NewGuid(), Action = "Initial Setup", Reason = "Migration Run", TimeStamp = DateTimeOffset.UtcNow, UserId = "EF Migrations" });
+            new AuditLog { Id = auditGuid, Action = "Initial Setup", Reason = "Migration Run", TimeStamp = new DateTimeOffset(new DateTime(2024, 1, 24)), UserId = "EF Migrations" });
 
         modelBuilder.Entity<UserRole>()
             .HasKey(u => new { u.UserId, u.RoleId });
