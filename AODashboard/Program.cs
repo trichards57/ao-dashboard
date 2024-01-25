@@ -15,14 +15,18 @@ using AutoMapper;
 using AutoMapper.EquivalencyExpression;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.OpenApi.Models;
 using MudBlazor.Services;
 using System.Reflection;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,9 +43,26 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingAuthentication
 
 builder.Services
     .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration)
+    .AddMicrosoftIdentityWebApp(o =>
+    {
+        builder.Configuration.Bind("AzureAd", o);
+        o.Events.OnTokenValidated = async c =>
+        {
+            var service = c.HttpContext.RequestServices.GetRequiredService<IUserService>();
+            var userId = c.Principal?.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User ID not available.");
+
+            var claims = await service.GetClaimsAsync(userId).ToListAsync();
+
+            c.Principal.AddIdentity(new ClaimsIdentity(claims, "Local"));
+        };
+    })
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddInMemoryTokenCaches();
+
+builder.Services
+    .AddAuthentication()
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), JwtBearerDefaults.AuthenticationScheme)
+    .EnableTokenAcquisitionToCallDownstreamApi();
 
 builder.Services.Configure<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
@@ -52,8 +73,6 @@ builder.Services.AddAuthorizationCore(o =>
 {
     o.AddPolicies();
 });
-
-builder.Services.AddTransient<IClaimsTransformation, RolesClaimsTransform>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -93,6 +112,33 @@ builder.Services.AddAutoMapper(
 builder.Services.AddMicrosoftGraph();
 builder.Services.AddMudServices();
 
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    o.AddPolicy("upload", partitioner: httpContext =>
+    {
+        var username = httpContext.User.Identity?.Name ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(username))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter(username, o =>
+            {
+                var options = new FixedWindowRateLimiterOptions();
+                builder.Configuration.Bind("UploadRateLimiting:Authenticated", options);
+                return options;
+            });
+        }
+
+        return RateLimitPartition.GetFixedWindowLimiter(username, o =>
+        {
+            var options = new FixedWindowRateLimiterOptions();
+            builder.Configuration.Bind("UploadRateLimiting:Anonymous", options);
+            return options;
+        });
+    });
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -118,6 +164,8 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.UseAntiforgery();
 

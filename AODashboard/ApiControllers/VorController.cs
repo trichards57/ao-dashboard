@@ -5,12 +5,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using AODashboard.ApiControllers.Filters;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AODashboard.ApiControllers;
 
@@ -21,6 +24,8 @@ namespace AODashboard.ApiControllers;
 [Route("api/vors")]
 [ApiController]
 [Authorize]
+[OutputCache(NoStore = true)]
+[ApiSecurityPolicy]
 public class VorController(IVehicleService vehicleService) : ControllerBase
 {
     /// <summary>
@@ -29,47 +34,12 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
     /// <response code="200">Returns the outcome of each entry.</response>
     [HttpPost]
-    [Produces("application/x-ndjson")]
-    public async Task PostEntry()
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> PostEntry([FromBody] VorIncident incident)
     {
-        Response.ContentType = "application/x-ndjson";
-
-        using var reader = new StreamReader(Request.Body);
-        var outputStream = new StreamWriter(Response.Body);
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = false,
-        };
-
-        while (!reader.EndOfStream)
-        {
-            var line = await reader.ReadLineAsync();
-
-            if (line == null)
-            {
-                break;
-            }
-
-            try
-            {
-                // TODO : Validation
-                var item = JsonSerializer.Deserialize<VorIncident>(line);
-
-                await vehicleService.AddEntryAsync(item);
-                var error = new VorError { Error = "None." };
-                var result = JsonSerializer.Serialize(error, jsonOptions);
-                await outputStream.WriteLineAsync(result);
-            }
-            catch (JsonException)
-            {
-                var error = new VorError { Error = "Received JSON was invalid." };
-                var result = JsonSerializer.Serialize(error, jsonOptions);
-                await outputStream.WriteLineAsync(result);
-            }
-        }
-
-        await outputStream.FlushAsync();
+        await vehicleService.AddEntryAsync(incident);
+        return Ok();
     }
 
     /// <summary>
@@ -80,6 +50,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     /// <remarks>This should only be used immediately before uploading the latest VOR data.</remarks>
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Delete()
     {
         await vehicleService.ClearVorsAsync();

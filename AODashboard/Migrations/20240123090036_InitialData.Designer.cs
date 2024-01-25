@@ -4,6 +4,7 @@ using AODashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AODashboard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240123090036_InitialData")]
+    partial class InitialData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,10 +53,10 @@ namespace AODashboard.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("95f8f39c-7621-4c75-a3ad-aaefb0d807c7"),
+                            Id = new Guid("cc0cb0fd-eb11-467a-a01f-d92357249a6b"),
                             Action = "Initial Setup",
                             Reason = "Migration Run",
-                            TimeStamp = new DateTimeOffset(new DateTime(2024, 1, 19, 8, 41, 3, 17, DateTimeKind.Unspecified).AddTicks(6630), new TimeSpan(0, 0, 0, 0, 0)),
+                            TimeStamp = new DateTimeOffset(new DateTime(2024, 1, 24, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UserId = "EF Migrations"
                         });
                 });
@@ -195,7 +198,8 @@ namespace AODashboard.Migrations
 
                     b.Property<string>("CallSign")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("District")
                         .IsRequired()
@@ -217,7 +221,8 @@ namespace AODashboard.Migrations
 
                     b.Property<string>("Registration")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<int>("VehicleType")
                         .HasColumnType("int");
