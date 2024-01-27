@@ -126,10 +126,6 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
         {
             throw new DuplicateCallSignException($"The call-sign {vehicle.CallSign} is already in use by a different call-sign.", ex);
         }
-        catch (DbUpdateException ex)
-        {
-            throw ex;
-        }
     }
 
     /// <inheritdoc/>

@@ -1,9 +1,13 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="20240123090036_InitialData.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
-
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace AODashboard.Migrations
 {
@@ -21,7 +25,7 @@ namespace AODashboard.Migrations
                     TimeStamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Action = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -37,7 +41,7 @@ namespace AODashboard.Migrations
                     VehicleConfiguration = table.Column<int>(type: "int", nullable: false),
                     Permissions = table.Column<int>(type: "int", nullable: false),
                     SensitivePermissions = table.Column<int>(type: "int", nullable: false),
-                    VorData = table.Column<int>(type: "int", nullable: false)
+                    VorData = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -57,7 +61,7 @@ namespace AODashboard.Migrations
                     IsVor = table.Column<bool>(type: "bit", nullable: false),
                     District = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Region = table.Column<int>(type: "int", nullable: false),
-                    VehicleType = table.Column<int>(type: "int", nullable: false)
+                    VehicleType = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -69,7 +73,7 @@ namespace AODashboard.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -92,7 +96,7 @@ namespace AODashboard.Migrations
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EstimatedEndDate = table.Column<DateOnly>(type: "date", nullable: true),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -118,7 +122,7 @@ namespace AODashboard.Migrations
                     { new Guid("10e21ec1-ec61-4cf9-a61c-8dee0d47f3ab"), "LAL", 0, 0, 1, 1 },
                     { new Guid("872c8d27-13ee-4805-9604-fba55bd26477"), "DAL", 0, 0, 2, 2 },
                     { new Guid("91d78e3d-3170-4057-a6ed-6a78e84b2e73"), "Administrator", 2, 2, 2, 2 },
-                    { new Guid("ae832a97-cdde-4c7d-aad3-16943feb7e67"), "RAL", 2, 0, 2, 2 }
+                    { new Guid("ae832a97-cdde-4c7d-aad3-16943feb7e67"), "RAL", 2, 0, 2, 2 },
                 });
 
             migrationBuilder.InsertData(
@@ -127,7 +131,7 @@ namespace AODashboard.Migrations
                 values: new object[,]
                 {
                     { new Guid("91d78e3d-3170-4057-a6ed-6a78e84b2e73"), "0W2LTE_Dd_eIZdhlqItCbJdjYHTDnbX7nk1IzyaBlGw" },
-                    { new Guid("ae832a97-cdde-4c7d-aad3-16943feb7e67"), "0W2LTE_Dd_eIZdhlqItCbJdjYHTDnbX7nk1IzyaBlGw" }
+                    { new Guid("ae832a97-cdde-4c7d-aad3-16943feb7e67"), "0W2LTE_Dd_eIZdhlqItCbJdjYHTDnbX7nk1IzyaBlGw" },
                 });
 
             migrationBuilder.CreateIndex(
