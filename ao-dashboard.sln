@@ -24,6 +24,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AODashboard.Client", "AODas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AODashboard", "AODashboard\AODashboard.csproj", "{64C85C2D-B011-45FA-9A00-42D554CF39A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AODashboard.Tests", "AODashboard.Tests\AODashboard.Tests.csproj", "{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{64C85C2D-B011-45FA-9A00-42D554CF39A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64C85C2D-B011-45FA-9A00-42D554CF39A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64C85C2D-B011-45FA-9A00-42D554CF39A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

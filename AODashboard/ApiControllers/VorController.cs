@@ -8,12 +8,12 @@
 using AODashboard.ApiControllers.Filters;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
+using AODashboard.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace AODashboard.ApiControllers;
 
@@ -21,24 +21,28 @@ namespace AODashboard.ApiControllers;
 /// Controller to handle VOR incident.
 /// </summary>
 /// <param name="vehicleService">The service used to manage vehicles.</param>
+/// <param name="logger">The controller's logger.</param>
 [Route("api/vors")]
 [ApiController]
 [Authorize]
 [OutputCache(NoStore = true)]
 [ApiSecurityPolicy]
-public class VorController(IVehicleService vehicleService) : ControllerBase
+public class VorController(IVehicleService vehicleService, ILogger<VorController> logger) : ControllerBase
 {
     /// <summary>
     /// Accepts a list of vor entries to update the database.
     /// </summary>
+    /// <param name="incident">The incident to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
-    /// <response code="200">Returns the outcome of each entry.</response>
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> PostEntry([FromBody] VorIncident incident)
     {
         await vehicleService.AddEntryAsync(incident);
+
+        RequestLogging.Updated(logger, $"VOR Entry : {incident.Registration}");
+
         return Ok();
     }
 
@@ -54,6 +58,9 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
     public async Task<IActionResult> Delete()
     {
         await vehicleService.ClearVorsAsync();
+
+        RequestLogging.Cleared(logger, $"VOR Entries");
+
         return NoContent();
     }
 
@@ -78,6 +85,8 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
 
             if (vehicle == null)
             {
+                RequestLogging.NotFound(logger, $"Vehicle {callSign}");
+
                 return NotFound(new ProblemDetails
                 {
                     Type = "about:blank",
@@ -88,6 +97,7 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
                 });
             }
 
+            RequestLogging.Found(logger, $"Vehicle {callSign}");
             return Ok(vehicle);
         }
 
@@ -97,6 +107,8 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
 
             if (vehicle == null)
             {
+                RequestLogging.NotFound(logger, $"Vehicle {registration}");
+
                 return NotFound(new ProblemDetails
                 {
                     Type = "about:blank",
@@ -107,8 +119,11 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
                 });
             }
 
+            RequestLogging.Found(logger, $"Vehicle {registration}");
             return Ok(vehicle);
         }
+
+        RequestLogging.BadParameters(logger, [nameof(callSign), nameof(registration)]);
 
         return BadRequest(new ProblemDetails
         {

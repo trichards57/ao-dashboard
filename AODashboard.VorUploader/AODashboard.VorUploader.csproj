@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.59.0" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.59.0" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.59.0" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.17.0.82934">
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.18.0.83559">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
