@@ -69,4 +69,10 @@ public enum Region
     /// </summary>
     [EnumMember(Value = "sw")]
     SouthWest = 8,
+
+    /// <summary>
+    /// The South West region.
+    /// </summary>
+    [EnumMember(Value = "all")]
+    All = 9,
 }

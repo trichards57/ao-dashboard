@@ -55,6 +55,14 @@ public static partial class RequestLogging
     public static partial void NotFound(ILogger logger, string item);
 
     /// <summary>
+    /// Logs that a requested item hasn't been modified.
+    /// </summary>
+    /// <param name="logger">The logger to write to.</param>
+    /// <param name="item">The item being looked for.</param>
+    [LoggerMessage(EventId = EventIds.RequestNotModified, EventName = nameof(EventIds.RequestNotModified), Level = LogLevel.Warning, Message = "A request succeeded because the item has not been modified : {Item}.")]
+    public static partial void NotModified(ILogger logger, string item);
+
+    /// <summary>
     /// Logs that a request encountered an unexpected error.
     /// </summary>
     /// <param name="logger">The logger to write to.</param>

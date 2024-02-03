@@ -21,8 +21,10 @@ internal class MapperProfile : AutoMapper.Profile
     public MapperProfile()
     {
         CreateMap<Vehicle, VehicleSettings>();
+        CreateMap<Vehicle, VorStatus>();
 
         CreateMap<UpdateVehicleSettings, Vehicle>()
-            .EqualityComparison((a, b) => a.Registration == b.Registration);
+            .EqualityComparison((a, b) => a.Registration == b.Registration)
+            .ForMember(n => n.LastModified, (n) => n.MapFrom(m => DateTimeOffset.UtcNow));
     }
 }

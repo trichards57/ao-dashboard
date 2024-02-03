@@ -11,8 +11,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using Syncfusion.Blazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzA4MTY3MEAzMjM0MmUzMDJlMzBFUlloMk9CYXpGNGkxZHpEeWdmUVpTT0s5N29DcmQ4azdlcVRaWTcwaGR3PQ==");
 
 builder.Services.AddAuthorizationCore(o =>
 {
@@ -21,6 +24,7 @@ builder.Services.AddAuthorizationCore(o =>
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 builder.Services.AddSingleton<IVehicleService, VehicleService>();
+builder.Services.AddSingleton<IPlaceService, PlaceService>();
 
 builder.Services.AddSingleton((IServiceProvider s) =>
 {
@@ -32,5 +36,6 @@ builder.Services.AddSingleton((IServiceProvider s) =>
     };
 });
 builder.Services.AddMudServices();
+builder.Services.AddSyncfusionBlazor();
 
 await builder.Build().RunAsync();

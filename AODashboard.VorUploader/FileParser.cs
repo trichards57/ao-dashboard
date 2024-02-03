@@ -10,14 +10,25 @@ using Syncfusion.XlsIO;
 
 namespace AODashboard.VorUploader;
 
+/// <summary>
+/// Helper class to parse a VOR data file.
+/// </summary>
 internal static class FileParser
 {
+    /// <summary>
+    /// Parses the given file.
+    /// </summary>
+    /// <param name="file">The file to parse.</param>
+    /// <param name="fileDate">The date of the file.</param>
+    /// <returns>The parsed vor incidents.</returns>
     public static IEnumerable<VorIncident> ParseFile(string file, DateOnly fileDate)
     {
         using var excelEngine = new ExcelEngine();
+        using var fileItem = File.OpenRead(file);
+
         var excelApp = excelEngine.Excel;
 
-        excelApp.Workbooks.Open(File.OpenRead(file));
+        excelApp.Workbooks.Open(fileItem);
 
         var sheet = excelApp.Worksheets[0];
 
@@ -27,6 +38,12 @@ internal static class FileParser
 
         foreach (var c in headerRow.Cells)
         {
+            if (c.Text == null)
+            {
+                Console.WriteLine("Warning : New format VOR file.");
+                yield break;
+            }
+
             columns[c.Text.Replace(" ", "")] = c.Column;
         }
 

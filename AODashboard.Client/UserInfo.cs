@@ -24,5 +24,8 @@ public class UserInfo
     /// </summary>
     public required string Email { get; set; }
 
+    /// <summary>
+    /// Gets or sets the user's other claims not covered by the other properties.
+    /// </summary>
     public required IEnumerable<Claim> OtherClaims { get; set; }
 }

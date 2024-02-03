@@ -43,9 +43,14 @@ public static class EventIds
     public const int RequestUpdated = 2005;
 
     /// <summary>
-    /// Event ID when a request successfully finds an item.
+    /// Event ID when a request successfully clears an item.
     /// </summary>
     public const int RequestCleared = 2006;
+
+    /// <summary>
+    /// Event ID when a request succeeded because the item hasn't been changed.
+    /// </summary>
+    public const int RequestNotModified = 2007;
 
     /// <summary>
     /// Event ID when low-impact user profile information is requested.

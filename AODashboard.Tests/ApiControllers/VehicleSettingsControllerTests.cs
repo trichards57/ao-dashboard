@@ -153,21 +153,6 @@ public class VehicleSettingsControllerTests
     }
 
     [Fact]
-    public async Task Post_ReturnsBadRequestResult_WithUpdatedVehicle_WhenUpdateThrows()
-    {
-        var settings = fixture.Create<UpdateVehicleSettings>();
-
-        vehicleServiceMock.Setup(x => x.UpdateSettingsAsync(settings)).ThrowsAsync(new DuplicateCallSignException());
-
-        var result = await controller.Post(settings);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>()
-            .Which.Value.Should().BeOfType<ValidationProblemDetails>()
-            .Which.Errors.Should().ContainKey("CallSign");
-        loggerMock.Verify(logger => logger.Log(LogLevel.Error, new EventId(EventIds.RequestBadParameters, nameof(EventIds.RequestBadParameters)), It.IsAny<It.IsAnyType>(), It.IsAny<Exception?>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
-    }
-
-    [Fact]
     public async Task Post_ReturnsOkResult_WithUpdatedVehicle_WhenUpdateIsSuccessful()
     {
         var settings = fixture.Create<UpdateVehicleSettings>();

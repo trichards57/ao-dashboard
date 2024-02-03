@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using AODashboard.ApiControllers.Filters;
+using AODashboard.ApiControllers.Validation;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Logging;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Net.Http.Headers;
 
 namespace AODashboard.ApiControllers;
 
@@ -37,11 +39,14 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> PostEntry([FromBody] VorIncident incident)
+    public async Task<IActionResult> PostEntry([FromBody] IEnumerable<VorIncident> incident)
     {
-        await vehicleService.AddEntryAsync(incident);
+        await vehicleService.AddEntriesAsync(incident);
 
-        RequestLogging.Updated(logger, $"VOR Entry : {incident.Registration}");
+        foreach (var item in incident)
+        {
+            RequestLogging.Updated(logger, $"VOR Entry : {item.Registration}");
+        }
 
         return Ok();
     }
@@ -62,6 +67,57 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
         RequestLogging.Cleared(logger, $"VOR Entries");
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Gets the vor status of vehicles in the given place.
+    /// </summary>
+    /// <param name="region">The region to search.</param>
+    /// <param name="district">The district to search (optional).</param>
+    /// <param name="hub">The hub to search (optional).</param>
+    /// <returns>The response from the action.</returns>
+    [HttpGet("byPlace")]
+    [ProducesResponseType(typeof(IAsyncEnumerable<VorStatus>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public ActionResult<IAsyncEnumerable<VorStatus>> GetByPlace([FromQuery][RequiredRegion] Region region, [FromQuery]string? district, [FromQuery]string? hub)
+    {
+        var vehicles = vehicleService.GetStatusesByPlace(region, district, hub);
+        RequestLogging.Found(logger, $"Vehicles in {region} {district} {hub}");
+        return Ok(vehicles);
+    }
+
+    /// <summary>
+    /// Gets the VOR statistics for the vehicles in a given place.
+    /// </summary>
+    /// <param name="region">The region to search.</param>
+    /// <param name="district">The district to search (optional).</param>
+    /// <param name="hub">The hub to search (optional).</param>
+    /// <response code="200">Returns the requested vehicle statistics.</response>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
+    [HttpGet("byPlace/stats")]
+    [ProducesResponseType(typeof(VorStatistics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<ActionResult<VorStatistics>> GetStatisticsByPlace([FromQuery][RequiredRegion] Region region, [FromQuery] string? district, [FromQuery] string? hub)
+    {
+        var incomingEtag = Request.GetTypedHeaders().IfNoneMatch.FirstOrDefault(h => !h.IsWeak)?.Tag.Value?.Trim('=').Trim('"');
+        var actualEtag = await vehicleService.GetStatisticsEtagByPlace(region, district, hub);
+
+        if (!string.IsNullOrWhiteSpace(incomingEtag) && !string.IsNullOrWhiteSpace(actualEtag) && incomingEtag.Equals(actualEtag, StringComparison.Ordinal))
+        {
+            RequestLogging.NotModified(logger, $"Vehicle stats in {region} {district} {hub}");
+
+            return StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        if (!string.IsNullOrWhiteSpace(actualEtag))
+        {
+            Response.GetTypedHeaders().ETag = new EntityTagHeaderValue($"\"{actualEtag}\"", false);
+        }
+
+        var stats = await vehicleService.GetStatisticsByPlace(region, district, hub);
+        RequestLogging.Found(logger, $"Vehicle stats in {region} {district} {hub}");
+        return Ok(stats);
     }
 
     /// <summary>

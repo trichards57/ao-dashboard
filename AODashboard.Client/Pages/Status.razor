@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/status"
 @using AODashboard.Client.Model
 @using AODashboard.Client.Services
 @attribute [Authorize]
@@ -7,9 +7,9 @@
 @inject IPlaceService PlaceService
 @inject IVehicleService VehicleService
 
-<PageTitle>AO Dashboard - Home</PageTitle>
+<PageTitle>AO Dashboard - Vehicle Status</PageTitle>
 
-<MudText Typo="Typo.h1">Home</MudText>
+<MudText Typo="Typo.h1">Vehicle Status</MudText>
 
 <MudToolBar>
     <MudGrid>
@@ -47,76 +47,45 @@
     </MudGrid>
 </MudToolBar>
 
-<div>
-    <MudGrid Style="padding-top: 1rem">
-        <MudItem xs="12" sm="3">
-            <MudCard>
-                <MudCardHeader>
-                    <MudText Typo="Typo.subtitle1">Vehicle Availability</MudText>
-                </MudCardHeader>
-                <MudCardContent>
-                    <SfAccumulationChart Height="200px" Width="100%">
-                        <AccumulationChartSeriesCollection>
-                            <AccumulationChartSeries DataSource="@AvailablePoints" XName="Label" YName="Value" Radius="70%" StartAngle="-90" EndAngle="90" InnerRadius="50%" PointColorMapping="Color" />
-                        </AccumulationChartSeriesCollection>
-                        <AccumulationChartLegendSettings Visible="false" />
-                        <AccumulationChartMargin Top="0" Bottom="0" Right="0" Left="0" />
-                        <AccumulationChartBorder Width="0" />
-                        <AccumulationChartTooltipSettings Enable="true" />
-                    </SfAccumulationChart>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12" sm="9">
-            <MudCard>
-                <MudCardHeader>
-                    <MudText Typo="Typo.subtitle1">Historic Availability</MudText>
-                </MudCardHeader>
-                <MudCardContent>
-                    <SfChart Height="200px" Width="100%">
-                        <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime" />
-                        <ChartPrimaryYAxis Maximum="@vorStats.TotalVehicles" Minimum="0" Title="Available Vehicles" />
-                        <ChartSeriesCollection>
-                            <ChartSeries DataSource="@HistoricAvailablePoints" XName="Date" YName="Value" PointColorMapping="Color" />
-                        </ChartSeriesCollection>
-                    </SfChart>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
-</div>
+@if (isLoading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <div>
+        <MudDataGrid Style="margin-top: 10px" Items="vorStatuses.OrderBy(x => x.CallSign)" Virtualize="true" Height="calc(100vh - 220px)" FixedHeader="true">
+            <Columns>
+                <PropertyColumn Property="x => x.CallSign" Title="Call Sign" />
+                <PropertyColumn Property="x => x.Registration" />
+                <PropertyColumn Property="x => x.IsVor" Title="Is VOR?">
+                    <CellTemplate>
+                        @if (context.Item.IsVor)
+                        {
+                            <MudChip Color="Color.Error" Text="Yes" />
+                        }
+                        else
+                        {
+                            <MudChip Color="Color.Success" Text="No" />
+                        }
+                    </CellTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="x => x.DueBack" Title="Expected Back" />
+            </Columns>
+        </MudDataGrid>
+    </div>
+}
+
 
 @code
 {
-    private record class AvailabilityData
-    {
-        public int Value { get; init; }
-        public string Color { get; init; }
-        public string Label { get; init; }
-    }
-
-    private record class HistoricData
-    {
-        public int Value { get; init; }
-        public string Color { get; init; }
-        public DateOnly Date { get; init; }
-    }
-
     private Model.Region region = Model.Region.All;
     private IEnumerable<string> districts = new List<string>();
     private IEnumerable<string> hubs = new List<string>();
     private string selectedDistrict = "All";
     private string selectedHub = "All";
-    private VorStatistics vorStats = default;
-
-    private List<AvailabilityData> AvailablePoints => [
-        new AvailabilityData { Value = vorStats.AvailableVehicles, Label = "Available", Color = "var(--mud-palette-primary)" },
-        new AvailabilityData { Value = vorStats.VorVehicles, Label = "VOR", Color = "var(--mud-palette-grey-default)" },
-    ];
-
-    private List<HistoricData> HistoricAvailablePoints => vorStats.PastAvailability?.Select(x => new HistoricData { Value = x.Value, Date = x.Key, Color = "var(--mud-palette-primary)" }).ToList() ?? [];
-
-    private decimal availablePercent => vorStats.TotalVehicles == 0 ? 0 : (vorStats.AvailableVehicles / vorStats.TotalVehicles) * 100;
+    private IEnumerable<VorStatus> vorStatuses = new List<VorStatus>();
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -181,13 +150,20 @@
         }
 
         SelectedDistrict = "All";
+        SelectedHub = "All";
 
         StateHasChanged();
     }
 
     private async Task UpdateVehicles()
     {
-        vorStats = await VehicleService.GetStatisticsByPlace(Region, SelectedDistrict == "All" ? null : SelectedDistrict, SelectedHub == "All" ? null : SelectedHub);
+        isLoading = true;
+
+        var result = VehicleService.GetStatusesByPlace(Region, SelectedDistrict == "All" ? null : SelectedDistrict, SelectedHub == "All" ? null : SelectedHub);
+
+        vorStatuses = await result.ToListAsync();
+
+        isLoading = false;
 
         StateHasChanged();
     }
