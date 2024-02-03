@@ -5,13 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using AODashboard.ApiControllers.Filters;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Logging;
-using AODashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace AODashboard.ApiControllers;
 
@@ -23,6 +24,7 @@ namespace AODashboard.ApiControllers;
 [Route("api/vehicle-settings")]
 [ApiController]
 [Authorize]
+[ApiSecurityPolicy]
 public class VehicleSettingsController(IVehicleService vehicleService, ILogger<VehicleSettingsController> logger) : ControllerBase
 {
     /// <summary>
@@ -32,69 +34,79 @@ public class VehicleSettingsController(IVehicleService vehicleService, ILogger<V
     /// <param name="registration">The registration of the vehicle.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
     /// <response code="200">Returns the requested vehicle.</response>
+    /// <response code="304">The requested vehicle hasn't been changed.</response>
     /// <response code="404">The requested vehicle wasn't found.</response>
     /// <response code="400">Either: neither callSign nor registration were provided, or both were provided.</response>
     [HttpGet]
     [ProducesResponseType(typeof(VehicleSettings), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ResponseCache(Location = ResponseCacheLocation.None, VaryByQueryKeys = ["callSign", "registration"])]
     public async Task<ActionResult<VehicleSettings>> Get([FromQuery] string? callSign, [FromQuery] string? registration)
     {
         using var scope = logger.BeginScope("{Controller} {Name}", nameof(VehicleSettingsController), nameof(Get));
 
+        var incomingEtag = Request.GetTypedHeaders().IfNoneMatch.FirstOrDefault(h => !h.IsWeak)?.Tag.Value?.Trim('=').Trim('"');
+
+        Func<Task<string?>> getEtag;
+        Func<Task<VehicleSettings?>> getVehicle;
+
         if (string.IsNullOrWhiteSpace(registration) && !string.IsNullOrWhiteSpace(callSign))
         {
-            var vehicle = await vehicleService.GetByCallSignAsync(callSign);
+            getEtag = () => vehicleService.GetEtagByCallSignAsync(callSign);
+            getVehicle = () => vehicleService.GetByCallSignAsync(callSign);
+        }
+        else if (!string.IsNullOrWhiteSpace(registration) && string.IsNullOrWhiteSpace(callSign))
+        {
+            getEtag = () => vehicleService.GetEtagByRegistrationAsync(registration);
+            getVehicle = () => vehicleService.GetByRegistrationAsync(registration);
+        }
+        else
+        {
+            RequestLogging.BadParameters(logger, [nameof(callSign), nameof(registration)]);
 
-            if (vehicle == null)
+            return BadRequest(new ProblemDetails
             {
-                RequestLogging.NotFound(logger, $"Vehicle {callSign}");
-
-                return NotFound(new ProblemDetails
-                {
-                    Type = "about:blank",
-                    Title = "Not Found",
-                    Detail = "The requested item was not found.",
-                    Status = StatusCodes.Status404NotFound,
-                    Instance = Request.GetDisplayUrl(),
-                });
-            }
-
-            RequestLogging.Found(logger, $"Vehicle {callSign}");
-            return Ok(vehicle);
+                Type = "about:blank",
+                Title = "Bad Request",
+                Detail = "Exactly one of callSign or registration must be provided.  You cannot provide neither or both.",
+                Status = StatusCodes.Status400BadRequest,
+            });
         }
 
-        if (!string.IsNullOrWhiteSpace(registration) && string.IsNullOrWhiteSpace(callSign))
+        var actualEtag = (await getEtag())?.Trim('=');
+
+        if (!string.IsNullOrWhiteSpace(incomingEtag) && !string.IsNullOrWhiteSpace(actualEtag) && incomingEtag.Equals(actualEtag, StringComparison.Ordinal))
         {
-            var vehicle = await vehicleService.GetByRegistrationAsync(registration);
+            RequestLogging.NotModified(logger, $"Vehicle {callSign}");
 
-            if (vehicle == null)
-            {
-                RequestLogging.NotFound(logger, $"Vehicle {registration}");
-
-                return NotFound(new ProblemDetails
-                {
-                    Type = "about:blank",
-                    Title = "Not Found",
-                    Detail = "The requested item was not found.",
-                    Status = StatusCodes.Status404NotFound,
-                    Instance = Request.GetDisplayUrl(),
-                });
-            }
-
-            RequestLogging.Found(logger, $"Vehicle {registration}");
-            return Ok(vehicle);
+            return StatusCode(StatusCodes.Status304NotModified);
         }
 
-        RequestLogging.BadParameters(logger, [nameof(callSign), nameof(registration)]);
+        var vehicle = await getVehicle();
 
-        return BadRequest(new ProblemDetails
+        if (vehicle == null)
         {
-            Type = "about:blank",
-            Title = "Bad Request",
-            Detail = "Exactly one of callSign or registration must be provided.  You cannot provide neither or both.",
-            Status = StatusCodes.Status400BadRequest,
-        });
+            RequestLogging.NotFound(logger, $"Vehicle {callSign}");
+
+            return NotFound(new ProblemDetails
+            {
+                Type = "about:blank",
+                Title = "Not Found",
+                Detail = "The requested item was not found.",
+                Status = StatusCodes.Status404NotFound,
+                Instance = Request.GetDisplayUrl(),
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(actualEtag))
+        {
+            Response.GetTypedHeaders().ETag = new EntityTagHeaderValue($"\"{actualEtag}\"", false);
+        }
+
+        RequestLogging.Found(logger, $"Vehicle {callSign}");
+        return Ok(vehicle);
     }
 
     /// <summary>
@@ -103,35 +115,16 @@ public class VehicleSettingsController(IVehicleService vehicleService, ILogger<V
     /// <param name="vehicleSettings">The new vehicle settings.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
     /// <response code="200">Returns the updated vehicle.</response>
-    /// <response code="400">Either: the provided data was invalid, or the call-sign is already being used.</response>
+    /// <response code="400">The provided data was invalid.</response>
     [HttpPost]
     [ProducesResponseType(typeof(VehicleSettings), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<VehicleSettings>> Post([FromBody] UpdateVehicleSettings vehicleSettings)
     {
-        try
-        {
-            await vehicleService.UpdateSettingsAsync(vehicleSettings);
+        await vehicleService.UpdateSettingsAsync(vehicleSettings);
 
-            RequestLogging.Updated(logger, $"Vehicle {vehicleSettings.Registration}");
+        RequestLogging.Updated(logger, $"Vehicle {vehicleSettings.Registration}");
 
-            return Ok(await vehicleService.GetByRegistrationAsync(vehicleSettings.Registration));
-        }
-        catch (DuplicateCallSignException)
-        {
-            RequestLogging.BadParameters(logger, ["CallSign"]);
-
-            return BadRequest(new ValidationProblemDetails
-            {
-                Type = "about:blank",
-                Title = "Bad Request",
-                Detail = "The provided call-sign for the vehicle is already in use.",
-                Status = StatusCodes.Status400BadRequest,
-                Errors =
-                {
-                    { "CallSign", ["The provided call-sign is already in use."] },
-                },
-            });
-        }
+        return Ok(await vehicleService.GetByRegistrationAsync(vehicleSettings.Registration));
     }
 }

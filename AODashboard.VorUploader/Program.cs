@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using AODashboard.Client.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
@@ -82,11 +83,11 @@ internal static class Program
 
             if (fileDate == DateOnly.FromDateTime(DateTime.Now.Date))
             {
-                var result = await httpClient.DeleteAsync("/api/vors");
+                var deleteResult = await httpClient.DeleteAsync("/api/vors");
 
-                if (!result.IsSuccessStatusCode)
+                if (!deleteResult.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Could not clear current VORs.  {result.StatusCode} - {result.ReasonPhrase}");
+                    Console.WriteLine($"Could not clear current VORs.  {deleteResult.StatusCode} - {deleteResult.ReasonPhrase}");
                     break;
                 }
                 else
@@ -100,24 +101,19 @@ internal static class Program
                 await httpClient.DeleteAsync("/api/vors");
             }
 
-            var failed = false;
+            var items = FileParser.ParseFile(file, fileDate);
 
-            foreach (var i in FileParser.ParseFile(file, fileDate))
+            var result = await httpClient.PostAsJsonAsync("/api/vors", items);
+
+            if (!result.IsSuccessStatusCode)
             {
-                var result = await httpClient.PostAsJsonAsync("/api/vors", i);
-
-                if (!result.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Received Error : {result.StatusCode}");
-                    failed = true;
-                }
+                Console.WriteLine($"Received Error : {result.StatusCode}");
             }
-
-            if (!failed)
+            else
             {
                 var dirPath = Path.GetDirectoryName(file) ?? Environment.CurrentDirectory;
                 Directory.CreateDirectory(Path.Combine(dirPath, "Uploaded"));
-                File.Move(file, Path.Combine(dirPath, "Uploaded", Path.GetFileName(file)));
+                File.Move(file, Path.Combine(dirPath, "Uploaded", Path.GetFileName(file)), true);
             }
         }
     }

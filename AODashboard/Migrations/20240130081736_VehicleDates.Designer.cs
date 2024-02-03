@@ -4,6 +4,7 @@ using AODashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AODashboard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240130081736_VehicleDates")]
+    partial class VehicleDates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,7 +198,8 @@ namespace AODashboard.Migrations
 
                     b.Property<string>("CallSign")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<DateTimeOffset?>("Deleted")
                         .HasColumnType("datetimeoffset");
@@ -203,11 +207,6 @@ namespace AODashboard.Migrations
                     b.Property<string>("District")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ETag")
-                        .IsRequired()
-                        .HasMaxLength(44)
-                        .HasColumnType("nvarchar(44)");
 
                     b.Property<string>("Hub")
                         .IsRequired()

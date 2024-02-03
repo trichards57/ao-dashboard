@@ -1,34 +1,32 @@
-﻿<MudThemeProvider @ref="mudThemeProvider" Theme="mainTheme" @bind-IsDarkMode="isDarkMode" />
+﻿<MudThemeProvider @ref="mudThemeProvider" Theme="mainTheme" />
 
 @code {
-    private bool isDarkMode;
     private MudThemeProvider? mudThemeProvider;
     private MudTheme mainTheme = new MudTheme()
         {
             Typography = new Typography
             {
+                Default = new Default
+                {
+                    FontFamily = ["Whitney Book", "Arial", "sans-serif"],
+                    FontSize = "1rem",
+                    LineHeight = 1.5,
+                },
                 H1 = new H1
                 {
+                    FontFamily = ["Whitney Black", "Arial", "sans-serif"],
                     FontSize = "3rem",
+                },
+                Subtitle1 = new Subtitle1
+                {
+                    FontFamily = ["Whitney SemiBold", "Arial", "sans-serif"],
                 }
+            },
+            Palette = new PaletteLight
+            {
+                Primary = new MudBlazor.Utilities.MudColor(0, 122, 83, 255),
+                AppbarBackground = new MudBlazor.Utilities.MudColor(0, 122, 83, 255),
+                Success = new MudBlazor.Utilities.MudColor(0, 159, 77, 255),
             }
         };
-
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && mudThemeProvider != null)
-        {
-            isDarkMode = await mudThemeProvider.GetSystemPreference();
-            await mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
-            StateHasChanged();
-        }
-    }
-
-    private Task OnSystemPreferenceChanged(bool newValue)
-    {
-        isDarkMode = newValue;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
 }

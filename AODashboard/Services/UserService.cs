@@ -13,66 +13,6 @@ using System.Security.Claims;
 namespace AODashboard.Services;
 
 /// <summary>
-/// Represents a service for managing users.
-/// </summary>
-public interface IUserService
-{
-    /// <summary>
-    /// Gets the claims for the provided user.
-    /// </summary>
-    /// <param name="userId">The ID of the user to check for.</param>
-    /// <returns>The extra claims to add to the user.</returns>
-    IAsyncEnumerable<Claim> GetClaimsAsync(string userId);
-
-    /// <summary>
-    /// Gets the current user's photograph.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation.
-    ///
-    /// Resolves to a memory stream containing the photo as a JPEG, or null
-    /// if none is available.
-    /// </returns>
-    Task<MemoryStream?> GetProfilePictureAsync();
-}
-
-/// <summary>
-/// Constants representing the user claims.
-/// </summary>
-internal static class UserClaims
-{
-    /// <summary>
-    /// Gets the value when the user has permission to read or edit.
-    /// </summary>
-    public static string Edit => "Edit";
-
-    /// <summary>
-    /// Gets the claim for the user's permissions permission level.
-    /// </summary>
-    public static string Permissions => "Permissions";
-
-    /// <summary>
-    /// Gets the value when the user has permission to read.
-    /// </summary>
-    public static string Read => "Read";
-
-    /// <summary>
-    /// Gets the claim for the user's sensitive permissions permission level.
-    /// </summary>
-    public static string SensitivePermissions => "SensitivePermissions";
-
-    /// <summary>
-    /// Gets the claim for the user's vehicle configuration permission level.
-    /// </summary>
-    public static string VehicleConfiguration => "VehicleConfiguration";
-
-    /// <summary>
-    /// Gets the claim for the user's VOR Data permission level.
-    /// </summary>
-    public static string VorData => "VORData";
-}
-
-/// <summary>
 /// Service to manage users.
 /// </summary>
 /// <param name="context">The data context to store data in.</param>

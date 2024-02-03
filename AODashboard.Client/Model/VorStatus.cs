@@ -13,6 +13,31 @@ namespace AODashboard.Client.Model;
 public readonly record struct VorStatus
 {
     /// <summary>
+    /// Gets the home region for the vehicle.
+    /// </summary>
+    public Region Region { get; init; }
+
+    /// <summary>
+    /// Gets the home hub for the vehicle.
+    /// </summary>
+    public string Hub { get; init; }
+
+    /// <summary>
+    /// Gets the home district for the vehicle.
+    /// </summary>
+    public string District { get; init; }
+
+    /// <summary>
+    /// Gets the registration of the vehicle.
+    /// </summary>
+    public string Registration { get; init; }
+
+    /// <summary>
+    /// Gets the call-sign for the vehicle.
+    /// </summary>
+    public string CallSign { get; init; }
+
+    /// <summary>
     /// Gets the summary of the vehicle's VOR incident.
     /// </summary>
     public string? Summary { get; init; }

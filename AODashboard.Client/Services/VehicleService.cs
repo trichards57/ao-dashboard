@@ -19,6 +19,9 @@ namespace AODashboard.Client.Services;
 internal class VehicleService(HttpClient client) : IVehicleService
 {
     /// <inheritdoc/>
+    public Task AddEntriesAsync(IEnumerable<VorIncident> vorIncident) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
     public Task AddEntryAsync(VorIncident vorIncident) => throw new NotImplementedException();
 
     /// <inheritdoc/>
@@ -55,10 +58,55 @@ internal class VehicleService(HttpClient client) : IVehicleService
     }
 
     /// <inheritdoc/>
+    public Task<string?> GetEtagByCallSignAsync(string callSign) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Task<string?> GetEtagByRegistrationAsync(string registration) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Task<DateTimeOffset?> GetLastUpdateByCallSignAsync(string callSign) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Task<DateTimeOffset?> GetLastUpdateByPlace(Region region, string? district, string? hub) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Task<DateTimeOffset?> GetLastUpdateByRegistration(string registration) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public async Task<VorStatistics> GetStatisticsByPlace(Region region, string? district, string? hub)
+    {
+        var uri = $"/api/vors/byPlace/stats?region={region}&district={district ?? ""}&hub={hub ?? ""}";
+        try
+        {
+           return await client.GetFromJsonAsync<VorStatistics>(uri);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return default;
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task<string> GetStatisticsEtagByPlace(Region region, string? district, string? hub) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
     public Task<VorStatus?> GetStatusByCallSignAsync(string callSign) => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public Task<VorStatus?> GetStatusByRegistrationAsync(string registration) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<VorStatus> GetStatusesByPlace(Region region, string? district, string? hub)
+    {
+        var uri = $"/api/vors/byPlace?region={region}&district={district ?? ""}&hub={hub ?? ""}";
+
+        var response = await client.GetFromJsonAsync<IEnumerable<VorStatus>>(uri) ?? [];
+
+        foreach (var item in response)
+        {
+            yield return item;
+        }
+    }
 
     /// <inheritdoc/>
     public async Task UpdateSettingsAsync(UpdateVehicleSettings settings)

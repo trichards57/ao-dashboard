@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using AODashboard.ApiControllers.Filters;
 using AODashboard.Logging;
 using AODashboard.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,7 @@ namespace AODashboard.ApiControllers;
 [Route("api/user")]
 [ApiController]
 [Authorize]
+[ApiSecurityPolicy]
 public class UserController(IUserService userService, ILogger<UserController> logger) : ControllerBase
 {
     /// <summary>

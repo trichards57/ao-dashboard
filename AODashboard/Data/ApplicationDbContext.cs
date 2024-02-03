@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AODashboard.Data;
 
@@ -69,5 +70,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<UserRole>().HasData(
             new UserRole { UserId = "0W2LTE_Dd_eIZdhlqItCbJdjYHTDnbX7nk1IzyaBlGw", RoleId = adminGuid },
             new UserRole { UserId = "0W2LTE_Dd_eIZdhlqItCbJdjYHTDnbX7nk1IzyaBlGw", RoleId = ralGuid });
+
+        modelBuilder.Entity<Vehicle>()
+            .HasIndex(v => v.Registration)
+            .IsUnique();
     }
 }

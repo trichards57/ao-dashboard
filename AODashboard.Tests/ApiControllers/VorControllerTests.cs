@@ -79,7 +79,7 @@ public class VorControllerTests
         vehicleServiceMock.Setup(service => service.AddEntryAsync(mockIncident))
                           .Returns(Task.CompletedTask);
 
-        var result = await controller.PostEntry(mockIncident);
+        var result = await controller.PostEntry([mockIncident]);
 
         result.Should().BeOfType<OkResult>();
         loggerMock.Verify(logger => logger.Log(LogLevel.Debug, new EventId(EventIds.RequestUpdated, nameof(EventIds.RequestUpdated)), It.IsAny<It.IsAnyType>(), It.IsAny<Exception?>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));

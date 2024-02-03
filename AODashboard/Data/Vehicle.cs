@@ -7,6 +7,7 @@
 
 using AODashboard.Client.Model;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AODashboard.Data;
 
@@ -23,7 +24,6 @@ public class Vehicle
     /// <summary>
     /// Gets or sets the vehicle's call-sign.
     /// </summary>
-    [MaxLength(6)]
     public string CallSign { get; set; } = "";
 
     /// <summary>
@@ -71,4 +71,31 @@ public class Vehicle
     /// Gets or sets the vehicle's type.
     /// </summary>
     public VehicleType VehicleType { get; set; }
+
+    /// <summary>
+    /// Gets or sets the vehicle's home hub.
+    /// </summary>
+    public string Hub { get; set; } = "Unknown";
+
+    /// <summary>
+    /// Gets or sets the date and time the vehicle was last modified.
+    /// </summary>
+    public DateTimeOffset LastModified { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time the vehicle was deleted.
+    /// </summary>
+    public DateTimeOffset? Deleted { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ETag for the vehicle.
+    /// </summary>
+    [StringLength(44)]
+    public string ETag { get; set; } = "";
+
+    /// <summary>
+    /// Gets the identifier used to calculate eTags.
+    /// </summary>
+    [NotMapped]
+    public string ETagIdentifier => $"{Id}-{LastModified:O}";
 }
