@@ -50,8 +50,10 @@ internal static partial class ConsoleFunctions
     }
 
     [LibraryImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
     private static partial IntPtr GetAncestor(IntPtr hwnd, GetAncestorControl flags);
 
     [LibraryImport("kernel32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
     private static partial IntPtr GetConsoleWindow();
 }

@@ -14,6 +14,8 @@ namespace AODashboard.Logging;
 /// </summary>
 public static partial class RequestLogging
 {
+    private static Func<ILogger, string, string, IDisposable?> runningControllerScope = LoggerMessage.DefineScope<string, string>("{Controller} {Name}");
+
     /// <summary>
     /// Logs that the a request was made with bad parameters.
     /// </summary>
@@ -61,6 +63,15 @@ public static partial class RequestLogging
     /// <param name="item">The item being looked for.</param>
     [LoggerMessage(EventId = EventIds.RequestNotModified, EventName = nameof(EventIds.RequestNotModified), Level = LogLevel.Warning, Message = "A request succeeded because the item has not been modified : {Item}.")]
     public static partial void NotModified(ILogger logger, string item);
+
+    /// <summary>
+    /// Starts a logging scope for a given controller action.
+    /// </summary>
+    /// <param name="logger">The logger to write to.</param>
+    /// <param name="controller">The controller by run.</param>
+    /// <param name="action">The action being run.</param>
+    /// <returns>An IDisposable representing the scope.</returns>
+    public static IDisposable? RunningControllerScope(this ILogger logger, string controller, string action) => runningControllerScope(logger, controller, action);
 
     /// <summary>
     /// Logs that a request encountered an unexpected error.

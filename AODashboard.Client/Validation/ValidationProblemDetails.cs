@@ -22,11 +22,11 @@ public class ValidationProblemDetails
     public string? Detail { get; set; } = default;
 
     /// <summary>
-    /// Gets or sets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
+    /// Gets the validation errors associated with this instance of <see cref="ValidationProblemDetails"/>.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("errors")]
-    public Dictionary<string, List<string>>? Errors { get; set; } = [];
+    public Dictionary<string, List<string>>? Errors { get; } = [];
 
     /// <summary>
     /// Gets or sets a URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.

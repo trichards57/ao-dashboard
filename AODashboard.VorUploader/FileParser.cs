@@ -44,12 +44,12 @@ internal static class FileParser
                 yield break;
             }
 
-            columns[c.Text.Replace(" ", "")] = c.Column;
+            columns[c.Text.Replace(" ", "", StringComparison.OrdinalIgnoreCase)] = c.Column;
         }
 
         foreach (var cols in sheet.Rows.Skip(1).Select(r => r.Columns))
         {
-            var reg = cols[columns["VehicleReg"] - 1].Text.Trim().ToUpper();
+            var reg = cols[columns["VehicleReg"] - 1].Text.Trim().ToUpperInvariant();
             var fleetNum = cols[columns["FleetNumber"] - 1].Text?.Trim() ?? "";
             var bodyType = cols[columns["BodyType"] - 1].Text?.Trim() ?? "";
             var make = cols[columns["Make"] - 1].Text?.Trim() ?? "";

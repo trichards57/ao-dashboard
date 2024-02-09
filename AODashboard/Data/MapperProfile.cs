@@ -6,14 +6,13 @@
 // -----------------------------------------------------------------------
 
 using AODashboard.Client.Model;
-using AutoMapper.EquivalencyExpression;
 
 namespace AODashboard.Data;
 
 /// <summary>
 /// Mapper used to convert between transfer and storage types.
 /// </summary>
-internal class MapperProfile : AutoMapper.Profile
+internal sealed class MapperProfile : AutoMapper.Profile
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MapperProfile"/> class.
@@ -24,7 +23,6 @@ internal class MapperProfile : AutoMapper.Profile
         CreateMap<Vehicle, VorStatus>();
 
         CreateMap<UpdateVehicleSettings, Vehicle>()
-            .EqualityComparison((a, b) => a.Registration == b.Registration)
             .ForMember(n => n.LastModified, (n) => n.MapFrom(m => DateTimeOffset.UtcNow));
     }
 }

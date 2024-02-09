@@ -5,12 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.ApiControllers.Filters;
+using AODashboard.ApiControllers.Validation;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Filters;
 using System.ComponentModel.DataAnnotations;
 
 namespace AODashboard.ApiControllers;
@@ -23,7 +24,6 @@ namespace AODashboard.ApiControllers;
 [ApiController]
 [Route("api/places")]
 [Authorize]
-[ApiSecurityPolicy]
 public class PlaceController(IPlaceService placeService, ILogger<PlaceController> logger) : ControllerBase
 {
     /// <summary>
@@ -36,25 +36,15 @@ public class PlaceController(IPlaceService placeService, ILogger<PlaceController
     [HttpGet("{region}/districts")]
     [ProducesResponseType(typeof(Places), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Places>> GetDistricts([FromRoute]Region region)
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [Authorize(Policy = "CanViewPlaces")]
+    [ResponseCache(Location = ResponseCacheLocation.None)]
+    [SwaggerResponseHeader(StatusCodes.Status200OK, "ETag", "string", "The ETag for the response.")]
+    public async Task<ActionResult<Places>> GetDistricts([FromRoute][RequiredRegion] Region region)
     {
-        using var scope = logger.BeginScope("{Controller} {Name}", nameof(PlaceController), nameof(GetDistricts));
+        using var scope = logger.RunningControllerScope(nameof(PlaceController), nameof(GetDistricts));
 
-        if (!Enum.IsDefined(region))
-        {
-            RequestLogging.BadParameters(logger, [nameof(region)]);
-            return BadRequest(new ProblemDetails
-            {
-                Type = "about:blank",
-                Title = "Bad Request",
-                Detail = "The provided region was invalid.",
-                Status = StatusCodes.Status400BadRequest,
-            });
-        }
-
-        var districts = await placeService.GetDistrictNames(region);
-        RequestLogging.Found(logger, $"Region {region} Districts.");
-        return Ok(districts);
+        return await this.CachedGet(() => placeService.GetDistrictNamesETag(region), () => placeService.GetDistrictNames(region), logger, $"Region {region} Districts.");
     }
 
     /// <summary>
@@ -68,24 +58,13 @@ public class PlaceController(IPlaceService placeService, ILogger<PlaceController
     [HttpGet("{region}/{district}/hubs")]
     [ProducesResponseType(typeof(Places), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Places>> GetDistrictHubs([FromRoute]Region region, [FromRoute][Required]string district)
+    [Authorize(Policy = "CanViewPlaces")]
+    [ResponseCache(Location = ResponseCacheLocation.None)]
+    [SwaggerResponseHeader(StatusCodes.Status200OK, "ETag", "string", "The ETag for the response.")]
+    public async Task<ActionResult<Places>> GetDistrictHubs([FromRoute][RequiredRegion] Region region, [FromRoute][Required] string district)
     {
-        using var scope = logger.BeginScope("{Controller} {Name}", nameof(PlaceController), nameof(GetDistrictHubs));
+        using var scope = logger.RunningControllerScope(nameof(PlaceController), nameof(GetDistrictHubs));
 
-        if (!Enum.IsDefined(region))
-        {
-            RequestLogging.BadParameters(logger, [nameof(region)]);
-            return BadRequest(new ProblemDetails
-            {
-                Type = "about:blank",
-                Title = "Bad Request",
-                Detail = "The provided region was invalid.",
-                Status = StatusCodes.Status400BadRequest,
-            });
-        }
-
-        var hubs = await placeService.GetDistrictHubs(region, district);
-        RequestLogging.Found(logger, $"Region {region} District {district} Hubs.");
-        return Ok(hubs);
+        return await this.CachedGet(() => placeService.GetDistrictHubsETag(region, district), () => placeService.GetDistrictHubs(region, district), logger, $"Region {region} District {district} Hubs.");
     }
 }

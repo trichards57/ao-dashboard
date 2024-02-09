@@ -50,7 +50,7 @@ internal static class Program
 
         AuthenticationResult? token = null;
 
-        var accountToLogin = (await client.GetAccountsAsync()).FirstOrDefault(a => a.Username.Contains("sja.org.uk"));
+        var accountToLogin = (await client.GetAccountsAsync()).FirstOrDefault(a => a.Username.Contains("sja.org.uk", StringComparison.OrdinalIgnoreCase));
 
         if (accountToLogin != null)
         {
@@ -66,12 +66,14 @@ internal static class Program
 
         token ??= await client.AcquireTokenInteractive(Scopes).ExecuteAsync();
 
-        var httpClient = new HttpClient()
+        using var httpClient = new HttpClient()
         {
             BaseAddress = new Uri(configuration["BaseUri"]!),
         };
 
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+        var vorUris = new Uri("/api/vors", UriKind.Relative);
 
         foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.xls").OrderBy(f => f))
         {
@@ -83,7 +85,7 @@ internal static class Program
 
             if (fileDate == DateOnly.FromDateTime(DateTime.Now.Date))
             {
-                var deleteResult = await httpClient.DeleteAsync("/api/vors");
+                var deleteResult = await httpClient.DeleteAsync(vorUris);
 
                 if (!deleteResult.IsSuccessStatusCode)
                 {
@@ -96,14 +98,9 @@ internal static class Program
                 }
             }
 
-            if (fileDate == DateOnly.FromDateTime(DateTime.Now.Date))
-            {
-                await httpClient.DeleteAsync("/api/vors");
-            }
-
             var items = FileParser.ParseFile(file, fileDate);
 
-            var result = await httpClient.PostAsJsonAsync("/api/vors", items);
+            var result = await httpClient.PostAsJsonAsync(vorUris, items);
 
             if (!result.IsSuccessStatusCode)
             {

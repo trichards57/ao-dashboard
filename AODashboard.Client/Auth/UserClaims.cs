@@ -5,12 +5,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace AODashboard.Services;
+namespace AODashboard.Client.Auth;
 
 /// <summary>
 /// Constants representing the user claims.
 /// </summary>
-internal static class UserClaims
+public static class UserClaims
 {
     /// <summary>
     /// Gets the value when the user has permission to read or edit.

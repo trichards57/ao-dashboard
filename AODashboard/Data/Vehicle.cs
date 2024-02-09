@@ -14,7 +14,7 @@ namespace AODashboard.Data;
 /// <summary>
 /// A vehicle with it's reported incidents.
 /// </summary>
-public class Vehicle
+internal sealed class Vehicle
 {
     /// <summary>
     /// Gets or sets the vehicle's internal ID.
@@ -27,9 +27,9 @@ public class Vehicle
     public string CallSign { get; set; } = "";
 
     /// <summary>
-    /// Gets or sets the incidents associated with this vehicle.
+    /// Gets the incidents associated with this vehicle.
     /// </summary>
-    public List<Incident> Incidents { get; set; } = [];
+    public List<Incident> Incidents { get; } = [];
 
     /// <summary>
     /// Gets or sets the vehicle's registration.

@@ -5,16 +5,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.ApiControllers.Filters;
 using AODashboard.ApiControllers.Validation;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Logging;
+using AODashboard.Middleware.ServerTiming;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Net.Http.Headers;
 
 namespace AODashboard.ApiControllers;
@@ -24,12 +23,11 @@ namespace AODashboard.ApiControllers;
 /// </summary>
 /// <param name="vehicleService">The service used to manage vehicles.</param>
 /// <param name="logger">The controller's logger.</param>
+/// <param name="serverTiming">The server timing service to use.</param>
 [Route("api/vors")]
 [ApiController]
 [Authorize]
-[OutputCache(NoStore = true)]
-[ApiSecurityPolicy]
-public class VorController(IVehicleService vehicleService, ILogger<VorController> logger) : ControllerBase
+public class VorController(IVehicleService vehicleService, ILogger<VorController> logger, IServerTiming serverTiming) : ControllerBase
 {
     /// <summary>
     /// Accepts a list of vor entries to update the database.
@@ -37,36 +35,22 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
     /// <param name="incident">The incident to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
     [HttpPost]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "CanEditVOR")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> PostEntry([FromBody] IEnumerable<VorIncident> incident)
     {
-        await vehicleService.AddEntriesAsync(incident);
+        using var scope = logger.RunningControllerScope(nameof(VorController), nameof(PostEntry));
 
-        foreach (var item in incident)
+        var incidentList = incident.ToList();
+
+        await vehicleService.AddEntriesAsync(incidentList);
+
+        foreach (var item in incidentList)
         {
             RequestLogging.Updated(logger, $"VOR Entry : {item.Registration}");
         }
 
         return Ok();
-    }
-
-    /// <summary>
-    /// Clears all of the current VOR flags, ready for the system to be updated.
-    /// </summary>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the response from the action.</returns>
-    /// <response code="204">VORs have been cleared.</response>
-    /// <remarks>This should only be used immediately before uploading the latest VOR data.</remarks>
-    [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task<IActionResult> Delete()
-    {
-        await vehicleService.ClearVorsAsync();
-
-        RequestLogging.Cleared(logger, $"VOR Entries");
-
-        return NoContent();
     }
 
     /// <summary>
@@ -79,11 +63,17 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
     [HttpGet("byPlace")]
     [ProducesResponseType(typeof(IAsyncEnumerable<VorStatus>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public ActionResult<IAsyncEnumerable<VorStatus>> GetByPlace([FromQuery][RequiredRegion] Region region, [FromQuery]string? district, [FromQuery]string? hub)
+    [Authorize(Policy = "CanViewVOR")]
+    public async Task<ActionResult<IAsyncEnumerable<VorStatus>>> GetByPlace([FromQuery][RequiredRegion] Region region, [FromQuery] string? district, [FromQuery] string? hub)
     {
-        var vehicles = vehicleService.GetStatusesByPlace(region, district, hub);
-        RequestLogging.Found(logger, $"Vehicles in {region} {district} {hub}");
-        return Ok(vehicles);
+        using var scope = logger.RunningControllerScope(nameof(VorController), nameof(GetByPlace));
+
+        return await this.CachedGet(
+            () => vehicleService.GetStatusesEtagByPlace(region, district, hub),
+            () => vehicleService.GetStatusesByPlace(region, district, hub),
+            logger,
+            $"Vehicles in {region} {district} {hub}",
+            serverTiming);
     }
 
     /// <summary>
@@ -98,26 +88,17 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
     [ProducesResponseType(typeof(VorStatistics), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [Authorize(Policy = "CanViewVOR")]
     public async Task<ActionResult<VorStatistics>> GetStatisticsByPlace([FromQuery][RequiredRegion] Region region, [FromQuery] string? district, [FromQuery] string? hub)
     {
-        var incomingEtag = Request.GetTypedHeaders().IfNoneMatch.FirstOrDefault(h => !h.IsWeak)?.Tag.Value?.Trim('=').Trim('"');
-        var actualEtag = await vehicleService.GetStatisticsEtagByPlace(region, district, hub);
+        using var scope = logger.RunningControllerScope(nameof(VorController), nameof(GetStatisticsByPlace));
 
-        if (!string.IsNullOrWhiteSpace(incomingEtag) && !string.IsNullOrWhiteSpace(actualEtag) && incomingEtag.Equals(actualEtag, StringComparison.Ordinal))
-        {
-            RequestLogging.NotModified(logger, $"Vehicle stats in {region} {district} {hub}");
-
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        if (!string.IsNullOrWhiteSpace(actualEtag))
-        {
-            Response.GetTypedHeaders().ETag = new EntityTagHeaderValue($"\"{actualEtag}\"", false);
-        }
-
-        var stats = await vehicleService.GetStatisticsByPlace(region, district, hub);
-        RequestLogging.Found(logger, $"Vehicle stats in {region} {district} {hub}");
-        return Ok(stats);
+        return await this.CachedGet(
+                () => vehicleService.GetStatisticsEtagByPlace(region, district, hub),
+                () => vehicleService.GetStatisticsByPlace(region, district, hub),
+                logger,
+                $"Vehicle stats in {region} {district} {hub}",
+                serverTiming);
     }
 
     /// <summary>
@@ -133,60 +114,40 @@ public class VorController(IVehicleService vehicleService, ILogger<VorController
     [ProducesResponseType(typeof(VorStatus), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<VorStatus>> Get([FromQuery] string? callSign, [FromQuery] string? registration)
+    [Authorize(Policy = "CanViewVOR")]
+    public async Task<ActionResult<VorStatus?>> Get([FromQuery] string? callSign, [FromQuery] string? registration)
     {
+        using var scope = logger.RunningControllerScope(nameof(VorController), nameof(Get));
+
+        Func<Task<string>> getEtag;
+        Func<Task<VorStatus?>> getVehicle;
+        string logParam;
+
         if (string.IsNullOrWhiteSpace(registration) && !string.IsNullOrWhiteSpace(callSign))
         {
-            var vehicle = await vehicleService.GetStatusByCallSignAsync(callSign);
+            getEtag = () => vehicleService.GetEtagByCallSignAsync(callSign);
+            getVehicle = () => vehicleService.GetStatusByCallSignAsync(callSign);
+            logParam = $"Vehicle {callSign}";
+        }
+        else if (!string.IsNullOrWhiteSpace(registration) && string.IsNullOrWhiteSpace(callSign))
+        {
+            getEtag = () => vehicleService.GetEtagByRegistrationAsync(registration);
+            getVehicle = () => vehicleService.GetStatusByRegistrationAsync(registration);
+            logParam = $"Vehicle {registration}";
+        }
+        else
+        {
+            RequestLogging.BadParameters(logger, [nameof(callSign), nameof(registration)]);
 
-            if (vehicle == null)
+            return BadRequest(new ProblemDetails
             {
-                RequestLogging.NotFound(logger, $"Vehicle {callSign}");
-
-                return NotFound(new ProblemDetails
-                {
-                    Type = "about:blank",
-                    Title = "Not Found",
-                    Detail = "The requested item was not found.",
-                    Status = StatusCodes.Status404NotFound,
-                    Instance = Request.GetDisplayUrl(),
-                });
-            }
-
-            RequestLogging.Found(logger, $"Vehicle {callSign}");
-            return Ok(vehicle);
+                Type = "about:blank",
+                Title = "Bad Request",
+                Detail = "Exactly one of callSign or registration must be provided.  You cannot provide neither or both.",
+                Status = StatusCodes.Status400BadRequest,
+            });
         }
 
-        if (!string.IsNullOrWhiteSpace(registration) && string.IsNullOrWhiteSpace(callSign))
-        {
-            var vehicle = await vehicleService.GetStatusByRegistrationAsync(registration);
-
-            if (vehicle == null)
-            {
-                RequestLogging.NotFound(logger, $"Vehicle {registration}");
-
-                return NotFound(new ProblemDetails
-                {
-                    Type = "about:blank",
-                    Title = "Not Found",
-                    Detail = "The requested item was not found.",
-                    Status = StatusCodes.Status404NotFound,
-                    Instance = Request.GetDisplayUrl(),
-                });
-            }
-
-            RequestLogging.Found(logger, $"Vehicle {registration}");
-            return Ok(vehicle);
-        }
-
-        RequestLogging.BadParameters(logger, [nameof(callSign), nameof(registration)]);
-
-        return BadRequest(new ProblemDetails
-        {
-            Type = "about:blank",
-            Title = "Bad Request",
-            Detail = "Exactly one of callSign or registration must be provided.  You cannot provide neither or both.",
-            Status = StatusCodes.Status400BadRequest,
-        });
+        return await this.CachedGet(getEtag, getVehicle, logger, logParam, serverTiming);
     }
 }

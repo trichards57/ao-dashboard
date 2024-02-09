@@ -8,11 +8,9 @@
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Data;
-using AODashboard.Migrations;
 using AutoMapper;
-using AutoMapper.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
+using MudBlazor.Extensions;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -23,20 +21,33 @@ namespace AODashboard.Services;
 /// </summary>
 /// <param name="context">The data context to manage.</param>
 /// <param name="mapper">The mapper used to convert database types to communication types.</param>
-public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVehicleService
+internal sealed class VehicleService(ApplicationDbContext context, IMapper mapper) : IVehicleService
 {
     /// <inheritdoc/>
-    public async Task AddEntriesAsync(IEnumerable<VorIncident> vorIncident)
+    public async Task AddEntriesAsync(IList<VorIncident> vorIncident)
     {
-        using var scope = context.Database.BeginTransaction();
+        using var scope = await context.Database.BeginTransactionAsync();
 
-        foreach (var i in vorIncident)
+        if (vorIncident.Any(i => i.UpdateDate == DateOnly.FromDateTime(DateTime.UtcNow)))
         {
-            await AddSingleEntryAsync(i);
+            await context.Vehicles.GetNotDeleted().ExecuteUpdateAsync(u => u.SetProperty(v => v.IsVor, false));
         }
 
-        await context.SaveChangesAsync();
-        await scope.CommitAsync();
+        try
+        {
+            foreach (var i in vorIncident)
+            {
+                await AddSingleEntryAsync(i);
+            }
+
+            await context.SaveChangesAsync();
+            await scope.CommitAsync();
+        }
+        catch
+        {
+            await scope.RollbackAsync();
+            throw;
+        }
     }
 
     /// <inheritdoc/>
@@ -48,14 +59,11 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     }
 
     /// <inheritdoc/>
-    public async Task ClearVorsAsync() => await context.Vehicles.GetNotDeleted().ExecuteUpdateAsync(u => u.SetProperty(v => v.IsVor, false));
-
-    /// <inheritdoc/>
     public async Task<VehicleSettings?> GetByCallSignAsync(string callSign)
     {
         ArgumentException.ThrowIfNullOrEmpty(callSign);
 
-        callSign = callSign.Trim().ToUpper();
+        callSign = callSign.Trim().ToUpperInvariant();
 
         return await mapper
             .ProjectTo<VehicleSettings>(context.Vehicles.GetNotDeleted())
@@ -69,7 +77,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     {
         ArgumentException.ThrowIfNullOrEmpty(registration);
 
-        registration = registration.Trim().ToUpper();
+        registration = registration.Trim().ToUpperInvariant();
 
         return await mapper
             .ProjectTo<VehicleSettings>(context.Vehicles.GetNotDeleted())
@@ -79,29 +87,29 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     }
 
     /// <inheritdoc/>
-    public async Task<string?> GetEtagByCallSignAsync(string callSign)
+    public async Task<string> GetEtagByCallSignAsync(string callSign)
     {
         ArgumentException.ThrowIfNullOrEmpty(callSign);
 
-        callSign = callSign.Trim().ToUpper();
+        callSign = callSign.Trim().ToUpperInvariant();
 
         return await context.Vehicles.GetNotDeleted()
             .Where(v => v.CallSign.Equals(callSign))
             .Select(v => v.ETag)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync() ?? "";
     }
 
     /// <inheritdoc/>
-    public async Task<string?> GetEtagByRegistrationAsync(string registration)
+    public async Task<string> GetEtagByRegistrationAsync(string registration)
     {
         ArgumentException.ThrowIfNullOrEmpty(registration);
 
-        registration = registration.Trim().ToUpper();
+        registration = registration.Trim().ToUpperInvariant();
 
         return await context.Vehicles.GetNotDeleted()
             .Where(v => v.Registration.Equals(registration))
             .Select(v => v.ETag)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync() ?? "";
     }
 
     /// <inheritdoc/>
@@ -109,7 +117,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     {
         ArgumentException.ThrowIfNullOrEmpty(callSign);
 
-        callSign = callSign.Trim().ToUpper();
+        callSign = callSign.Trim().ToUpperInvariant();
 
         return await context.Vehicles.GetNotDeleted()
             .Where(v => v.CallSign.Equals(callSign))
@@ -142,7 +150,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     {
         ArgumentException.ThrowIfNullOrEmpty(registration);
 
-        registration = registration.Trim().ToUpper();
+        registration = registration.Trim().ToUpperInvariant();
 
         return await context.Vehicles.GetNotDeleted()
             .Where(v => v.Registration.Equals(registration))
@@ -169,7 +177,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
         var vorVehicles = vehicles.Count(v => v.IsVor);
         var availableVehicles = totalVehicles - vorVehicles;
 
-        var endDate = DateTime.UtcNow.Date;
+        var endDate = DateTime.Now.Date;
         var startDate = endDate.AddYears(-1);
 
         var incidentsLastYear = await context.Incidents
@@ -201,24 +209,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetStatisticsEtagByPlace(Region region, string? district, string? hub)
-    {
-        if (!Enum.IsDefined(region))
-        {
-            throw new ArgumentOutOfRangeException(nameof(region));
-        }
-
-        var vehicles = await context.Vehicles
-            .GetNotDeleted()
-            .GetForPlace(region, district, hub)
-            .OrderBy(v => v.Id)
-            .Select(v => $"{v.Id}-{v.LastModified:O}")
-            .ToListAsync();
-
-        var combinedIds = string.Concat(vehicles);
-
-        return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(combinedIds)));
-    }
+    public Task<string> GetStatisticsEtagByPlace(Region region, string? district, string? hub) => GetEtagForPlace(region, district, hub);
 
     /// <inheritdoc/>
     public async Task<VorStatus?> GetStatusByCallSignAsync(string callSign)
@@ -269,10 +260,21 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
     }
 
     /// <inheritdoc/>
+    public Task<string> GetStatusesEtagByPlace(Region region, string? district, string? hub) => GetEtagForPlace(region, district, hub);
+
+    /// <inheritdoc/>
     public async Task UpdateSettingsAsync(UpdateVehicleSettings settings)
     {
-        var vehicle = await context.Vehicles.Persist(mapper).InsertOrUpdateAsync(settings);
+        var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == settings.Registration);
 
+        if (vehicle == null)
+        {
+            vehicle = new Vehicle();
+            context.Vehicles.Add(vehicle);
+        }
+
+        mapper.Map(settings, vehicle);
+        vehicle.Deleted = null;
         vehicle.ETag = CalculateEtag(vehicle);
 
         await context.SaveChangesAsync();
@@ -282,7 +284,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
 
     private async Task AddSingleEntryAsync(VorIncident vorIncident)
     {
-        var trimmedReg = vorIncident.Registration.ToUpper().Trim().Replace(" ", "");
+        var trimmedReg = vorIncident.Registration.ToUpperInvariant().Trim().Replace(" ", "", StringComparison.OrdinalIgnoreCase);
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == trimmedReg);
 
         if (vehicle == null)
@@ -290,7 +292,7 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
             vehicle = new Vehicle
             {
                 Id = Guid.NewGuid(),
-                CallSign = vorIncident.CallSign.ToUpper().Trim().Replace(" ", ""),
+                CallSign = vorIncident.CallSign.ToUpperInvariant().Trim().Replace(" ", "", StringComparison.OrdinalIgnoreCase),
                 Registration = trimmedReg,
                 BodyType = vorIncident.BodyType,
                 Make = vorIncident.Make,
@@ -331,5 +333,18 @@ public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVeh
 
         vehicle.LastModified = DateTimeOffset.UtcNow;
         vehicle.ETag = CalculateEtag(vehicle);
+    }
+
+    private async Task<string> GetEtagForPlace(Region region, string? district, string? hub)
+    {
+        if (!Enum.IsDefined(region))
+        {
+            throw new ArgumentOutOfRangeException(nameof(region));
+        }
+
+        return await context.Vehicles
+            .GetNotDeleted()
+            .GetForPlace(region, district, hub)
+            .GetEtagStringAsync(DateTime.Now.Date.ToIsoDateString());
     }
 }

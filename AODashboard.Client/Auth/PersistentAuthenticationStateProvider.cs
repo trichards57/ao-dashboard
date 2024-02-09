@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
-namespace AODashboard.Client;
+namespace AODashboard.Client.Auth;
 
 /// <summary>
 /// <para>
@@ -22,7 +22,7 @@ namespace AODashboard.Client;
 /// separately in a cookie included in HttpClient requests to the server.
 /// </para>
 /// </summary>
-internal class PersistentAuthenticationStateProvider : AuthenticationStateProvider
+internal sealed class PersistentAuthenticationStateProvider : AuthenticationStateProvider
 {
     private static readonly Task<AuthenticationState> DefaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
 
@@ -41,11 +41,11 @@ internal class PersistentAuthenticationStateProvider : AuthenticationStateProvid
 
         Claim[] claims = [
             new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
-            new Claim(ClaimTypes.Name, userInfo.Email),
-            new Claim(ClaimTypes.Email, userInfo.Email)];
+            new Claim("name", userInfo.Name),
+            new Claim("preferred_username", userInfo.Email)];
 
         authenticationStateTask = Task.FromResult(
-            new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims.Concat(userInfo.OtherClaims), authenticationType: nameof(PersistentAuthenticationStateProvider)))));
+            new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims.Concat(userInfo.Claims.Select(kvp => new Claim(kvp.Key, kvp.Value))), authenticationType: nameof(PersistentAuthenticationStateProvider)))));
     }
 
     /// <inheritdoc/>
