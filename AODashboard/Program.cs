@@ -5,27 +5,26 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.Client;
+using AODashboard.Client.Auth;
 using AODashboard.Client.Services;
 using AODashboard.Components;
 using AODashboard.Components.Account;
 using AODashboard.Data;
+using AODashboard.Middleware;
+using AODashboard.Middleware.ServerTiming;
 using AODashboard.Services;
-using AutoMapper;
-using AutoMapper.EquivalencyExpression;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.OpenApi.Models;
 using MudBlazor.Services;
 using NetEscapades.AspNetCore.SecurityHeaders;
+using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Syncfusion.Blazor;
 using System.Reflection;
@@ -53,6 +52,8 @@ builder.Services
     .AddMicrosoftIdentityWebApp(o =>
     {
         builder.Configuration.Bind("AzureAd", o);
+        o.Scope.Add("offline_access");
+        o.Scope.Add("User.Read");
         o.Events.OnTokenValidated = async c =>
         {
             var service = c.HttpContext.RequestServices.GetRequiredService<IUserService>();
@@ -76,6 +77,7 @@ builder.Services.Configure<CookieAuthenticationOptions>(CookieAuthenticationDefa
     options.AccessDeniedPath = new PathString("/AccessDenied");
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.IsEssential = true;
 });
 
 builder.Services.AddAuthorizationCore(o =>
@@ -104,11 +106,15 @@ builder.Services.AddSwaggerGen(o =>
     });
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    o.OperationFilter<SecurityRequirementsOperationFilter>();
+    o.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
+    o.OperationFilter<AddResponseHeadersFilter>();
 });
 
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddResponseCaching();
+builder.Services.AddServerTiming();
 
 builder.Services.AddOptions<SwaggerUIOptions>()
     .Configure<IHttpContextAccessor>((o, e) =>
@@ -142,13 +148,7 @@ builder.Services.AddScoped<IPlaceService, PlaceService>();
 
 builder.Services.AddControllers();
 
-builder.Services.AddAutoMapper(
-    (s, a) =>
-    {
-        a.AddCollectionMappers();
-        a.UseEntityFrameworkCoreModel<ApplicationDbContext>(s);
-    },
-    typeof(MapperProfile));
+builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 builder.Services.AddMicrosoftGraph();
 builder.Services.AddMudServices();
@@ -181,31 +181,44 @@ builder.Services.AddRateLimiter(o =>
     });
 });
 
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+builder.Services.AddApplicationInsightsTelemetry(o =>
+{
+    o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
 var app = builder.Build();
 
 var headerPolicy = new HeaderPolicyCollection();
 
-headerPolicy.AddFrameOptionsDeny()
+var cspSettings = builder.Configuration.GetSection("CSP").Get<CspSettings>() ?? new();
+
+headerPolicy
     .AddXssProtectionDisabled()
     .AddContentTypeOptionsNoSniff()
     .AddReferrerPolicyNoReferrer()
     .RemoveServerHeader()
     .AddFrameOptionsDeny()
-    .AddContentSecurityPolicyReportOnly(csp =>
+    .AddContentSecurityPolicy(csp =>
     {
         csp.AddBlockAllMixedContent();
-        csp.AddStyleSrc().Self().From("https://fonts.googleapis.com").UnsafeInline();
-        csp.AddFontSrc().Self().From("https://fonts.googleapis.com").From("https://fonts.gstatic.com");
+        csp.AddStyleSrc().Self().From(cspSettings.StyleSource).UnsafeInline();
+        csp.AddFontSrc().Self().From(cspSettings.FontSource).Data();
         csp.AddFormAction().Self();
         csp.AddFrameAncestors().None();
-        csp.AddImgSrc().Self();
-        csp.AddScriptSrc().Self().WithNonce().UnsafeEval();
+        csp.AddImgSrc().Self().Data();
+        csp.AddScriptSrc().Self().WithNonce().WasmUnsafeEval();
         csp.AddBaseUri().Self();
         csp.AddDefaultSrc().Self();
         csp.AddUpgradeInsecureRequests();
+        csp.AddConnectSrc().Self().From(cspSettings.ConnectSource);
     });
 
 app.UseSecurityHeaders(headerPolicy);
+app.UseMiddleware<ServerTimingMiddleware>();
 
 app.UseResponseCaching();
 

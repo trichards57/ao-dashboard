@@ -5,14 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.ApiControllers.Filters;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
 using AODashboard.Logging;
+using AODashboard.Middleware.ServerTiming;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace AODashboard.ApiControllers;
 
@@ -21,11 +20,11 @@ namespace AODashboard.ApiControllers;
 /// </summary>
 /// <param name="vehicleService">The service used to manage vehicles.</param>
 /// <param name="logger">The controller's logger.</param>
+/// <param name="serverTiming">The server timing service to use.</param>
 [Route("api/vehicle-settings")]
 [ApiController]
 [Authorize]
-[ApiSecurityPolicy]
-public class VehicleSettingsController(IVehicleService vehicleService, ILogger<VehicleSettingsController> logger) : ControllerBase
+public class VehicleSettingsController(IVehicleService vehicleService, ILogger<VehicleSettingsController> logger, IServerTiming serverTiming) : ControllerBase
 {
     /// <summary>
     /// Gets the settings associated with a vehicle, identified by either a call sign or registration.
@@ -42,25 +41,28 @@ public class VehicleSettingsController(IVehicleService vehicleService, ILogger<V
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ResponseCache(Location = ResponseCacheLocation.None, VaryByQueryKeys = ["callSign", "registration"])]
-    public async Task<ActionResult<VehicleSettings>> Get([FromQuery] string? callSign, [FromQuery] string? registration)
+    [ResponseCache(Location = ResponseCacheLocation.None)]
+    [SwaggerResponseHeader(StatusCodes.Status200OK, "ETag", "string", "The ETag for the response.")]
+    [Authorize(Policy = "CanViewVehicles")]
+    public async Task<ActionResult<VehicleSettings?>> Get([FromQuery] string? callSign, [FromQuery] string? registration)
     {
-        using var scope = logger.BeginScope("{Controller} {Name}", nameof(VehicleSettingsController), nameof(Get));
+        using var scope = logger.RunningControllerScope(nameof(VehicleSettingsController), nameof(Get));
 
-        var incomingEtag = Request.GetTypedHeaders().IfNoneMatch.FirstOrDefault(h => !h.IsWeak)?.Tag.Value?.Trim('=').Trim('"');
-
-        Func<Task<string?>> getEtag;
+        Func<Task<string>> getEtag;
         Func<Task<VehicleSettings?>> getVehicle;
+        string logParam;
 
         if (string.IsNullOrWhiteSpace(registration) && !string.IsNullOrWhiteSpace(callSign))
         {
             getEtag = () => vehicleService.GetEtagByCallSignAsync(callSign);
             getVehicle = () => vehicleService.GetByCallSignAsync(callSign);
+            logParam = $"Vehicle {callSign}";
         }
         else if (!string.IsNullOrWhiteSpace(registration) && string.IsNullOrWhiteSpace(callSign))
         {
             getEtag = () => vehicleService.GetEtagByRegistrationAsync(registration);
             getVehicle = () => vehicleService.GetByRegistrationAsync(registration);
+            logParam = $"Vehicle {registration}";
         }
         else
         {
@@ -75,38 +77,7 @@ public class VehicleSettingsController(IVehicleService vehicleService, ILogger<V
             });
         }
 
-        var actualEtag = (await getEtag())?.Trim('=');
-
-        if (!string.IsNullOrWhiteSpace(incomingEtag) && !string.IsNullOrWhiteSpace(actualEtag) && incomingEtag.Equals(actualEtag, StringComparison.Ordinal))
-        {
-            RequestLogging.NotModified(logger, $"Vehicle {callSign}");
-
-            return StatusCode(StatusCodes.Status304NotModified);
-        }
-
-        var vehicle = await getVehicle();
-
-        if (vehicle == null)
-        {
-            RequestLogging.NotFound(logger, $"Vehicle {callSign}");
-
-            return NotFound(new ProblemDetails
-            {
-                Type = "about:blank",
-                Title = "Not Found",
-                Detail = "The requested item was not found.",
-                Status = StatusCodes.Status404NotFound,
-                Instance = Request.GetDisplayUrl(),
-            });
-        }
-
-        if (!string.IsNullOrWhiteSpace(actualEtag))
-        {
-            Response.GetTypedHeaders().ETag = new EntityTagHeaderValue($"\"{actualEtag}\"", false);
-        }
-
-        RequestLogging.Found(logger, $"Vehicle {callSign}");
-        return Ok(vehicle);
+        return await this.CachedGet(getEtag, getVehicle, logger, logParam, serverTiming);
     }
 
     /// <summary>
@@ -119,6 +90,7 @@ public class VehicleSettingsController(IVehicleService vehicleService, ILogger<V
     [HttpPost]
     [ProducesResponseType(typeof(VehicleSettings), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [Authorize(Policy = "CanEditVehicles")]
     public async Task<ActionResult<VehicleSettings>> Post([FromBody] UpdateVehicleSettings vehicleSettings)
     {
         await vehicleService.UpdateSettingsAsync(vehicleSettings);

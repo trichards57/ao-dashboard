@@ -5,12 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace AODashboard.Data;
 
 /// <summary>
 /// An incident resulting in the vehicle becoming VOR.
 /// </summary>
-public class Incident
+internal sealed class Incident
 {
     /// <summary>
     /// Gets or sets the comments associated with the incident.
@@ -48,6 +50,7 @@ public class Incident
     /// <summary>
     /// Gets or sets the vehicle the incident is associated with.
     /// </summary>
+    [NotNull]
     public Vehicle? Vehicle { get; set; }
 
     /// <summary>

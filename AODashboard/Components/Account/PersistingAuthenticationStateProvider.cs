@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.Client;
+using AODashboard.Client.Auth;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
@@ -93,15 +93,17 @@ internal sealed class PersistingAuthenticationStateProvider : ServerAuthenticati
         if (principal.Identity?.IsAuthenticated == true)
         {
             var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
-            var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+            var email = principal.FindFirst("preferred_username")?.Value;
+            var name = principal.FindFirst("name")?.Value;
 
-            if (userId != null && email != null)
+            if (userId != null && email != null && name != null)
             {
                 state.PersistAsJson(nameof(UserInfo), new UserInfo
                 {
                     UserId = userId,
                     Email = email,
-                    OtherClaims = principal.Identities.Where(i => i.AuthenticationType == "Local").SelectMany(i => i.Claims),
+                    Name = name,
+                    Claims = principal.Claims.ToDictionary(c => c.Type, c => c.Value),
                 });
             }
         }

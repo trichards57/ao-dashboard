@@ -7,13 +7,16 @@
 
 using AODashboard.Client.Model;
 using AODashboard.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AODashboard.Services;
 
 /// <summary>
 /// Some helpers to work with the vehicle data.
 /// </summary>
-public static class Helpers
+internal static class Helpers
 {
     /// <summary>
     /// Gets all of the vehicles that are not deleted.
@@ -24,6 +27,29 @@ public static class Helpers
         => vehicles.Where(v => v.Deleted == null);
 
     /// <summary>
+    /// Gets the ETag string for the provided vehicles.
+    /// </summary>
+    /// <param name="vehicles">The vehicles to calculate the ETag for.</param>
+    /// <param name="extraTag">An optional extra tag to add to the ETag.</param>
+    /// <returns>The ETag as a string.</returns>
+    public static async Task<string> GetEtagStringAsync(this IQueryable<Vehicle> vehicles, string? extraTag = null)
+    {
+        var strings = await vehicles
+            .OrderBy(v => v.Id)
+            .Select(v => $"{v.Id}-{v.LastModified:O}")
+            .ToListAsync();
+
+        var combinedIds = string.Concat(strings);
+
+        if (!string.IsNullOrWhiteSpace(extraTag))
+        {
+            combinedIds = extraTag + combinedIds;
+        }
+
+        return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(combinedIds))).Trim('=');
+    }
+
+    /// <summary>
     /// Gets all the vehicles at the specified place.
     /// </summary>
     /// <param name="vehicles">The vehicle items to query.</param>
@@ -31,7 +57,7 @@ public static class Helpers
     /// <param name="district">The district to check for.</param>
     /// <param name="hub">The hub to check for.</param>
     /// <returns>All the vehicles in <paramref name="vehicles"/> that are in the given place.</returns>
-    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Region region, string? district, string? hub)
+    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Region region, string? district = null, string? hub = null)
     {
         if (region == Region.All)
         {
@@ -62,7 +88,7 @@ public static class Helpers
     /// <param name="district">The district to check for.</param>
     /// <param name="hub">The hub to check for.</param>
     /// <returns>All the incidents in <paramref name="incidents"/> that are in the given place.</returns>
-    public static IQueryable<Incident> GetForPlace(this IQueryable<Incident> incidents, Region region, string? district, string? hub)
+    public static IQueryable<Incident> GetForPlace(this IQueryable<Incident> incidents, Region region, string? district = null, string? hub = null)
     {
         if (region == Region.All)
         {

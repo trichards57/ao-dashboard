@@ -9,6 +9,7 @@ using AODashboard.ApiControllers;
 using AODashboard.Client.Logging;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
+using AODashboard.Middleware.ServerTiming;
 using AODashboard.Services;
 using AutoFixture;
 using FluentAssertions;
@@ -24,10 +25,14 @@ public class VehicleSettingsControllerTests
     private readonly VehicleSettingsController controller;
     private readonly Fixture fixture = new();
     private readonly Mock<ILogger<VehicleSettingsController>> loggerMock;
+    private readonly List<ServerTimingMetric> serverTimingMetrics = [];
+    private readonly Mock<IServerTiming> serverTimingMock;
     private readonly Mock<IVehicleService> vehicleServiceMock;
 
     public VehicleSettingsControllerTests()
     {
+        serverTimingMock = new Mock<IServerTiming>();
+        serverTimingMock.Setup(s => s.Metrics).Returns(serverTimingMetrics);
         vehicleServiceMock = new Mock<IVehicleService>();
         loggerMock = new Mock<ILogger<VehicleSettingsController>>();
 
@@ -35,7 +40,7 @@ public class VehicleSettingsControllerTests
         loggerMock.Setup(s => s.IsEnabled(LogLevel.Warning)).Returns(true);
         loggerMock.Setup(s => s.IsEnabled(LogLevel.Error)).Returns(true);
 
-        controller = new VehicleSettingsController(vehicleServiceMock.Object, loggerMock.Object)
+        controller = new VehicleSettingsController(vehicleServiceMock.Object, loggerMock.Object, serverTimingMock.Object)
         {
             ControllerContext = new ControllerContext
             {

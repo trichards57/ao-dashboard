@@ -5,9 +5,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using AODashboard.Client.Auth;
 using AODashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web;
 using System.Security.Claims;
 
 namespace AODashboard.Services;
@@ -17,26 +20,37 @@ namespace AODashboard.Services;
 /// </summary>
 /// <param name="context">The data context to store data in.</param>
 /// <param name="graphServiceClient">Client to access the Graph API.</param>
-internal class UserService(ApplicationDbContext context, GraphServiceClient graphServiceClient) : IUserService
+internal sealed class UserService(ApplicationDbContext context, GraphServiceClient graphServiceClient) : IUserService
 {
     /// <inheritdoc/>
     public async Task<MemoryStream?> GetProfilePictureAsync()
     {
-        await graphServiceClient.Me.GetAsync();
+        try
+        {
+            await graphServiceClient.Me.GetAsync();
 
-        var result = await graphServiceClient.Me.Photos["48x48"].Content.GetAsync();
+            var result = await graphServiceClient.Me.Photos["48x48"].Content.GetAsync();
 
-        if (result == null)
+            if (result == null)
+            {
+                return null;
+            }
+
+            var newStream = new MemoryStream();
+            await result.CopyToAsync(newStream);
+
+            newStream.Position = 0;
+
+            return newStream;
+        }
+        catch (MicrosoftIdentityWebChallengeUserException)
         {
             return null;
         }
-
-        var newStream = new MemoryStream();
-        result.CopyTo(newStream);
-
-        newStream.Position = 0;
-
-        return newStream;
+        catch (MsalUiRequiredException)
+        {
+            return null;
+        }
     }
 
     /// <inheritdoc/>

@@ -7,7 +7,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 
-namespace AODashboard.Client;
+namespace AODashboard.Client.Auth;
 
 /// <summary>
 /// Helper to set up common permissions behaviour on server and client.
@@ -20,6 +20,10 @@ public static class PermissionsHelpers
     /// <param name="options">The options to add the policies to.</param>
     public static void AddPolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy("CanEditVehicles", policy => policy.RequireClaim("VehicleConfiguration", "Edit"));
+        options.AddPolicy("CanViewVehicles", policy => policy.RequireClaim(UserClaims.VehicleConfiguration, UserClaims.Read, UserClaims.Edit));
+        options.AddPolicy("CanEditVehicles", policy => policy.RequireClaim(UserClaims.VehicleConfiguration, UserClaims.Edit));
+        options.AddPolicy("CanViewPlaces", policy => policy.RequireClaim(UserClaims.VorData, UserClaims.Read, UserClaims.Edit));
+        options.AddPolicy("CanEditVOR", policy => policy.RequireClaim(UserClaims.VorData, UserClaims.Edit));
+        options.AddPolicy("CanViewVOR", policy => policy.RequireClaim(UserClaims.VorData, UserClaims.Read, UserClaims.Edit));
     }
 }

@@ -9,6 +9,7 @@ using AODashboard.ApiControllers;
 using AODashboard.Client.Logging;
 using AODashboard.Client.Model;
 using AODashboard.Client.Services;
+using AODashboard.Middleware.ServerTiming;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -26,12 +27,16 @@ public class VorControllerTests
     private readonly Mock<HttpContext> httpContextMock;
     private readonly VorController controller;
     private readonly Fixture fixture = new();
+    private readonly Mock<IServerTiming> serverTimingMock;
+    private readonly List<ServerTimingMetric> serverTimingMetrics = [];
 
     public VorControllerTests()
     {
         vehicleServiceMock = new Mock<IVehicleService>();
         loggerMock = new Mock<ILogger<VorController>>();
         httpContextMock = new Mock<HttpContext>();
+        serverTimingMock = new Mock<IServerTiming>();
+        serverTimingMock.Setup(s => s.Metrics).Returns(serverTimingMetrics);
 
         var userMock = new Mock<ClaimsPrincipal>();
         userMock.Setup(p => p.Claims)
@@ -42,7 +47,7 @@ public class VorControllerTests
         loggerMock.Setup(s => s.IsEnabled(LogLevel.Information)).Returns(true);
         loggerMock.Setup(s => s.IsEnabled(LogLevel.Warning)).Returns(true);
 
-        controller = new VorController(vehicleServiceMock.Object, loggerMock.Object)
+        controller = new VorController(vehicleServiceMock.Object, loggerMock.Object, serverTimingMock.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -83,18 +88,6 @@ public class VorControllerTests
 
         result.Should().BeOfType<OkResult>();
         loggerMock.Verify(logger => logger.Log(LogLevel.Debug, new EventId(EventIds.RequestUpdated, nameof(EventIds.RequestUpdated)), It.IsAny<It.IsAnyType>(), It.IsAny<Exception?>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
-    }
-
-    [Fact]
-    public async Task Delete_ReturnsNoContentResult()
-    {
-        vehicleServiceMock.Setup(service => service.ClearVorsAsync())
-                          .Returns(Task.CompletedTask);
-
-        var result = await controller.Delete();
-
-        result.Should().BeOfType<NoContentResult>();
-        loggerMock.Verify(logger => logger.Log(LogLevel.Information, new EventId(EventIds.RequestCleared, nameof(EventIds.RequestCleared)), It.IsAny<It.IsAnyType>(), It.IsAny<Exception?>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()));
     }
 
     [Fact]

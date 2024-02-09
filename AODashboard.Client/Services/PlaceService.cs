@@ -7,7 +7,6 @@
 
 using AODashboard.Client.Model;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace AODashboard.Client.Services;
 
@@ -15,7 +14,7 @@ namespace AODashboard.Client.Services;
 /// Service to manage places on the server.
 /// </summary>
 /// <param name="client">The client used to communicate with the server.</param>
-internal class PlaceService(HttpClient client) : IPlaceService
+internal sealed class PlaceService(HttpClient client) : IPlaceService
 {
     /// <inheritdoc/>
     public async Task<Places> GetDistrictHubs(Region region, string district)
@@ -26,10 +25,16 @@ internal class PlaceService(HttpClient client) : IPlaceService
     }
 
     /// <inheritdoc/>
+    public Task<string> GetDistrictHubsETag(Region region, string district) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
     public async Task<Places> GetDistrictNames(Region region)
     {
         var uri = $"/api/places/{region}/districts";
 
         return await client.GetFromJsonAsync<Places>(uri);
     }
+
+    /// <inheritdoc/>
+    public Task<string> GetDistrictNamesETag(Region region) => throw new NotImplementedException();
 }

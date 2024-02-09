@@ -16,16 +16,13 @@ namespace AODashboard.Client.Services;
 /// A service to manage vehicles on the server.
 /// </summary>
 /// <param name="client">The client used to communicate with the server.</param>
-internal class VehicleService(HttpClient client) : IVehicleService
+internal sealed class VehicleService(HttpClient client) : IVehicleService
 {
     /// <inheritdoc/>
-    public Task AddEntriesAsync(IEnumerable<VorIncident> vorIncident) => throw new NotImplementedException();
+    public Task AddEntriesAsync(IList<VorIncident> vorIncident) => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public Task AddEntryAsync(VorIncident vorIncident) => throw new NotImplementedException();
-
-    /// <inheritdoc/>
-    public Task ClearVorsAsync() => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public async Task<VehicleSettings?> GetByCallSignAsync(string callSign)
@@ -58,10 +55,10 @@ internal class VehicleService(HttpClient client) : IVehicleService
     }
 
     /// <inheritdoc/>
-    public Task<string?> GetEtagByCallSignAsync(string callSign) => throw new NotImplementedException();
+    public Task<string> GetEtagByCallSignAsync(string callSign) => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    public Task<string?> GetEtagByRegistrationAsync(string registration) => throw new NotImplementedException();
+    public Task<string> GetEtagByRegistrationAsync(string registration) => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public Task<DateTimeOffset?> GetLastUpdateByCallSignAsync(string callSign) => throw new NotImplementedException();
@@ -107,6 +104,9 @@ internal class VehicleService(HttpClient client) : IVehicleService
             yield return item;
         }
     }
+
+    /// <inheritdoc/>
+    public Task<string> GetStatusesEtagByPlace(Region region, string? district, string? hub) => throw new NotImplementedException();
 
     /// <inheritdoc/>
     public async Task UpdateSettingsAsync(UpdateVehicleSettings settings)

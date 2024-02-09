@@ -16,7 +16,7 @@ namespace AODashboard.Data;
 /// Main data context used by the system.
 /// </summary>
 /// <param name="options">The database options for this instance.</param>
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     /// <summary>
     /// Gets or sets the incidents logged in the system.

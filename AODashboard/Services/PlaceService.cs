@@ -17,8 +17,29 @@ namespace AODashboard.Services;
 /// Service to access information about places.
 /// </summary>
 /// <param name="context">The data context to access.</param>
-public class PlaceService(ApplicationDbContext context) : IPlaceService
+internal sealed class PlaceService(ApplicationDbContext context) : IPlaceService
 {
+    /// <inheritdoc/>
+    public async Task<string> GetDistrictHubsETag(Region region, string district)
+    {
+        if (!Enum.IsDefined(region))
+        {
+            throw new ArgumentException($"Region {region} is not defined.", nameof(region));
+        }
+
+        if (region == Region.All || region == Region.Unknown)
+        {
+            throw new ArgumentOutOfRangeException(nameof(region), "Region must be a specific region.");
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(district);
+
+        return await context.Vehicles
+            .GetNotDeleted()
+            .GetForPlace(region, district)
+            .GetEtagStringAsync();
+    }
+
     /// <inheritdoc/>
     public async Task<Places> GetDistrictHubs(Region region, string district)
     {
@@ -36,7 +57,7 @@ public class PlaceService(ApplicationDbContext context) : IPlaceService
 
         var districts = await context.Vehicles
             .GetNotDeleted()
-            .Where(p => p.Region == region && p.District == district)
+            .GetForPlace(region, district)
             .Select(p => p.Hub)
             .Distinct()
             .Where(n => !string.IsNullOrWhiteSpace(n))
@@ -61,7 +82,7 @@ public class PlaceService(ApplicationDbContext context) : IPlaceService
 
         var districts = await context.Vehicles
             .GetNotDeleted()
-            .Where(p => p.Region == region)
+            .GetForPlace(region)
             .Select(p => p.District)
             .Distinct()
             .Where(n => !string.IsNullOrWhiteSpace(n))
@@ -69,5 +90,24 @@ public class PlaceService(ApplicationDbContext context) : IPlaceService
             .ToListAsync();
 
         return new Places { Names = districts.ToImmutableList() };
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetDistrictNamesETag(Region region)
+    {
+        if (!Enum.IsDefined(region))
+        {
+            throw new ArgumentException($"Region {region} is not defined.", nameof(region));
+        }
+
+        if (region == Region.All || region == Region.Unknown)
+        {
+            throw new ArgumentOutOfRangeException(nameof(region), "Region must be a specific region.");
+        }
+
+        return await context.Vehicles
+            .GetNotDeleted()
+            .GetForPlace(region)
+            .GetEtagStringAsync();
     }
 }

@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AODashboard.Client", "AODas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AODashboard", "AODashboard\AODashboard.csproj", "{64C85C2D-B011-45FA-9A00-42D554CF39A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AODashboard.Tests", "AODashboard.Tests\AODashboard.Tests.csproj", "{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AODashboard.Tests", "AODashboard.Tests\AODashboard.Tests.csproj", "{FBBBAE19-6986-4F58-BE3C-85CBF4A2B66B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,9 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Security.Claims;
-
-namespace AODashboard.Client;
+namespace AODashboard.Client.Auth;
 
 /// <summary>
 /// Represents the user information passed by the server to the client.
@@ -15,9 +13,9 @@ namespace AODashboard.Client;
 public class UserInfo
 {
     /// <summary>
-    /// Gets or sets the user's ID.
+    /// Gets the user's claims.
     /// </summary>
-    public required string UserId { get; set; }
+    public Dictionary<string, string> Claims { get; init; } = [];
 
     /// <summary>
     /// Gets or sets the user's email address.
@@ -25,7 +23,12 @@ public class UserInfo
     public required string Email { get; set; }
 
     /// <summary>
-    /// Gets or sets the user's other claims not covered by the other properties.
+    /// Gets or sets the user's name.
     /// </summary>
-    public required IEnumerable<Claim> OtherClaims { get; set; }
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// Gets or sets the user's ID.
+    /// </summary>
+    public required string UserId { get; set; }
 }

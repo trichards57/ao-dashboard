@@ -13,7 +13,7 @@ namespace AODashboard.ApiControllers.Validation;
 /// <summary>
 /// Validates that the provided value is both a valid region and not set to <see cref="Region.Unknown"/>.
 /// </summary>
-public class RequiredRegionAttribute : ValidationAttribute
+public sealed class RequiredRegionAttribute : ValidationAttribute
 {
     /// <inheritdoc/>
     public override bool IsValid(object? value)

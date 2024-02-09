@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using AODashboard.Client.Model
 @using AODashboard.Client.Services
-@attribute [Authorize]
+@attribute [Authorize(Policy = "CanViewVOR")]
 @rendermode InteractiveAuto
 
 @inject IPlaceService PlaceService
@@ -11,41 +11,7 @@
 
 <MudText Typo="Typo.h1">Home</MudText>
 
-<MudToolBar>
-    <MudGrid>
-        <MudItem sm="4">
-            <MudSelect Label="Region" T="Model.Region" @bind-Value="Region">
-                <MudSelectItem Value="Model.Region.All">All</MudSelectItem>
-                <MudSelectItem Value="Model.Region.EastOfEngland">East of England</MudSelectItem>
-                <MudSelectItem Value="Model.Region.EastMidlands">East Midlands</MudSelectItem>
-                <MudSelectItem Value="Model.Region.London">London</MudSelectItem>
-                <MudSelectItem Value="Model.Region.NorthEast">North East</MudSelectItem>
-                <MudSelectItem Value="Model.Region.NorthWest">North West</MudSelectItem>
-                <MudSelectItem Value="Model.Region.SouthEast">South East</MudSelectItem>
-                <MudSelectItem Value="Model.Region.SouthWest">South West</MudSelectItem>
-                <MudSelectItem Value="Model.Region.WestMidlands">West Midlands</MudSelectItem>
-            </MudSelect>
-        </MudItem>
-        <MudItem sm="4">
-            <MudSelect Label="District" T="string" @bind-Value="SelectedDistrict" Disabled="!districts.Any()">
-                <MudSelectItem Value="@("All")">All</MudSelectItem>
-                @foreach (var district in districts)
-                {
-                    <MudSelectItem Value="@district">@district</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem sm="4">
-            <MudSelect Label="Hub" T="string" @bind-Value="SelectedHub" Disabled="!hubs.Any()">
-                <MudSelectItem Value="@("All")">All</MudSelectItem>
-                @foreach (var hub in hubs)
-                {
-                    <MudSelectItem Value="@hub">@hub</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-    </MudGrid>
-</MudToolBar>
+<AODashboard.Client.Components.PlaceSelector ValueChanged="UpdateVehicles" />
 
 <div>
     <MudGrid Style="padding-top: 1rem">
@@ -91,22 +57,17 @@
     private record class AvailabilityData
     {
         public int Value { get; init; }
-        public string Color { get; init; }
-        public string Label { get; init; }
+        public string Color { get; init; } = "";
+        public string Label { get; init; } = "";
     }
 
     private record class HistoricData
     {
         public int Value { get; init; }
-        public string Color { get; init; }
+        public string Color { get; init; } = "";
         public DateOnly Date { get; init; }
     }
 
-    private Model.Region region = Model.Region.All;
-    private IEnumerable<string> districts = new List<string>();
-    private IEnumerable<string> hubs = new List<string>();
-    private string selectedDistrict = "All";
-    private string selectedHub = "All";
     private VorStatistics vorStats = default;
 
     private List<AvailabilityData> AvailablePoints => [
@@ -118,77 +79,8 @@
 
     private decimal availablePercent => vorStats.TotalVehicles == 0 ? 0 : (vorStats.AvailableVehicles / vorStats.TotalVehicles) * 100;
 
-    protected override async Task OnInitializedAsync()
+    private async Task UpdateVehicles(Place place)
     {
-        await UpdateVehicles();
-    }
-
-    private Model.Region Region
-    {
-        get => region;
-        set
-        {
-            region = value;
-            UpdateDistricts();
-        }
-    }
-
-    private string SelectedDistrict
-    {
-        get => selectedDistrict;
-        set
-        {
-            selectedDistrict = value;
-            UpdateHubs();
-        }
-    }
-
-    private string SelectedHub
-    {
-        get => selectedHub;
-        set
-        {
-            selectedHub = value;
-            UpdateVehicles();
-        }
-    }
-
-    private async void UpdateHubs()
-    {
-        if (SelectedDistrict == "All")
-        {
-            hubs = new List<string>();
-        }
-        else
-        {
-            hubs = (await PlaceService.GetDistrictHubs(Region, SelectedDistrict)).Names;
-        }
-
-        SelectedHub = "All";
-
-        StateHasChanged();
-    }
-
-    private async void UpdateDistricts()
-    {
-        if (Region == Model.Region.All)
-        {
-            districts = new List<string>();
-        }
-        else
-        {
-            districts = (await PlaceService.GetDistrictNames(region)).Names;
-        }
-
-        SelectedDistrict = "All";
-
-        StateHasChanged();
-    }
-
-    private async Task UpdateVehicles()
-    {
-        vorStats = await VehicleService.GetStatisticsByPlace(Region, SelectedDistrict == "All" ? null : SelectedDistrict, SelectedHub == "All" ? null : SelectedHub);
-
-        StateHasChanged();
+        vorStats = await VehicleService.GetStatisticsByPlace(place.Region, place.District == "All" ? null : place.District, place.Hub == "All" ? null : place.Hub);
     }
 }
