@@ -1,0 +1,6 @@
+@AmbulanceDashboard.Server_HostAddress = http://localhost:5255
+
+GET {{AmbulanceDashboard.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

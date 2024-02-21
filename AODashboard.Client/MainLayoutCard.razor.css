@@ -1,9 +1,0 @@
-﻿.card {
-    padding: 0.25rem 1rem 1rem 1rem;
-    box-shadow: 0 0 0.5rem var(--color-shadow);
-    border-radius: 0.25rem;
-    background-color: white;
-    display: block;
-    margin-left: 10px;
-    margin-right: 10px;
-}
