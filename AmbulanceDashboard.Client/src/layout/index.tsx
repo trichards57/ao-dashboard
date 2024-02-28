@@ -1,42 +1,45 @@
-import { styled } from "@mui/material/styles";
+// -----------------------------------------------------------------------
+// <copyright file="index.ts" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+import { AuthenticatedTemplate, useMsal } from "@azure/msal-react";
 import {
-  Typography,
-  Link,
+  CarCrash as CarCrashIcon,
+  ChevronLeft as ChevronLeftIcon,
+  Home as HomeIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+  Settings as SettingsIcon,
+} from "@mui/icons-material";
+import {
   Box,
-  Toolbar,
-  IconButton,
-  Divider,
-  List,
   Container,
-  AppBar as MuiAppBar,
-  AppBarProps as MuiAppBarProps,
-  Drawer as MuiDrawer,
+  Divider,
+  IconButton,
+  Link,
+  List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  AppBar as MuiAppBar,
+  AppBarProps as MuiAppBarProps,
+  Drawer as MuiDrawer,
+  Toolbar,
+  Typography,
 } from "@mui/material";
-import {
-  CarCrash as CarCrashIcon,
-  Settings as SettingsIcon,
-  Home as HomeIcon,
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
-  Logout as LogoutIcon,
-} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import { LinkProps, Link as NavLink } from "@tanstack/react-router";
 import {
   PropsWithChildren,
   forwardRef,
-  useCallback,
-  useMemo,
   useState,
 } from "react";
-import {
-  Location,
-  NavLink,
-  NavLinkProps,
-  ScrollRestoration,
-} from "react-router-dom";
-import { AuthenticatedTemplate, useMsal } from "@azure/msal-react";
+
+import { useUserPermissions } from "../api-hooks/users";
 
 function Copyright() {
   return (
@@ -49,9 +52,12 @@ function Copyright() {
       {"Copyright © "}
       <Link color="inherit" href="https://tr-toolbox.me.uk/" target="_blank" rel="noreferrer">
         Tony Richards
-      </Link>{" "}
+      </Link>
+      {" "}
       {new Date().getFullYear()}
-      , all rights reserved.  <Link color="inherit" href="https://www.flaticon.com/free-icons/car" target="_blank" rel="noreferrer">Ambulance logo created by Freepik - Flaticon</Link>
+      , all rights reserved.
+      {" "}
+      <Link color="inherit" href="https://www.flaticon.com/free-icons/car" target="_blank" rel="noreferrer">Ambulance logo created by Freepik - Flaticon</Link>
     </Typography>
   );
 }
@@ -106,9 +112,14 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-export default function Layout({ children }: PropsWithChildren) {
+const LocalNavLink = forwardRef<HTMLAnchorElement, LinkProps & { href: string }>(
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  ({ href, ...props }, ref) => <NavLink ref={ref} {...props} to={href} />,
+);
+
+export default function Layout({ children }: Readonly<PropsWithChildren>) {
+  const { data: permissions } = useUserPermissions();
   const [open, setOpen] = useState(false);
-  const getKey = useCallback((l: Location) => l.key, []);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -120,77 +131,77 @@ export default function Layout({ children }: PropsWithChildren) {
     instance.logoutRedirect();
   };
 
-  const LocalNavLink = useMemo(
-    () =>
-      forwardRef<HTMLAnchorElement, NavLinkProps & { href: string }>(
-        ({ href, ...props }, ref) => <NavLink ref={ref} {...props} to={href} />
-      ),
-    []
-  );
-
   return (
-    <>
-      <Box sx={{ display: "flex" }}>
-        <AppBar position="absolute" open={open}>
-          <Toolbar
+    <Box sx={{ display: "flex" }}>
+      <AppBar position="absolute" open={open}>
+        <Toolbar
+          sx={{
+            pr: "24px", // keep right padding when drawer closed
+          }}
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
             sx={{
-              pr: "24px", // keep right padding when drawer closed
+              marginRight: "36px",
+              ...(open && { display: "none" }),
             }}
           >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: "36px",
-                ...(open && { display: "none" }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Ambulance Dashboard
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              px: [1],
-            }}
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            sx={{ flexGrow: 1 }}
           >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List component="nav">
-            <ListItemButton LinkComponent={LocalNavLink} href="/">
+            Ambulance Dashboard
+          </Typography>
+          <Typography
+            component="p"
+            variant="body1"
+            color="inherit"
+            noWrap
+          >
+            {permissions?.userId}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Drawer variant="permanent" open={open}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            px: [1],
+          }}
+        >
+          <IconButton onClick={toggleDrawer}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </Toolbar>
+        <Divider />
+        <List component="nav">
+          <ListItemButton LinkComponent={LocalNavLink} href="/home">
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItemButton>
+          <AuthenticatedTemplate>
+            <ListItemButton
+              LinkComponent={LocalNavLink}
+              href="/vehicles/status"
+            >
               <ListItemIcon>
-                <HomeIcon />
+                <CarCrashIcon />
               </ListItemIcon>
-              <ListItemText primary="Home" />
+              <ListItemText primary="Vehicle Status" />
             </ListItemButton>
-            <AuthenticatedTemplate>
-              <ListItemButton
-                LinkComponent={LocalNavLink}
-                href="/vehicles/status"
-              >
-                <ListItemIcon>
-                  <CarCrashIcon />
-                </ListItemIcon>
-                <ListItemText primary="Vehicle Status" />
-              </ListItemButton>
+            {permissions?.canEditVehicles && (
               <ListItemButton
                 LinkComponent={LocalNavLink}
                 href="/vehicles/config"
@@ -200,36 +211,34 @@ export default function Layout({ children }: PropsWithChildren) {
                 </ListItemIcon>
                 <ListItemText primary="Vehicle Configuration" />
               </ListItemButton>
-              <Divider />
-              <ListItemButton onClick={() => signOut()}>
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary="Log Out" />
-              </ListItemButton>
-            </AuthenticatedTemplate>
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === "light"
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-            flexGrow: 1,
-            height: "100vh",
-            overflow: "auto",
-          }}
-        >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            {children}
-            <Copyright />
-          </Container>
-        </Box>
+            )}
+            <Divider />
+            <ListItemButton onClick={() => signOut()}>
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText primary="Log Out" />
+            </ListItemButton>
+          </AuthenticatedTemplate>
+        </List>
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          backgroundColor: (theme) => (theme.palette.mode === "light"
+            ? theme.palette.grey[100]
+            : theme.palette.grey[900]),
+          flexGrow: 1,
+          height: "100vh",
+          overflow: "auto",
+        }}
+      >
+        <Toolbar />
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          {children}
+          <Copyright />
+        </Container>
       </Box>
-      <ScrollRestoration getKey={getKey} />
-    </>
+    </Box>
   );
 }

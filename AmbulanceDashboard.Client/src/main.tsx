@@ -1,14 +1,24 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
+// -----------------------------------------------------------------------
+// <copyright file="main.tsx" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 import {
   AuthenticationResult,
   Configuration,
   EventType,
   PublicClientApplication,
 } from "@azure/msal-browser";
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+import App from "./app";
+import { authority, clientId } from "./utils/auth";
 
 const ua = window.navigator.userAgent;
 const msie = ua.indexOf("MSIE ");
@@ -17,7 +27,7 @@ const msedge = ua.indexOf("Edge/");
 const firefox = ua.indexOf("Firefox");
 const isIE = msie > 0 || msie11 > 0;
 const isEdge = msedge > 0;
-const isFirefox = firefox > 0; // Only needed if you need to support the redirect flow in Firefox incognito
+const isFirefox = firefox > 0;
 
 const defaultTheme = createTheme({
   typography: {
@@ -44,9 +54,8 @@ const defaultTheme = createTheme({
 
 const configuration: Configuration = {
   auth: {
-    clientId: "ae7dee55-3f98-4bda-b5cf-7641de4a1776",
-    authority:
-      "https://login.microsoftonline.com/91d037fb-4714-4fe8-b084-68c083b8193f",
+    clientId,
+    authority,
     redirectUri: "/",
     postLogoutRedirectUri: "/",
   },
@@ -60,24 +69,23 @@ const configuration: Configuration = {
 };
 
 const pca = new PublicClientApplication(configuration);
-await pca.initialize();
-pca.enableAccountStorageEvents();
-pca.handleRedirectPromise().catch((e) => {
-  console.error(e);
-});
-pca.addEventCallback((m) => {
-  if (m.eventType === EventType.LOGOUT_SUCCESS) {
-    localStorage.clear();
-  } else if (
-    m.eventType === EventType.LOGIN_SUCCESS &&
-    (m.payload as AuthenticationResult)?.account
-  ) {
-    const account = (m.payload as AuthenticationResult).account;
+pca.initialize().then(() => {
+  pca.enableAccountStorageEvents();
+  pca.handleRedirectPromise();
+  pca.addEventCallback((m) => {
+    if (m.eventType === EventType.LOGOUT_SUCCESS) {
+      localStorage.clear();
+    } else if (
+      m.eventType === EventType.LOGIN_SUCCESS
+      && (m.payload as AuthenticationResult)?.account
+    ) {
+      const { account } = (m.payload as AuthenticationResult);
 
-    if (account.tenantId == "91d037fb-4714-4fe8-b084-68c083b8193f") {
-      pca.setActiveAccount(account);
+      if (account.tenantId === "91d037fb-4714-4fe8-b084-68c083b8193f") {
+        pca.setActiveAccount(account);
+      }
     }
-  }
+  });
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -86,5 +94,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <CssBaseline />
       <App pca={pca} />
     </ThemeProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

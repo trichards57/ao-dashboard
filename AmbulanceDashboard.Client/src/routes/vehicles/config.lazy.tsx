@@ -1,63 +1,76 @@
+// -----------------------------------------------------------------------
+// <copyright file="config.lazy.tsx" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+import { Search as SearchIcon } from "@mui/icons-material";
 import {
-  InputAdornment,
-  Paper,
-  Autocomplete,
-  TextField,
-  Snackbar,
-  AlertColor,
   Alert,
-  Select,
-  Unstable_Grid2 as Grid,
+  AlertColor,
+  Autocomplete,
+  Button,
   FormControl,
+  FormControlLabel,
+  Unstable_Grid2 as Grid,
+  InputAdornment,
   InputLabel,
   MenuItem,
-  Button,
-  Typography,
+  Paper,
+  Select,
+  Snackbar,
   Switch,
-  FormControlLabel,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { Search as SearchIcon } from "@mui/icons-material";
-import Layout from "../layout";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSaveVehicle, useVehicleDetails, useVehicleNames } from "./hooks";
+import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
+import {
+  useCallback, useEffect, useMemo, useState,
+} from "react";
 
-export default function VehicleConfiguration() {
+import { useMutateVehicleDetails, useVehicleDetails, useVehicleNames } from "../../api-hooks/config";
+import { useUserPermissions } from "../../api-hooks/users";
+import { useIsSjaAuthenticated } from "../../utils/auth";
+
+function VehicleConfiguration() {
+  const isAuthenticated = useIsSjaAuthenticated();
   const [selectedVehicle, setSelectedVehicle] = useState({
     id: "",
     label: "",
   } as { id: string; label: string });
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackvarSeverity, setSnackbarSeverity] = useState(
-    "info" as AlertColor
+  const [snackbarSeverity, setSnackbarSeverity] = useState(
+    "info" as AlertColor,
   );
   const displayError = useCallback((message: string, severity: AlertColor) => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setShowSnackbar(true);
   }, []);
-  const { names, isLoading, reset: resetNames } = useVehicleNames(displayError);
+  const { data: names, isLoading } = useVehicleNames();
   const nameOptions = useMemo(
-    () =>
-      [...(names ?? [])]
-        .sort((a, b) => a.registration.localeCompare(b.registration))
-        .map((n) => ({
-          id: n.id,
-          label: `${n.registration} (${n.callSign})`,
-        })) ?? [],
-    [names]
+    () => [...(names ?? [])]
+      .sort((a, b) => a.registration.localeCompare(b.registration))
+      .map((n) => ({
+        id: n.id,
+        label: `${n.registration} (${n.callSign})`,
+      })) ?? [],
+    [names],
   );
-  const saveVehicle = useSaveVehicle(displayError);
-  const { details } = useVehicleDetails(
-    selectedVehicle?.id ?? "",
-    displayError
-  );
+  const { data: details } = useVehicleDetails(selectedVehicle?.id ?? "");
+  const {
+    mutate: saveVehicle, isSuccess: saveSuccess, isError: saveError, reset: resetSave,
+  } = useMutateVehicleDetails(selectedVehicle?.id ?? "");
   const [callSign, setCallSign] = useState("");
   const [region, setRegion] = useState("");
   const [district, setDistrict] = useState("");
   const [hub, setHub] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [forDisposal, setForDisposal] = useState(false);
+  const { data: permissions, isLoading: permissionsLoading } = useUserPermissions();
 
   useEffect(() => {
     if (details) {
@@ -70,6 +83,29 @@ export default function VehicleConfiguration() {
     }
   }, [details]);
 
+  useEffect(() => {
+    if (saveSuccess) {
+      displayError("Vehicle saved", "success");
+      setSelectedVehicle({ id: "", label: "" });
+      resetSave();
+    }
+  }, [saveSuccess, displayError, resetSave]);
+
+  useEffect(() => {
+    if (saveError) {
+      displayError("There was a problem saving the vehicle.", "error");
+      resetSave();
+    }
+  }, [saveError, displayError, resetSave]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
+  if (!permissionsLoading && !permissions?.canEditVehicles) {
+    return <Navigate to="/home" />;
+  }
+
   const callSignValid = callSign.length > 0;
   const districtValid = district.length > 0;
   const hubValid = hub.length > 0;
@@ -78,7 +114,7 @@ export default function VehicleConfiguration() {
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (selectedVehicle.id.length > 0 && details && allValid) {
-      const result = await saveVehicle({
+      saveVehicle({
         registration: details.registration,
         callSign,
         region,
@@ -87,17 +123,11 @@ export default function VehicleConfiguration() {
         vehicleType,
         forDisposal,
       });
-
-      if (result) {
-        displayError("Vehicle saved", "success");
-        resetNames();
-        setSelectedVehicle({ id: "", label: "" });
-      }
     }
   };
 
   return (
-    <Layout>
+    <>
       <Typography variant="h4" gutterBottom>
         Vehicle Settings
       </Typography>
@@ -109,6 +139,7 @@ export default function VehicleConfiguration() {
           options={nameOptions}
           renderInput={(params) => (
             <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
               {...params}
               label="Find vehicle"
               placeholder="Find vehicle"
@@ -124,10 +155,7 @@ export default function VehicleConfiguration() {
             />
           )}
           value={selectedVehicle}
-          onChange={(_, v) => {
-            setSelectedVehicle(v ?? "");
-            console.log(v);
-          }}
+          onChange={(_, v) => setSelectedVehicle(v ?? "")}
           isOptionEqualToValue={(option, value) => option.id === value.id}
         />
       </Paper>
@@ -223,12 +251,12 @@ export default function VehicleConfiguration() {
               </Grid>
               <Grid xs={12}>
                 <FormControlLabel
-                  control={
+                  control={(
                     <Switch
                       checked={forDisposal}
                       onChange={(e) => setForDisposal(e.target.checked)}
                     />
-                  }
+                  )}
                   label="Marked for Disposal"
                 />
               </Grid>
@@ -248,13 +276,18 @@ export default function VehicleConfiguration() {
       >
         <Alert
           onClose={() => setShowSnackbar(false)}
-          severity={snackvarSeverity}
+          severity={snackbarSeverity}
           variant="filled"
           sx={{ width: "100%" }}
         >
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Layout>
+    </>
   );
 }
+
+// eslint-disable-next-line import/prefer-default-export
+export const Route = createLazyFileRoute("/vehicles/config")({
+  component: VehicleConfiguration,
+});

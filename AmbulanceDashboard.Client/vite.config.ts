@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------
+// <copyright file="vite.config.ts" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
@@ -5,6 +13,8 @@ import plugin from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
 import child_process from "child_process";
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import browserslistToEsbuild from 'browserslist-to-esbuild';
 
 const baseFolder =
   process.env.APPDATA !== undefined && process.env.APPDATA !== ""
@@ -51,7 +61,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin()],
+  plugins: [plugin(), TanStackRouterVite()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -74,4 +84,7 @@ export default defineConfig({
       cert: fs.readFileSync(certFilePath),
     },
   },
+  build: {
+    target: browserslistToEsbuild()
+  }
 });

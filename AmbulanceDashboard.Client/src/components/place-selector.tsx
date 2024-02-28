@@ -1,21 +1,41 @@
-import { AlertColor, FormControl, Grid, InputLabel, MenuItem, Select } from "@mui/material";
+// -----------------------------------------------------------------------
+// <copyright file="place-selector.ts" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+import {
+  FormControl, Grid, InputLabel, MenuItem, Select,
+} from "@mui/material";
 import { useEffect, useState } from "react";
-import { useDistricts, useHubs } from "./hooks";
+
+import { useDistricts, useHubs } from "../api-hooks/places";
 
 interface IPlaceSelector {
   onPlaceChanged: (region: string, district: string, hub: string) => void;
-  onError: (message: string, severity: AlertColor) => void;
 }
 
-export default function PlaceSelector({ onPlaceChanged, onError }: IPlaceSelector) {
+export default function PlaceSelector({ onPlaceChanged }: Readonly<IPlaceSelector>) {
   const [selectedRegion, setSelectedRegion] = useState("All");
   const [selectedDistrict, setSelectedDistrict] = useState("All");
   const [selectedHub, setSelectedHub] = useState("All");
 
-  const districts = useDistricts(selectedRegion, onError);
-  const hubs = useHubs(selectedRegion, selectedDistrict, onError);
+  const { data: loadedDistricts } = useDistricts(selectedRegion);
+  const districts = loadedDistricts ?? [];
+  const { data: loadedHubs } = useHubs(selectedRegion, selectedDistrict);
+  const hubs = loadedHubs ?? [];
 
   useEffect(() => {
+    if (selectedRegion === "All") {
+      setSelectedDistrict("All");
+      setSelectedHub("All");
+    }
+    if (selectedDistrict === "All") {
+      setSelectedHub("All");
+    }
+
     onPlaceChanged(selectedRegion, selectedDistrict, selectedHub);
   }, [onPlaceChanged, selectedRegion, selectedDistrict, selectedHub]);
 
@@ -54,7 +74,7 @@ export default function PlaceSelector({ onPlaceChanged, onError }: IPlaceSelecto
           >
             <MenuItem value="All">All</MenuItem>
             {districts.map((d) => (
-              <MenuItem value={d}>{d}</MenuItem>
+              <MenuItem key={d} value={d}>{d}</MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -71,7 +91,7 @@ export default function PlaceSelector({ onPlaceChanged, onError }: IPlaceSelecto
           >
             <MenuItem value="All">All</MenuItem>
             {hubs.map((h) => (
-              <MenuItem value={h}>{h}</MenuItem>
+              <MenuItem key={h} value={h}>{h}</MenuItem>
             ))}
           </Select>
         </FormControl>
