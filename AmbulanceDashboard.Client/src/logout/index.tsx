@@ -1,14 +1,19 @@
+// -----------------------------------------------------------------------
+// <copyright file="index.ts" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for
+// full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 import { useMsal } from "@azure/msal-react";
 
-const Logout = () => {
+function Logout() {
   const { instance } = useMsal();
 
   localStorage.clear();
   instance.logoutRedirect({
-    onRedirectNavigate: () => {
-      // Return false to stop navigation after local logout
-      return false;
-    },
+    onRedirectNavigate: () => false,
   });
 
   return (
@@ -16,6 +21,6 @@ const Logout = () => {
       <p>Logging out...</p>
     </div>
   );
-};
+}
 
 export default Logout;
