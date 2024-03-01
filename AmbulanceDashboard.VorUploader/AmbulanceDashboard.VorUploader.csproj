@@ -26,7 +26,7 @@
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.59.0" />
 		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.59.0" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.59.0" />
-		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.19.0.84025">
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.20.0.85982">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -34,7 +34,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="24.2.4" />
+		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="24.2.8" />
 	</ItemGroup>
 
 	<ItemGroup>
