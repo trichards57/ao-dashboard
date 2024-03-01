@@ -85,6 +85,13 @@ export default defineConfig({
     },
   },
   build: {
-    target: browserslistToEsbuild()
-  }
+    target: browserslistToEsbuild(),
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "msal": ["@azure/msal-react", "@azure/msal-browser"],
+        }
+      }
+    }
+  },
 });
