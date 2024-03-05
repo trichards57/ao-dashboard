@@ -7,7 +7,6 @@
 // -----------------------------------------------------------------------
 
 import { useQuery } from "@tanstack/react-query";
-import { useAccount, useMsal } from "@azure/msal-react";
 
 interface IUserPermissions {
   userId: string;
@@ -18,40 +17,32 @@ interface IUserPermissions {
   canViewVOR: boolean;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const useUserPermissions = () => {
-  const { accounts, instance } = useMsal();
-  const account = useAccount(accounts[0] || {});
-
   const uri = "/api/user/permissions";
 
   return useQuery({
     queryKey: ["users", "me"],
     queryFn: async () => {
-      if (account) {
-        const authResponse = await instance.acquireTokenSilent({
-          account,
-          scopes: ["ae7dee55-3f98-4bda-b5cf-7641de4a1776/.default"],
-        });
-        const response = await fetch(uri, {
-          headers: { Authorization: `Bearer ${authResponse.accessToken}` },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-
-        return await response.json() as IUserPermissions;
+      const response = await fetch(uri);
+      if (!response.ok) {
+        return {
+          userId: "",
+          canViewVehicles: false,
+          canEditVehicles: false,
+          canViewPlaces: false,
+          canEditVOR: false,
+          canViewVOR: false,
+        };
       }
 
-      return {
-        userId: "",
-        canViewVehicles: false,
-        canEditVehicles: false,
-        canViewPlaces: false,
-        canEditVOR: false,
-        canViewVOR: false,
-      };
+      return (await response.json()) as IUserPermissions;
     },
     throwOnError: true,
   });
-}
+};
+
+export const useIsAuthenticated = () => {
+  const { data: permissions, isLoading } = useUserPermissions();
+
+  return { data: !!permissions?.userId, isLoading };
+};

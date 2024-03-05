@@ -6,9 +6,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-import { useMsal } from "@azure/msal-react";
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -17,14 +15,14 @@ import {
 } from "@mui/material";
 import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
 
+import { useIsAuthenticated } from "../api-hooks/users";
 import msLogo from "../assets/ms-sign-in.svg";
-import { useIsSjaAuthenticated } from "../utils/auth";
 
 function Index() {
-  const isAuthenticated = useIsSjaAuthenticated();
-  const { instance } = useMsal();
+  const { data: isAuthenticated, isLoading: authLoading } =
+    useIsAuthenticated();
 
-  if (isAuthenticated) {
+  if (!authLoading && isAuthenticated) {
     return <Navigate to="/home" />;
   }
 
@@ -33,8 +31,8 @@ function Index() {
       <CardHeader title="Welcome" />
       <CardContent>
         <Typography variant="body1">
-          Welcome to the AO Ambulance Dashboard. You will need to sign in
-          using your SJA account to use this application.
+          Welcome to the AO Ambulance Dashboard. You will need to sign in using
+          your SJA account to use this application.
         </Typography>
         <Grid container>
           <Grid
@@ -43,13 +41,13 @@ function Index() {
             justifyContent="center"
             alignItems="center"
           >
-            <Button
-              onClick={() => instance.loginRedirect({
-                scopes: ["offline_access", "User.Read"],
-              })}
-            >
-              <img src={msLogo} title="Sign in with Microsoft" alt="Sign in with Microsoft" />
-            </Button>
+            <a href="/MicrosoftIdentity/Account/SignIn">
+              <img
+                src={msLogo}
+                title="Sign in with Microsoft"
+                alt="Sign in with Microsoft"
+              />
+            </a>
           </Grid>
         </Grid>
       </CardContent>

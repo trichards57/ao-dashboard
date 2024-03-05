@@ -6,94 +6,107 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-import {
-  FormControl, Grid, InputLabel, MenuItem, Select,
-} from "@mui/material";
-import { useEffect, useState } from "react";
+import { FormControl, Grid, InputLabel, NativeSelect } from "@mui/material";
+import { Dispatch } from "react";
 
 import { useDistricts, useHubs } from "../api-hooks/places";
 
 interface IPlaceSelector {
-  onPlaceChanged: (region: string, district: string, hub: string) => void;
+  place: IPlaceState;
+  dispatch: Dispatch<IPlaceAction>;
 }
 
-export default function PlaceSelector({ onPlaceChanged }: Readonly<IPlaceSelector>) {
-  const [selectedRegion, setSelectedRegion] = useState("All");
-  const [selectedDistrict, setSelectedDistrict] = useState("All");
-  const [selectedHub, setSelectedHub] = useState("All");
+export interface IPlaceState {
+  region: string;
+  district: string;
+  hub: string;
+}
 
-  const { data: loadedDistricts } = useDistricts(selectedRegion);
+export type IPlaceAction =
+  | { type: "region"; region: string }
+  | { type: "district"; district: string }
+  | { type: "hub"; hub: string };
+
+export function PlaceSelector({ place, dispatch }: Readonly<IPlaceSelector>) {
+  const { data: loadedDistricts } = useDistricts(place.region);
   const districts = loadedDistricts ?? [];
-  const { data: loadedHubs } = useHubs(selectedRegion, selectedDistrict);
+  const { data: loadedHubs } = useHubs(place.region, place.district);
   const hubs = loadedHubs ?? [];
-
-  useEffect(() => {
-    if (selectedRegion === "All") {
-      setSelectedDistrict("All");
-      setSelectedHub("All");
-    }
-    if (selectedDistrict === "All") {
-      setSelectedHub("All");
-    }
-
-    onPlaceChanged(selectedRegion, selectedDistrict, selectedHub);
-  }, [onPlaceChanged, selectedRegion, selectedDistrict, selectedHub]);
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={4}>
         <FormControl fullWidth>
-          <InputLabel id="region-label">Region</InputLabel>
-          <Select
-            label="Region"
-            labelId="region-label"
-            value={selectedRegion}
-            onChange={(e) => setSelectedRegion(e.target.value)}
+          <InputLabel
+            id="region-label"
+            variant="standard"
+            htmlFor="place-region"
           >
-            <MenuItem value="All">All</MenuItem>
-            <MenuItem value="EastOfEngland">East of England</MenuItem>
-            <MenuItem value="EastMidlands">East Midlands</MenuItem>
-            <MenuItem value="London">London</MenuItem>
-            <MenuItem value="NorthEast">North East</MenuItem>
-            <MenuItem value="NorthWest">North West</MenuItem>
-            <MenuItem value="SouthEast">South East</MenuItem>
-            <MenuItem value="SouthWest">South West</MenuItem>
-            <MenuItem value="WestMidlands">West Midlands</MenuItem>
-          </Select>
+            Region
+          </InputLabel>
+          <NativeSelect
+            id="place-region"
+            value={place.region}
+            onChange={(e) =>
+              dispatch({ type: "region", region: e.target.value })
+            }
+          >
+            <option value="All">All</option>
+            <option value="EastOfEngland">East of England</option>
+            <option value="EastMidlands">East Midlands</option>
+            <option value="London">London</option>
+            <option value="NorthEast">North East</option>
+            <option value="NorthWest">North West</option>
+            <option value="SouthEast">South East</option>
+            <option value="SouthWest">South West</option>
+            <option value="WestMidlands">West Midlands</option>
+          </NativeSelect>
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={4}>
         <FormControl fullWidth>
-          <InputLabel id="district-label">District</InputLabel>
-          <Select
-            label="District"
-            labelId="district-label"
-            value={selectedDistrict}
+          <InputLabel
+            id="district-label"
+            variant="standard"
+            htmlFor="place-district"
+          >
+            District
+          </InputLabel>
+          <NativeSelect
+            id="place-district"
+            value={place.district}
             disabled={districts.length === 0}
-            onChange={(e) => setSelectedDistrict(e.target.value)}
+            onChange={(e) =>
+              dispatch({ type: "district", district: e.target.value })
+            }
           >
-            <MenuItem value="All">All</MenuItem>
+            <option value="All">All</option>
             {districts.map((d) => (
-              <MenuItem key={d} value={d}>{d}</MenuItem>
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
-          </Select>
+          </NativeSelect>
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={4}>
         <FormControl fullWidth>
-          <InputLabel id="hub-label">Hub</InputLabel>
-          <Select
-            label="Hub"
-            labelId="hub-label"
-            value={selectedHub}
+          <InputLabel id="hub-label" variant="standard" htmlFor="place-hub">
+            Hub
+          </InputLabel>
+          <NativeSelect
+            id="place-hub"
+            value={place.hub}
             disabled={hubs.length === 0}
-            onChange={(e) => setSelectedHub(e.target.value)}
+            onChange={(e) => dispatch({ type: "hub", hub: e.target.value })}
           >
-            <MenuItem value="All">All</MenuItem>
+            <option value="All">All</option>
             {hubs.map((h) => (
-              <MenuItem key={h} value={h}>{h}</MenuItem>
+              <option key={h} value={h}>
+                {h}
+              </option>
             ))}
-          </Select>
+          </NativeSelect>
         </FormControl>
       </Grid>
     </Grid>

@@ -17,98 +17,200 @@ import {
   Unstable_Grid2 as Grid,
   InputAdornment,
   InputLabel,
-  MenuItem,
+  NativeSelect,
   Paper,
-  Select,
   Snackbar,
   Switch,
   TextField,
   Typography,
 } from "@mui/material";
 import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
-import {
-  useCallback, useEffect, useMemo, useState,
-} from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 
-import { useMutateVehicleDetails, useVehicleDetails, useVehicleNames } from "../../api-hooks/config";
+import {
+  IVehicleSettings,
+  useMutateVehicleDetails,
+  useVehicleDetails,
+  useVehicleNames,
+} from "../../api-hooks/config";
 import { useUserPermissions } from "../../api-hooks/users";
-import { useIsSjaAuthenticated } from "../../utils/auth";
+
+interface ISnackBarState {
+  show: boolean;
+  message: string;
+  severity: AlertColor;
+}
+
+type SnackBarAction =
+  | { type: "show"; message: string; severity: AlertColor }
+  | { type: "hide" };
+
+function snackbarReducer(
+  state: ISnackBarState,
+  action: SnackBarAction,
+): ISnackBarState {
+  switch (action.type) {
+    case "show":
+      return {
+        show: true,
+        message: action.message,
+        severity: action.severity,
+      };
+    case "hide":
+      return {
+        ...state,
+        show: false,
+      };
+    default:
+      return state;
+  }
+}
+
+type VehicleAction =
+  | {
+      type: "call-sign" | "region" | "district" | "hub" | "vehicle-type";
+      payload: string;
+    }
+  | { type: "for-disposal"; payload: boolean }
+  | { type: "load"; payload: IVehicleSettings };
+
+interface IVehicleState {
+  region: string;
+  district: string;
+  hub: string;
+  callSign: string;
+  vehicleType: string;
+  forDisposal: boolean;
+}
+
+function formReducer(
+  state: IVehicleState,
+  action: VehicleAction,
+): IVehicleState {
+  switch (action.type) {
+    case "call-sign":
+      return {
+        ...state,
+        callSign: action.payload,
+      };
+    case "region":
+      return {
+        ...state,
+        region: action.payload,
+      };
+
+    case "district":
+      return {
+        ...state,
+        district: action.payload,
+      };
+    case "hub":
+      return {
+        ...state,
+        hub: action.payload,
+      };
+    case "vehicle-type":
+      return {
+        ...state,
+        vehicleType: action.payload,
+      };
+    case "for-disposal":
+      return {
+        ...state,
+        forDisposal: action.payload,
+      };
+    case "load":
+      return {
+        region: action.payload.region,
+        district: action.payload.district,
+        hub: action.payload.hub,
+        callSign: action.payload.callSign,
+        vehicleType: action.payload.vehicleType,
+        forDisposal: action.payload.forDisposal,
+      };
+
+    default:
+      return state;
+  }
+}
 
 function VehicleConfiguration() {
-  const isAuthenticated = useIsSjaAuthenticated();
   const [selectedVehicle, setSelectedVehicle] = useState({
     id: "",
     label: "",
   } as { id: string; label: string });
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState(
-    "info" as AlertColor,
-  );
-  const displayError = useCallback((message: string, severity: AlertColor) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setShowSnackbar(true);
-  }, []);
+
+  const [snackbarState, dispatchSnackbar] = useReducer(snackbarReducer, {
+    show: false,
+    message: "",
+    severity: "info" as AlertColor,
+  });
+  const [formState, dispatchForm] = useReducer(formReducer, {
+    region: "",
+    district: "",
+    hub: "",
+    callSign: "",
+    vehicleType: "",
+    forDisposal: false,
+  });
+
   const { data: names, isLoading } = useVehicleNames();
   const nameOptions = useMemo(
-    () => [...(names ?? [])]
-      .sort((a, b) => a.registration.localeCompare(b.registration))
-      .map((n) => ({
-        id: n.id,
-        label: `${n.registration} (${n.callSign})`,
-      })) ?? [],
+    () =>
+      [...(names ?? [])]
+        .sort((a, b) => a.registration.localeCompare(b.registration))
+        .map((n) => ({
+          id: n.id,
+          label: `${n.registration} (${n.callSign})`,
+        })) ?? [],
     [names],
   );
   const { data: details } = useVehicleDetails(selectedVehicle?.id ?? "");
   const {
-    mutate: saveVehicle, isSuccess: saveSuccess, isError: saveError, reset: resetSave,
+    mutate: saveVehicle,
+    isSuccess: saveSuccess,
+    isError: saveError,
+    reset: resetSave,
   } = useMutateVehicleDetails(selectedVehicle?.id ?? "");
-  const [callSign, setCallSign] = useState("");
-  const [region, setRegion] = useState("");
-  const [district, setDistrict] = useState("");
-  const [hub, setHub] = useState("");
-  const [vehicleType, setVehicleType] = useState("");
-  const [forDisposal, setForDisposal] = useState(false);
-  const { data: permissions, isLoading: permissionsLoading } = useUserPermissions();
+  const { data: permissions, isLoading: permissionsLoading } =
+    useUserPermissions();
 
   useEffect(() => {
     if (details) {
-      setCallSign(details.callSign);
-      setRegion(details.region);
-      setDistrict(details.district);
-      setHub(details.hub);
-      setVehicleType(details.vehicleType);
-      setForDisposal(details.forDisposal);
+      dispatchForm({ type: "load", payload: details });
     }
   }, [details]);
 
   useEffect(() => {
     if (saveSuccess) {
-      displayError("Vehicle saved", "success");
+      dispatchSnackbar({
+        type: "show",
+        message: "Vehicle saved",
+        severity: "success",
+      });
       setSelectedVehicle({ id: "", label: "" });
       resetSave();
     }
-  }, [saveSuccess, displayError, resetSave]);
+  }, [saveSuccess, resetSave]);
 
   useEffect(() => {
     if (saveError) {
-      displayError("There was a problem saving the vehicle.", "error");
+      dispatchSnackbar({
+        type: "show",
+        message: "There was a problem saving the vehicle.",
+        severity: "error",
+      });
       resetSave();
     }
-  }, [saveError, displayError, resetSave]);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
+  }, [saveError, resetSave]);
 
   if (!permissionsLoading && !permissions?.canEditVehicles) {
     return <Navigate to="/home" />;
   }
 
-  const callSignValid = callSign.length > 0;
-  const districtValid = district.length > 0;
-  const hubValid = hub.length > 0;
+  const callSignValid = formState.callSign.length > 0;
+  const districtValid = formState.district.length > 0;
+  const hubValid = formState.hub.length > 0;
   const allValid = callSignValid && districtValid && hubValid;
 
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -116,12 +218,7 @@ function VehicleConfiguration() {
     if (selectedVehicle.id.length > 0 && details && allValid) {
       saveVehicle({
         registration: details.registration,
-        callSign,
-        region,
-        district,
-        hub,
-        vehicleType,
-        forDisposal,
+        ...formState,
       });
     }
   };
@@ -133,6 +230,7 @@ function VehicleConfiguration() {
       </Typography>
       <Paper>
         <Autocomplete
+          id="vehicle-search"
           sx={{ width: "100%" }}
           disableClearable
           disabled={isLoading}
@@ -169,94 +267,118 @@ function VehicleConfiguration() {
                   disabled
                   label="Registration"
                   value={details.registration}
+                  variant="standard"
+                  id="registration"
                 />
               </Grid>
               <Grid xs={12}>
                 <TextField
                   fullWidth
                   label="Call Sign"
-                  value={callSign}
-                  onChange={(e) => setCallSign(e.target.value)}
+                  value={formState.callSign}
+                  onChange={(e) =>
+                    dispatchForm({ type: "call-sign", payload: e.target.value })
+                  }
                   error={!callSignValid}
                   helperText={!callSignValid ? "Call Sign is required" : ""}
                   id="call-sign"
+                  variant="standard"
                 />
               </Grid>
               <Grid xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel id="region-label">Region</InputLabel>
-                  <Select
+                  <InputLabel id="region-label" variant="standard">
+                    Region
+                  </InputLabel>
+                  <NativeSelect
                     fullWidth
-                    labelId="region-label"
-                    label="Region"
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
+                    value={formState.region}
+                    onChange={(e) =>
+                      dispatchForm({ type: "region", payload: e.target.value })
+                    }
                     id="region"
                   >
-                    <MenuItem value="Unknown">Unknown</MenuItem>
-                    <MenuItem value="NorthEast">North East</MenuItem>
-                    <MenuItem value="NorthWest">North West</MenuItem>
-                    <MenuItem value="EastOfEngland">East of England</MenuItem>
-                    <MenuItem value="WestMidlands">West Midlands</MenuItem>
-                    <MenuItem value="EastMidlands">East Midlands</MenuItem>
-                    <MenuItem value="London">London</MenuItem>
-                    <MenuItem value="SouthWest">South West</MenuItem>
-                    <MenuItem value="SouthEast">South East</MenuItem>
-                  </Select>
+                    <option value="Unknown">Unknown</option>
+                    <option value="NorthEast">North East</option>
+                    <option value="NorthWest">North West</option>
+                    <option value="EastOfEngland">East of England</option>
+                    <option value="WestMidlands">West Midlands</option>
+                    <option value="EastMidlands">East Midlands</option>
+                    <option value="London">London</option>
+                    <option value="SouthWest">South West</option>
+                    <option value="SouthEast">South East</option>
+                  </NativeSelect>
                 </FormControl>
               </Grid>
               <Grid xs={12}>
                 <TextField
                   fullWidth
                   label="District"
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
+                  value={formState.district}
+                  onChange={(e) =>
+                    dispatchForm({ type: "district", payload: e.target.value })
+                  }
                   error={!districtValid}
                   helperText={!districtValid ? "District is required" : ""}
                   id="district"
+                  variant="standard"
                 />
               </Grid>
               <Grid xs={12}>
                 <TextField
                   fullWidth
                   label="Hub"
-                  value={hub}
-                  onChange={(e) => setHub(e.target.value)}
+                  value={formState.hub}
+                  onChange={(e) =>
+                    dispatchForm({ type: "hub", payload: e.target.value })
+                  }
                   error={!hubValid}
                   helperText={!hubValid ? "Hub is required" : ""}
                   id="hub"
+                  variant="standard"
                 />
               </Grid>
               <Grid xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel id="vehicle-type-label" htmlFor="vehicle-type">
+                  <InputLabel
+                    id="vehicle-type-label"
+                    htmlFor="vehicle-type"
+                    variant="standard"
+                  >
                     Vehicle Type
                   </InputLabel>
-                  <Select
+                  <NativeSelect
                     fullWidth
-                    labelId="vehicle-type-label"
-                    label="Vehicle Type"
-                    value={vehicleType}
-                    onChange={(e) => setVehicleType(e.target.value)}
+                    value={formState.vehicleType}
+                    onChange={(e) =>
+                      dispatchForm({
+                        type: "vehicle-type",
+                        payload: e.target.value,
+                      })
+                    }
                     id="vehicle-type"
                   >
-                    <MenuItem value="Other">Other</MenuItem>
-                    <MenuItem value="FrontLineAmbulance">Front Line</MenuItem>
-                    <MenuItem value="AllWheelDrive">All Wheel Drive</MenuItem>
-                    <MenuItem value="OffRoadAmbulance">
-                      Off Road Ambulance
-                    </MenuItem>
-                  </Select>
+                    <option value="Other">Other</option>
+                    <option value="FrontLineAmbulance">Front Line</option>
+                    <option value="AllWheelDrive">All Wheel Drive</option>
+                    <option value="OffRoadAmbulance">Off Road Ambulance</option>
+                  </NativeSelect>
                 </FormControl>
               </Grid>
               <Grid xs={12}>
                 <FormControlLabel
-                  control={(
+                  control={
                     <Switch
-                      checked={forDisposal}
-                      onChange={(e) => setForDisposal(e.target.checked)}
+                      checked={formState.forDisposal}
+                      onChange={(e) =>
+                        dispatchForm({
+                          type: "for-disposal",
+                          payload: e.target.checked,
+                        })
+                      }
+                      id="for-disposal"
                     />
-                  )}
+                  }
                   label="Marked for Disposal"
                 />
               </Grid>
@@ -270,17 +392,17 @@ function VehicleConfiguration() {
         </Paper>
       )}
       <Snackbar
-        open={showSnackbar}
+        open={snackbarState.show}
         autoHideDuration={6000}
-        onClose={() => setShowSnackbar(false)}
+        onClose={() => dispatchSnackbar({ type: "hide" })}
       >
         <Alert
-          onClose={() => setShowSnackbar(false)}
-          severity={snackbarSeverity}
+          onClose={() => dispatchSnackbar({ type: "hide" })}
+          severity={snackbarState.severity}
           variant="filled"
           sx={{ width: "100%" }}
         >
-          {snackbarMessage}
+          {snackbarState.message}
         </Alert>
       </Snackbar>
     </>

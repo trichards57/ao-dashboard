@@ -6,25 +6,19 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-import { InteractionRequiredAuthError } from "@azure/msal-browser";
-import { useMsal } from "@azure/msal-react";
 import { Paper, Typography } from "@mui/material";
 
-export default function ErrorDisplay({ error }: Readonly<{ error: Error }>) {
-  const { instance } = useMsal();
+const paperStyle = {
+  padding: "1rem",
+};
 
-  if (error instanceof InteractionRequiredAuthError) {
-    instance.loginRedirect({
-      scopes: ["offline_access", "User.Read"],
-    });
-  }
-
+export default function ErrorDisplay() {
   return (
-    <Paper sx={{ padding: "1rem" }}>
+    <Paper sx={paperStyle}>
       <Typography variant="h5">Error Accessing Data</Typography>
       <Typography variant="body1">
-        Sorry, there was an error talking to the server.  You can try refreshing the page.
-        If that doesn&apos;t work you&apos;ll need to come back later.
+        Sorry, there was an error talking to the server. You can try refreshing
+        the page. If that doesn&apos;t work you&apos;ll need to come back later.
       </Typography>
     </Paper>
   );

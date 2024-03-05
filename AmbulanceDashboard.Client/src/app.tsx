@@ -6,8 +6,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-import type { PublicClientApplication } from "@azure/msal-browser";
-import { MsalProvider } from "@azure/msal-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
@@ -22,7 +20,7 @@ const router = createRouter({ routeTree, defaultErrorComponent: ErrorDisplay });
 
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
@@ -30,14 +28,12 @@ function InnerApp() {
   return <RouterProvider router={router} />;
 }
 
-function App({ pca }: Readonly<{ pca: PublicClientApplication }>) {
+function App() {
   return (
-    <MsalProvider instance={pca}>
-      <QueryClientProvider client={queryClient}>
-        <InnerApp />
-        <ReactQueryDevtools />
-      </QueryClientProvider>
-    </MsalProvider>
+    <QueryClientProvider client={queryClient}>
+      <InnerApp />
+      <ReactQueryDevtools />
+    </QueryClientProvider>
   );
 }
 

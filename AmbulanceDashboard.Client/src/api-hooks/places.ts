@@ -8,40 +8,42 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import useQueryFunction from "./query-fn";
-
-export const useDistricts = (region: string) => {
-  const districtsQuery = useQueryFunction<{ names: string[] }>(`/api/places/${region}/districts`);
-
-  return useQuery({
+export const useDistricts = (region: string) =>
+  useQuery({
     queryKey: ["vehicles", "districts", region],
     queryFn: async () => {
       if (region === "All") {
         return [];
       }
 
-      const result = await districtsQuery();
+      const response = await fetch(`/api/places/${region}/districts`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const result = (await response.json()) as { names: string[] };
 
       return result.names;
     },
     throwOnError: true,
   });
-};
 
-export const useHubs = (region: string, district: string) => {
-  const hubsQuery = useQueryFunction<{ names: string[] }>(`/api/places/${region}/${district}/hubs`);
-
-  return useQuery({
+export const useHubs = (region: string, district: string) =>
+  useQuery({
     queryKey: ["vehicles", "hubs", region, district],
     queryFn: async () => {
       if (region === "All" || district === "All") {
         return [];
       }
 
-      const result = await hubsQuery();
+      const response = await fetch(`/api/places/${region}/${district}/hubs`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const result = (await response.json()) as { names: string[] };
 
       return result.names;
     },
     throwOnError: true,
   });
-};
