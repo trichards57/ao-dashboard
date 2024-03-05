@@ -8,56 +8,87 @@
 
 import { Chip, Paper } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { parseISO } from "date-fns";
-import { useCallback, useState } from "react";
+import { useReducer } from "react";
 
 import { IVehicle, useVehicleStatuses } from "../../api-hooks/status";
-import PlaceSelector from "../../components/place-selector";
-import { useIsSjaAuthenticated } from "../../utils/auth";
+import {
+  IPlaceAction,
+  IPlaceState,
+  PlaceSelector,
+} from "../../components/place-selector";
+import { useRequireAuth } from "../../hooks/auth";
+
+function statusReducer(place: IPlaceState, action: IPlaceAction): IPlaceState {
+  switch (action.type) {
+    case "region":
+      return {
+        ...place,
+        region: action.region,
+        district: action.region === "All" ? "All" : place.district,
+        hub: action.region === "All" ? "All" : place.hub,
+      };
+    case "district":
+      return {
+        ...place,
+        district: action.district,
+        hub: action.district === "All" ? "All" : place.hub,
+      };
+    case "hub":
+      return {
+        ...place,
+        hub: action.hub,
+      };
+    default:
+      return place;
+  }
+}
+
+const columns: GridColDef<IVehicle>[] = [
+  { field: "callSign", headerName: "Callsign" },
+  { field: "registration", headerName: "Registration" },
+  {
+    field: "isVor",
+    headerName: "Is VOR?",
+    type: "boolean",
+    renderCell: (params) =>
+      params.value ? (
+        <Chip color="error" label="Yes" />
+      ) : (
+        <Chip color="success" label="No" />
+      ),
+  },
+  {
+    field: "dueBack",
+    headerName: "Expected Back",
+    type: "date",
+    valueGetter: (d) => (d.value == null ? null : parseISO(d.value)),
+  },
+  {
+    field: "summary",
+    headerName: "Summary",
+    flex: 1,
+  },
+];
 
 function VehicleStatus() {
-  const isAuthenticated = useIsSjaAuthenticated();
-  const [region, setRegion] = useState("All");
-  const [district, setDistrict] = useState("All");
-  const [hub, setHub] = useState("All");
-  const { data: status, isLoading } = useVehicleStatuses(region, district, hub);
+  const [place, dispatchPlace] = useReducer(statusReducer, {
+    region: "All",
+    district: "All",
+    hub: "All",
+  });
+  const { data: status, isLoading } = useVehicleStatuses(
+    place.region,
+    place.district,
+    place.hub,
+  );
 
-  const load = useCallback((r: string, d: string, h: string) => {
-    setRegion(r);
-    setDistrict(d);
-    setHub(h);
-  }, []);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
-
-  const columns: GridColDef<IVehicle>[] = [
-    { field: "callSign", headerName: "Callsign" },
-    { field: "registration", headerName: "Registration" },
-    {
-      field: "isVor",
-      headerName: "Is VOR?",
-      type: "boolean",
-      renderCell: (params) => (params.value ? <Chip color="error" label="Yes" /> : <Chip color="success" label="No" />),
-    },
-    {
-      field: "dueBack",
-      headerName: "Expected Back",
-      type: "date",
-      valueGetter: (d) => (d.value == null ? null : parseISO(d.value)),
-    },
-    {
-      field: "summary",
-      headerName: "Summary",
-      flex: 1,
-    },
-  ];
+  useRequireAuth();
 
   return (
     <>
-      <PlaceSelector onPlaceChanged={load} />
+      <PlaceSelector place={place} dispatch={dispatchPlace} />
       <Paper sx={{ marginTop: "0.5rem" }}>
         <DataGrid
           loading={isLoading}

@@ -15,6 +15,7 @@ import path from "path";
 import child_process from "child_process";
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import browserslistToEsbuild from 'browserslist-to-esbuild';
+import preload from "vite-plugin-preload";
 
 const baseFolder =
   process.env.APPDATA !== undefined && process.env.APPDATA !== ""
@@ -61,7 +62,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin(), TanStackRouterVite()],
+  plugins: [plugin(), TanStackRouterVite(), preload()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -77,6 +78,14 @@ export default defineConfig({
         target: "https://localhost:7064/",
         secure: false,
       },
+      "/MicrosoftIdentity": {
+        target: "https://localhost:7064/",
+        secure: false,
+      },
+      "/signin-oidc": {
+        target: "https://localhost:7064/",
+        secure: false,
+      }
     },
     port: 5173,
     https: {
@@ -86,12 +95,5 @@ export default defineConfig({
   },
   build: {
     target: browserslistToEsbuild(),
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          "msal": ["@azure/msal-react", "@azure/msal-browser"],
-        }
-      }
-    }
   },
 });

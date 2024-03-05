@@ -8,9 +8,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import useQueryFunction from "./query-fn";
-
-export interface IVehicle {
+interface IVehicleStatus {
   region: string;
   district: string;
   hub: string;
@@ -21,7 +19,12 @@ export interface IVehicle {
   dueBack: string;
 }
 
-export const useVehicleStatuses = (region: string, district: string, hub: string) => {
+// eslint-disable-next-line import/prefer-default-export
+export const useVehicleStatuses = (
+  region: string,
+  district: string,
+  hub: string,
+) => {
   let uri = `/api/vors/byPlace?region=${region}`;
 
   if (district !== "All") {
@@ -31,11 +34,16 @@ export const useVehicleStatuses = (region: string, district: string, hub: string
     uri += `&hub=${hub}`;
   }
 
-  const statusQuery = useQueryFunction<IVehicle[]>(uri);
-
   return useQuery({
     queryKey: ["vehicles", "status", region, district, hub],
-    queryFn: statusQuery,
+    queryFn: async () => {
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      return (await response.json()) as IVehicleStatus[];
+    },
     throwOnError: true,
   });
 };

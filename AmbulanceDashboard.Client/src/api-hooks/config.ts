@@ -8,16 +8,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import useMutateFunction from "./mutate-fn";
-import useQueryFunction from "./query-fn";
-
 interface IVehicleName {
   registration: string;
   callSign: string;
   id: string;
 }
 
-interface IVehicle {
+export interface IVehicleSettings {
   registration: string;
   callSign: string;
   hub: string;
@@ -27,38 +24,54 @@ interface IVehicle {
   forDisposal: boolean;
 }
 
-export const useVehicleNames = () => {
-  const namesQuery = useQueryFunction<IVehicleName[]>("/api/vehicles/names");
-
-  return useQuery({
+export const useVehicleNames = () =>
+  useQuery({
     queryKey: ["vehicles", "names"],
-    queryFn: namesQuery,
-    throwOnError: true,
-  });
-};
-
-export const useVehicleDetails = (id: string) => {
-  const detailsQuery = useQueryFunction<IVehicle>(`/api/vehicles/${id}`);
-
-  return useQuery({
-    queryKey: ["vehicles", "details", id],
-    queryFn: () => {
-      if (id === "") {
-        return null;
+    queryFn: async () => {
+      const response = await fetch("/api/vehicles/names");
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
       }
-      return detailsQuery();
+
+      return (await response.json()) as IVehicleName[];
     },
     throwOnError: true,
   });
-};
 
-export const useMutateVehicleDetails = (id:string) => {
-  const detailsMutate = useMutateFunction<IVehicle>("/api/vehicles");
+export const useVehicleDetails = (id: string) =>
+  useQuery({
+    queryKey: ["vehicles", "details", id],
+    queryFn: async () => {
+      if (id === "") {
+        return null;
+      }
+      const response = await fetch(`/api/vehicles/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      return (await response.json()) as IVehicleSettings;
+    },
+    throwOnError: true,
+  });
+
+export const useMutateVehicleDetails = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["vehicles", "details", id],
-    mutationFn: detailsMutate,
+    mutationFn: async (data: IVehicleSettings) => {
+      const response = await fetch("/api/vehicles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to save data");
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
     },

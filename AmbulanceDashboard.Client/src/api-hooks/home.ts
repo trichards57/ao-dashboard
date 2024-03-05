@@ -8,8 +8,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import useQueryFunction from "./query-fn";
-
 interface IStatistics {
   totalVehicles: number;
   availableVehicles: number;
@@ -18,12 +16,16 @@ interface IStatistics {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export const useHomeStats = (region: string, district: string, hub: string) => {
-  const homeQuery = useQueryFunction<IStatistics>(`/api/vors/byPlace/stats?region=${region}`);
-
-  return useQuery({
+export const useHomeStats = (region: string, district: string, hub: string) =>
+  useQuery({
     queryKey: ["vehicles", "stats", region, district, hub],
-    queryFn: homeQuery,
+    queryFn: async () => {
+      const response = await fetch(`/api/vors/byPlace/stats?region=${region}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      return (await response.json()) as IStatistics;
+    },
     throwOnError: true,
   });
-};

@@ -7,18 +7,18 @@
 // -----------------------------------------------------------------------
 
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import Layout from "../layout";
 import { Suspense, lazy } from "react";
 
+import Layout from "../layout";
+
 const TanStackRouterDevtools =
-  process.env.NODE_ENV === 'production'
+  process.env.NODE_ENV === "production"
     ? () => null // Render nothing in production
     : lazy(() =>
-      // Lazy load in development
-      import('@tanstack/router-devtools').then((res) => ({
-        default: res.TanStackRouterDevtools,
-      })),
-    )
+        import("@tanstack/router-devtools").then((res) => ({
+          default: res.TanStackRouterDevtools,
+        })),
+      );
 
 // eslint-disable-next-line import/prefer-default-export
 export const Route = createRootRoute({

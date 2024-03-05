@@ -6,7 +6,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-import { AuthenticatedTemplate, useMsal } from "@azure/msal-react";
 import {
   CarCrash as CarCrashIcon,
   ChevronLeft as ChevronLeftIcon,
@@ -33,11 +32,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { LinkProps, Link as NavLink } from "@tanstack/react-router";
-import {
-  PropsWithChildren,
-  forwardRef,
-  useState,
-} from "react";
+import { PropsWithChildren, forwardRef, useState } from "react";
 
 import { useUserPermissions } from "../api-hooks/users";
 
@@ -50,14 +45,23 @@ function Copyright() {
       sx={{ pt: 4 }}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://tr-toolbox.me.uk/" target="_blank" rel="noreferrer">
+      <Link
+        color="inherit"
+        href="https://tr-toolbox.me.uk/"
+        target="_blank"
+        rel="noreferrer"
+      >
         Tony Richards
+      </Link>{" "}
+      {new Date().getFullYear()}, all rights reserved.{" "}
+      <Link
+        color="inherit"
+        href="https://www.flaticon.com/free-icons/car"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Ambulance logo created by Freepik - Flaticon
       </Link>
-      {" "}
-      {new Date().getFullYear()}
-      , all rights reserved.
-      {" "}
-      <Link color="inherit" href="https://www.flaticon.com/free-icons/car" target="_blank" rel="noreferrer">Ambulance logo created by Freepik - Flaticon</Link>
     </Typography>
   );
 }
@@ -112,7 +116,10 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-const LocalNavLink = forwardRef<HTMLAnchorElement, LinkProps & { href: string }>(
+const LocalNavLink = forwardRef<
+  HTMLAnchorElement,
+  LinkProps & { href: string }
+>(
   // eslint-disable-next-line react/jsx-props-no-spreading
   ({ href, ...props }, ref) => <NavLink ref={ref} {...props} to={href} />,
 );
@@ -125,10 +132,8 @@ export default function Layout({ children }: Readonly<PropsWithChildren>) {
     setOpen(!open);
   };
 
-  const { instance } = useMsal();
-
   const signOut = () => {
-    instance.logoutRedirect();
+    window.location.href = "/MicrosoftIdentity/Account/SignOut";
   };
 
   return (
@@ -142,6 +147,7 @@ export default function Layout({ children }: Readonly<PropsWithChildren>) {
           <IconButton
             edge="start"
             color="inherit"
+            title="open drawer"
             aria-label="open drawer"
             onClick={toggleDrawer}
             sx={{
@@ -160,12 +166,7 @@ export default function Layout({ children }: Readonly<PropsWithChildren>) {
           >
             Ambulance Dashboard
           </Typography>
-          <Typography
-            component="p"
-            variant="body1"
-            color="inherit"
-            noWrap
-          >
+          <Typography component="p" variant="body1" color="inherit" noWrap>
             {permissions?.userId}
           </Typography>
         </Toolbar>
@@ -185,13 +186,15 @@ export default function Layout({ children }: Readonly<PropsWithChildren>) {
         </Toolbar>
         <Divider />
         <List component="nav">
-          <ListItemButton LinkComponent={LocalNavLink} href="/home">
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItemButton>
-          <AuthenticatedTemplate>
+          {permissions?.canViewVOR && (
+            <ListItemButton LinkComponent={LocalNavLink} href="/home">
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Home" />
+            </ListItemButton>
+          )}
+          {permissions?.canViewVehicles && (
             <ListItemButton
               LinkComponent={LocalNavLink}
               href="/vehicles/status"
@@ -201,33 +204,34 @@ export default function Layout({ children }: Readonly<PropsWithChildren>) {
               </ListItemIcon>
               <ListItemText primary="Vehicle Status" />
             </ListItemButton>
-            {permissions?.canEditVehicles && (
-              <ListItemButton
-                LinkComponent={LocalNavLink}
-                href="/vehicles/config"
-              >
-                <ListItemIcon>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Vehicle Configuration" />
-              </ListItemButton>
-            )}
-            <Divider />
-            <ListItemButton onClick={() => signOut()}>
+          )}
+          {permissions?.canEditVehicles && (
+            <ListItemButton
+              LinkComponent={LocalNavLink}
+              href="/vehicles/config"
+            >
               <ListItemIcon>
-                <LogoutIcon />
+                <SettingsIcon />
               </ListItemIcon>
-              <ListItemText primary="Log Out" />
+              <ListItemText primary="Vehicle Configuration" />
             </ListItemButton>
-          </AuthenticatedTemplate>
+          )}
+          <Divider />
+          <ListItemButton onClick={() => signOut()}>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="Log Out" />
+          </ListItemButton>
         </List>
       </Drawer>
       <Box
         component="main"
         sx={{
-          backgroundColor: (theme) => (theme.palette.mode === "light"
-            ? theme.palette.grey[100]
-            : theme.palette.grey[900]),
+          backgroundColor: (theme) =>
+            theme.palette.mode === "light"
+              ? theme.palette.grey[100]
+              : theme.palette.grey[900],
           flexGrow: 1,
           height: "100vh",
           overflow: "auto",
