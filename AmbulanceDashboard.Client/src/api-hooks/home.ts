@@ -20,7 +20,16 @@ export const useHomeStats = (region: string, district: string, hub: string) =>
   useQuery({
     queryKey: ["vehicles", "stats", region, district, hub],
     queryFn: async () => {
-      const response = await fetch(`/api/vors/byPlace/stats?region=${region}`);
+      let uri = `/api/vors/byPlace/stats?region=${region}`;
+
+      if (district !== "All") {
+        uri += `&district=${district}`;
+      }
+      if (hub !== "All") {
+        uri += `&hub=${hub}`;
+      }
+
+      const response = await fetch(uri);
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
