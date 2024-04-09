@@ -12,7 +12,7 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import { parseISO } from "date-fns";
 import { useReducer } from "react";
 
-import { IVehicle, useVehicleStatuses } from "../../api-hooks/status";
+import { IVehicleStatus, useVehicleStatuses } from "../../api-hooks/status";
 import {
   IPlaceAction,
   IPlaceState,
@@ -45,7 +45,7 @@ function statusReducer(place: IPlaceState, action: IPlaceAction): IPlaceState {
   }
 }
 
-const columns: GridColDef<IVehicle>[] = [
+const columns: GridColDef<IVehicleStatus>[] = [
   { field: "callSign", headerName: "Callsign" },
   { field: "registration", headerName: "Registration" },
   {

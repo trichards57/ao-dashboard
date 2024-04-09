@@ -8,7 +8,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-interface IVehicleStatus {
+export interface IVehicleStatus {
   region: string;
   district: string;
   hub: string;
