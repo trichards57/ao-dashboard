@@ -8,10 +8,9 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Confirm email</PageTitle>
-
-<h1>Confirm email</h1>
-<StatusMessage Message="@statusMessage" />
+<Container Title="Confirm Email" IsHome Expands>
+    <StatusMessage Message="@statusMessage" />
+</Container>
 
 @code {
     private string? statusMessage;
