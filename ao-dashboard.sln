@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmbulanceDashboard.VorUploa
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AmbulanceDashboard.Client", "AmbulanceDashboard.Client\AmbulanceDashboard.Client.esproj", "{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard", "Dashboard\Dashboard\Dashboard.csproj", "{2DB13169-6B67-4D90-9559-DB95666C7F43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Client", "Dashboard\Dashboard.Client\Dashboard.Client.csproj", "{95D54494-49DB-4000-B897-7071B379602C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +51,14 @@ Global
 		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{2DB13169-6B67-4D90-9559-DB95666C7F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DB13169-6B67-4D90-9559-DB95666C7F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DB13169-6B67-4D90-9559-DB95666C7F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DB13169-6B67-4D90-9559-DB95666C7F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D54494-49DB-4000-B897-7071B379602C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D54494-49DB-4000-B897-7071B379602C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D54494-49DB-4000-B897-7071B379602C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D54494-49DB-4000-B897-7071B379602C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
