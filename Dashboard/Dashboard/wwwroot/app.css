@@ -6,7 +6,7 @@
     --border-colour: #CBCCCD;
     --highlight: #E1E000;
     --normal-font: "Whitney Book", Arial, sans-serif;
-    --header-font: "Whitney SemiBold", "Arial Black", sans-serif;
+    --header-font: "Whitney SemiBold", Arial, sans-serif;
     --subheader-font: "Whitney SemiBold", Arial, sans-serif;
     --vor-color: #E1E000;
     --vor-text: black;
@@ -576,4 +576,45 @@ button {
     color: var(--validation-error-color);
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+thead  {
+    background-color: var(--primary);
+    color: white;
+    text-align: left;
+    font-family: var(--subheader-font);
+}
+
+th, td:first-child {
+    font-weight: bold;
+}
+
+th, td {
+    padding: 0.25rem;
+}
+
+tr {
+    border: solid var(--primary);
+}
+
+a img, button img {
+    filter: invert(98%) sepia(98%) saturate(8%) hue-rotate(148deg) brightness(101%) contrast(105%);
+    transition: filter 0.25s ease-in-out;
+    height: 12px;
+}
+
+a:hover img, button:hover img {
+    filter: unset;
+}
+
+td a {
+    display: inline;
+}
+
+td.edit {
+    padding: 0.5em;
 }
