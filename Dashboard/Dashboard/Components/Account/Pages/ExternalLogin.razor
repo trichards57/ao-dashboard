@@ -121,8 +121,8 @@
 
     private async Task OnValidSubmitAsync()
     {
-        var emailStore = GetEmailStore();
-        var user = CreateUser();
+        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+        var user = new ApplicationUser();
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -156,28 +156,6 @@
         }
 
         message = $"Error: {string.Join(",", result.Errors.Select(error => error.Description))}";
-    }
-
-    private ApplicationUser CreateUser()
-    {
-        try
-        {
-            return Activator.CreateInstance<ApplicationUser>();
-        }
-        catch
-        {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor");
-        }
-    }
-
-    private IUserEmailStore<ApplicationUser> GetEmailStore()
-    {
-        if (!UserManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<ApplicationUser>)UserStore;
     }
 
     private sealed class InputModel
