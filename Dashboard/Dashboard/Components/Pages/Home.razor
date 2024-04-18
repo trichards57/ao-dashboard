@@ -1,0 +1,43 @@
+﻿@page "/home"
+
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+
+@inject IAuthorizationService AuthorizationService
+
+<Container Title="Welcome" IsHome="true">
+    <div class="btn-container">
+    <a href="@(canViewVOR ? "/summary" : null)" aria-disabled="@(!canViewVOR)">Summary</a>
+    <a href="@(canViewVOR ? "/vehicles/status" : null)" aria-disabled="@(!canViewVOR)">Vehicle Status</a>
+    <a href="@(canEditVehicles ? "/vehicles/config" : null)" aria-disabled="@(!canEditVehicles)">Vehicle Configuration</a>
+    <a href="@(canEditUsers ? "/users" : null)" aria-disabled="@(!canEditUsers)">User Settings</a>
+    <a href="@(canEditRoles ? "/roles" : null)" aria-disabled="@(!canEditRoles)">Role Settings</a>
+    <form method="post" action="Account/Logout">
+        <AntiforgeryToken />
+        <input type="hidden" name="returnUrl" value="" />
+        <button type="submit">Log Out</button>
+    </form>
+    </div>
+</Container>
+
+@code 
+{
+    private bool canViewVOR;
+    private bool canEditVehicles;
+    private bool canEditUsers;
+    private bool canEditRoles;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> User { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await User;
+
+        canViewVOR = (await AuthorizationService.AuthorizeAsync(authState.User, "CanViewVOR")).Succeeded;
+        canEditVehicles = (await AuthorizationService.AuthorizeAsync(authState.User, "CanEditVehicles")).Succeeded;
+        canEditUsers = (await AuthorizationService.AuthorizeAsync(authState.User, "CanEditUsers")).Succeeded;
+        canEditRoles = (await AuthorizationService.AuthorizeAsync(authState.User, "CanEditRoles")).Succeeded;
+    }
+}

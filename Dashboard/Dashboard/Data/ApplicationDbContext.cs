@@ -55,6 +55,17 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
             new IdentityRole { Id = dalGuid, Name = "DAL", NormalizedName = "DAL" },
             new IdentityRole { Id = lalGuid, Name = "LAL", NormalizedName = "LAL" });
 
+        builder.Entity<IdentityRoleClaim<string>>().HasData(
+            new IdentityRoleClaim<string> { Id = 1, RoleId = adminGuid, ClaimType = Client.UserClaims.Permissions, ClaimValue = Client.UserClaims.Edit },
+            new IdentityRoleClaim<string> { Id = 2, RoleId = ralGuid, ClaimType = Client.UserClaims.Permissions, ClaimValue = Client.UserClaims.Edit },
+            new IdentityRoleClaim<string> { Id = 3, RoleId = ralGuid, ClaimType = Client.UserClaims.VehicleConfiguration, ClaimValue = Client.UserClaims.Edit },
+            new IdentityRoleClaim<string> { Id = 4, RoleId = ralGuid, ClaimType = Client.UserClaims.VorData, ClaimValue = Client.UserClaims.Read },
+            new IdentityRoleClaim<string> { Id = 5, RoleId = dalGuid, ClaimType = Client.UserClaims.Permissions, ClaimValue = Client.UserClaims.Read },
+            new IdentityRoleClaim<string> { Id = 6, RoleId = dalGuid, ClaimType = Client.UserClaims.VehicleConfiguration, ClaimValue = Client.UserClaims.Read },
+            new IdentityRoleClaim<string> { Id = 7, RoleId = dalGuid, ClaimType = Client.UserClaims.VorData, ClaimValue = Client.UserClaims.Read },
+            new IdentityRoleClaim<string> { Id = 8, RoleId = lalGuid, ClaimType = Client.UserClaims.VehicleConfiguration, ClaimValue = Client.UserClaims.Read },
+            new IdentityRoleClaim<string> { Id = 9, RoleId = lalGuid, ClaimType = Client.UserClaims.VorData, ClaimValue = Client.UserClaims.Read });
+
         builder.Entity<ApplicationUser>().HasData(
             new ApplicationUser
             {

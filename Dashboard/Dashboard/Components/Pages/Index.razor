@@ -1,5 +1,8 @@
 ﻿@page "/"
+@using Dashboard.Components.Account
 @using Microsoft.AspNetCore.Authorization
+
+@inject NavigationManager NavigationManager
 
 <Container Title="Welcome" IsHome="true">
     <p>
@@ -13,4 +16,16 @@
     </div>
 </Container>
 
+@code 
+{
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext.User.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/home", replace: true);
+        }
+    }
+}

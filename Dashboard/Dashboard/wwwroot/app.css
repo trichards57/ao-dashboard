@@ -437,6 +437,14 @@ a {
     display: inline-block;
     margin-bottom: 0.5rem;
 }
+    a[aria-disabled], a:hover[aria-disabled] {
+        user-select: none;
+        cursor: default;
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        color: white;
+        touch-action: none;
+    }
 
     a:hover {
         background-color: var(--highlight);
@@ -532,7 +540,6 @@ button {
     background-color: var(--primary);
     color: white;
     font-family: var(--subheader-font);
-    font-size: 1.5rem;
     text-align: center;
     transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out;
     width: 100%;
