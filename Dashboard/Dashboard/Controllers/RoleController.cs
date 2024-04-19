@@ -5,13 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client;
 using Dashboard.Client.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace Dashboard.Controllers;
 

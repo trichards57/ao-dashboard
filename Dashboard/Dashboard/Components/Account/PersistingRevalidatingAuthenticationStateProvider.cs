@@ -87,7 +87,9 @@ namespace Dashboard.Components.Account
             if (principal.Identity?.IsAuthenticated == true)
             {
                 var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
+                var name = principal.FindFirst(ClaimTypes.Name)?.Value;
                 var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+                var role = principal.FindFirst(options.ClaimsIdentity.RoleClaimType)?.Value;
 
                 if (userId != null && email != null)
                 {
@@ -95,6 +97,8 @@ namespace Dashboard.Components.Account
                     {
                         UserId = userId,
                         Email = email,
+                        Role = role ?? "None",
+                        RealName = name ?? email,
                     });
                 }
             }

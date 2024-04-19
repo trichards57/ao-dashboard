@@ -2,16 +2,10 @@
 
 namespace Dashboard.Client.Services;
 
-internal class RoleService : IRoleService
+internal class RoleService(HttpClient httpClient, ILogger<RoleService> logger) : IRoleService
 {
-    private readonly HttpClient httpClient;
-    private readonly ILogger<RoleService> logger;
-
-    public RoleService(HttpClient httpClient, ILogger<RoleService> logger)
-    {
-        this.httpClient = httpClient;
-        this.logger = logger;
-    }
+    private readonly HttpClient httpClient = httpClient;
+    private readonly ILogger<RoleService> logger = logger;
 
     public async Task<RolePermissions?> GetRolePermissions(string id)
     {

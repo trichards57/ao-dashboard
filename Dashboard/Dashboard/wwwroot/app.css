@@ -467,6 +467,17 @@ a.secondary {
         color: black;
 }
 
+    a.delete {
+        background-color: darkred;
+        border-color: darkred;
+    }
+
+    a.delete:hover {
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+        color: black;
+    }
+
 @media(min-width: 768px) {
     .container.expands {
         width: 500px;

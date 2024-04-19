@@ -1,0 +1,62 @@
+﻿@page "/users"
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+@attribute [Authorize(Policy = "CanViewUsers")]
+
+@rendermode InteractiveAuto
+
+@inject IUserService UserService
+@inject ILogger<Edit> Logger
+
+<Container Title="User Roles">
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in users.OrderBy(r => r.Name))
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@(r.Role ?? "None")</td>
+                    <td class="edit">
+                        @if (r.Id != userId)
+                        {
+                            <a href="/users/@r.Id/edit">Edit</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</Container>
+
+@code
+{
+    private List<UserWithRole> users = new();
+    private string userId = "";
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+        var isAdmin = authState.User.IsInRole("Administrator");
+
+        Logger.LogInformation($"User is Admin : {isAdmin}, {string.Join(',', authState.User.Claims.Select(s => s.ToString()))}");
+
+        await foreach (var r in UserService.GetUsersWithRole().Where(r => r.Role != "Administrator" || isAdmin))
+        {
+            users.Add(r);
+        }
+    }
+}

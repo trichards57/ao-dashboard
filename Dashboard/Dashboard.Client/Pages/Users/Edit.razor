@@ -1,0 +1,87 @@
+﻿@page "/users/{id}/edit"
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+@attribute [Authorize(Policy = "CanEditUsers")]
+
+@rendermode InteractiveAuto
+
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IRoleService RoleService
+@inject ILogger<Edit> Logger
+
+<Container Title="User Roles" Expands>
+    @if (showError)
+    {
+        <div class="validation-message">There was an error updating the user.</div>
+    }
+    <EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
+        <DataAnnotationsValidator />
+        <h2>Update @roleName</h2>
+        <ValidationSummary role="alert" />
+        <div class="form-group">
+            <label for="role">Role</label>
+            <InputSelect @bind-Value="Input.RoleId">
+                @if (Input.RoleId == "None")
+                {
+                    <option value="None">None</option>
+                }
+                @foreach (var r in Roles.OrderBy(r => r.Name).Where(r => r.Name != "Administrator" || isAdmin))
+                {
+                    <option value="@r.Id">@r.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => Input.RoleId" />
+        </div>
+        <div class="btn-container">
+            <button type="submit">Save</button>
+        </div>
+    </EditForm>
+</Container>
+
+@code {
+    private string roleName = default!;
+    private bool showError = false;
+    private bool isAdmin = false;
+
+    [Parameter]
+    public string Id { get; set; } = default!;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    private UserRoleUpdate Input { get; set; } = new();
+
+    private List<RolePermissions> Roles { get; set; } = new();
+
+    public async Task UpdateRole()
+    {
+        if (await UserService.SetUserRole(Id, Input))
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+
+        isAdmin = authState.User.IsInRole("Administrator");
+
+        Logger.LogInformation($"User is Admin : {isAdmin}");
+
+        Roles = await RoleService.GetRoles().ToListAsync();
+        var input = await UserService.GetUserWithRole(Id);
+
+        if (input == null)
+        {
+            NavigationManager.NavigateTo("/users");
+            return;
+        }
+
+        Input = new UserRoleUpdate { RoleId = input.RoleId ?? "None" };
+        roleName = input.Name;
+    }
+}
