@@ -22,6 +22,9 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
 {
     private readonly IRoleService roleService = roleService;
 
+    [HttpGet]
+    public IAsyncEnumerable<RolePermissions> Get() => roleService.GetRoles();
+
     [HttpGet("{id}")]
     public async Task<ActionResult<RolePermissions>> Get([Required] string id)
     {

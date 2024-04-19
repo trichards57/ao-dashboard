@@ -2,6 +2,7 @@
 
 public interface IRoleService
 {
+    IAsyncEnumerable<RolePermissions> GetRoles();
     Task<RolePermissions?> GetRolePermissions(string id);
     Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions);
 }
@@ -15,6 +16,7 @@ public enum ReadWrite
 
 public sealed class RolePermissions
 {
+    public string Id { get; set; }
     public string Name { get; set; }
     public ReadWrite VehicleConfiguration { get; set; }
     public ReadWrite VorData { get; set; }
