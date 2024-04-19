@@ -47,6 +47,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
+builder.Services.Configure<IdentityEmailSenderOptions>(builder.Configuration);
 
 builder.Services.AddScoped(sp =>
     new HttpClient

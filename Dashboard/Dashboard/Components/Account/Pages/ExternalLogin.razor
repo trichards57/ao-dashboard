@@ -28,6 +28,11 @@
         <h2>Associate your Microsoft account</h2>
         <ValidationSummary role="alert" />
         <div class="form-group">
+            <label for="email">Name</label>
+            <InputText @bind-Value="Input.RealName" autocomplete="name" placeholder="Your Name" />
+            <ValidationMessage For="() => Input.RealName" />
+        </div>
+        <div class="form-group">
             <label for="email">Email</label>
             <InputText type="email" @bind-Value="Input.Email" autocomplete="email" placeholder="name@example.com" />
             <ValidationMessage For="() => Input.Email" />
@@ -117,6 +122,11 @@
         {
             Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
         }
+
+        if (!string.IsNullOrWhiteSpace(externalLoginInfo.Principal.Identity?.Name))
+        {
+            Input.RealName = externalLoginInfo.Principal.Identity.Name;
+        }
     }
 
     private async Task OnValidSubmitAsync()
@@ -126,6 +136,7 @@
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        user.RealName = Input.RealName;
 
         var result = await UserManager.CreateAsync(user);
         if (result.Succeeded)
@@ -163,5 +174,8 @@
         [Required]
         [EmailAddress]
         public string Email { get; set; } = "";
+
+        [Required]
+        public string RealName { get; set; } = "";
     }
 }
