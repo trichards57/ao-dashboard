@@ -8,20 +8,21 @@
 
 <Container Title="Welcome" IsHome="true">
     <div class="btn-container">
-    <a href="@(canViewVOR ? "/summary" : null)" aria-disabled="@(!canViewVOR)">Summary</a>
-    <a href="@(canViewVOR ? "/vehicles/status" : null)" aria-disabled="@(!canViewVOR)">Vehicle Status</a>
-    <a href="@(canEditVehicles ? "/vehicles/config" : null)" aria-disabled="@(!canEditVehicles)">Vehicle Configuration</a>
-    <a href="@(canEditUsers ? "/users" : null)" aria-disabled="@(!canEditUsers)">User Settings</a>
-    <a href="@(canEditRoles ? "/roles" : null)" aria-disabled="@(!canEditRoles)">Role Settings</a>
-    <form method="post" action="Account/Logout">
-        <AntiforgeryToken />
-        <input type="hidden" name="returnUrl" value="" />
-        <button type="submit">Log Out</button>
-    </form>
+        <a href="@(canViewVOR ? "/summary" : null)" aria-disabled="@(!canViewVOR)">Summary</a>
+        <a href="@(canViewVOR ? "/vehicles/status" : null)" aria-disabled="@(!canViewVOR)">Vehicle Status</a>
+        <a href="@(canEditVehicles ? "/vehicles/config" : null)" aria-disabled="@(!canEditVehicles)">Vehicle Configuration</a>
+        <a href="@(canEditUsers ? "/users" : null)" aria-disabled="@(!canEditUsers)">User Settings</a>
+        <a href="@(canEditRoles ? "/roles" : null)" aria-disabled="@(!canEditRoles)">Role Settings</a>
+        <a href="/Account/Manage">User Profile</a>
+        <form method="post" action="Account/Logout">
+            <AntiforgeryToken />
+            <input type="hidden" name="returnUrl" value="" />
+            <button type="submit">Log Out</button>
+        </form>
     </div>
 </Container>
 
-@code 
+@code
 {
     private bool canViewVOR;
     private bool canEditVehicles;
