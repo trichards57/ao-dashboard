@@ -31,15 +31,15 @@
             <p>You should <a href="Account/Manage/GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
         }
 
-        if (isMachineRemembered)
-        {
+        <div class="btn-container">
+            @if (isMachineRemembered)
+            {
             <form style="display: inline-block" @formname="forget-browser" @onsubmit="OnSubmitForgetBrowserAsync" method="post">
                 <AntiforgeryToken />
                 <button type="submit" class="btn btn-primary">Forget this browser</button>
             </form>
-        }
+            }
 
-        <div class="btn-container">
             <a class="delete" href="Account/Manage/Disable2fa">Disable 2FA</a>
             <a href="Account/Manage/GenerateRecoveryCodes">Reset recovery codes</a>
         </div>
