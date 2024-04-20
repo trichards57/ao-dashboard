@@ -90,6 +90,7 @@ namespace Dashboard.Components.Account
                 var name = principal.FindFirst(ClaimTypes.Name)?.Value;
                 var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
                 var role = principal.FindFirst(options.ClaimsIdentity.RoleClaimType)?.Value;
+                var amrUsed = principal.FindFirst("amr")?.Value ?? principal.FindFirst(ClaimTypes.AuthenticationMethod)?.Value;
 
                 if (userId != null && email != null)
                 {
@@ -99,6 +100,7 @@ namespace Dashboard.Components.Account
                         Email = email,
                         Role = role ?? "None",
                         RealName = name ?? email,
+                        AmrUsed = amrUsed ?? "Unknown",
                     });
                 }
             }

@@ -30,7 +30,9 @@ namespace Dashboard.Client
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
                 new Claim(ClaimTypes.Name, userInfo.RealName),
                 new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim(ClaimTypes.Role, userInfo.Role)];
+                new Claim(ClaimTypes.Role, userInfo.Role),
+                new Claim(ClaimTypes.AuthenticationMethod, userInfo.AmrUsed),
+            ];
 
             authenticationStateTask = Task.FromResult(
                 new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims,
