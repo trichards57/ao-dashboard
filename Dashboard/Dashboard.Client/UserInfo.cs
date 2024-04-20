@@ -9,5 +9,6 @@ namespace Dashboard.Client
         public required string Email { get; set; }
         public required string Role { get; set; }
         public required string AmrUsed { get; set; }
+        public required DateTimeOffset? LastAuthenticated { get; set; }
     }
 }

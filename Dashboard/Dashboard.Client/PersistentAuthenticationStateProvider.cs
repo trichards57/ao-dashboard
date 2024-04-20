@@ -32,6 +32,7 @@ namespace Dashboard.Client
                 new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Role, userInfo.Role),
                 new Claim(ClaimTypes.AuthenticationMethod, userInfo.AmrUsed),
+                new Claim("auth_time", userInfo.LastAuthenticated?.ToString("o") ?? "")
             ];
 
             authenticationStateTask = Task.FromResult(
