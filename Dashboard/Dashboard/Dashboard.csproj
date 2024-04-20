@@ -23,12 +23,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dashboard.Client\Dashboard.Client.csproj" />
+    <PackageReference Include="Azure.Identity" Version="1.11.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.60.3" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.23.2.88755">
       <PrivateAssets>all</PrivateAssets>
