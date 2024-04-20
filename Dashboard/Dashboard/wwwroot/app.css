@@ -424,7 +424,7 @@ input[type=search] {
         border: 1px solid var(--border-colour)
     }
 
-a {
+a:not(.simple) {
     border-radius: 0.25rem;
     border: 1px solid var(--primary);
     padding: 0.25rem;
@@ -437,45 +437,50 @@ a {
     display: inline-block;
     margin-bottom: 0.5rem;
 }
-    a[aria-disabled], a:hover[aria-disabled] {
-        user-select: none;
-        cursor: default;
-        background-color: var(--secondary);
-        border-color: var(--secondary);
-        color: white;
-        touch-action: none;
-    }
 
-    a:hover {
-        background-color: var(--highlight);
-        border-color: var(--highlight);
-        color: black;
-    }
+a[aria-disabled]:not(.simple), a:hover[aria-disabled]:not(.simple) {
+    user-select: none;
+    cursor: default;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    color: white;
+    touch-action: none;
+}
 
-    a i {
-        margin-right: 0.5rem;
-    }
+a:hover:not(.simple) {
+    background-color: var(--highlight);
+    border-color: var(--highlight);
+    color: black;
+}
 
-a.secondary {
+a:not(.simple) i {
+    margin-right: 0.5rem;
+}
+
+a:not(.simple).secondary {
     background-color: var(--secondary);
     border-color: var(--secondary);
 }
 
-    a.secondary:hover {
+    a:not(.simple).secondary:hover {
         background-color: var(--highlight);
         border-color: var(--highlight);
         color: black;
-}
-
-    a.delete {
-        background-color: darkred;
-        border-color: darkred;
     }
 
-    a.delete:hover {
+a:not(.simple).delete, button.delete {
+    background-color: darkred;
+    border-color: darkred;
+}
+
+    a:not(.simple).delete:hover, button.delete:hover {
         background-color: var(--secondary);
         border-color: var(--secondary);
         color: black;
+    }
+
+    a.simple {
+        color: var(--primary);
     }
 
 @media(min-width: 768px) {
@@ -593,7 +598,7 @@ table {
     border-collapse: collapse;
 }
 
-thead  {
+thead {
     background-color: var(--primary);
     color: white;
     text-align: left;
