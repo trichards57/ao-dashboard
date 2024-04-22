@@ -2,12 +2,14 @@
 @using Dashboard.Client.Services
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
+@implements IDisposable
 
 @attribute [Authorize(Policy = "CanEditRoles")]
 
 @rendermode InteractiveAuto
 
 @inject IRoleService RoleService
+@inject PersistentComponentState PersistentComponentState
 
 <Container Title="User Roles" Expands>
     <table>
@@ -45,12 +47,25 @@
 @code
 {
     private List<RolePermissions> roles = new();
+    private PersistingComponentStateSubscription subscription;
 
     protected override async Task OnInitializedAsync()
     {
-        await foreach (var r in RoleService.GetRoles())
-        {
-            roles.Add(r);
-        }
+        subscription = PersistentComponentState.RegisterOnPersisting(Persist);
+        
+        var foundInState = PersistentComponentState.TryTakeFromJson<List<RolePermissions>>("roles", out var state);
+
+        roles.AddRange((foundInState && state != null) ? state : await RoleService.GetRoles().ToListAsync());
+    }
+
+    private Task Persist()
+    {
+        PersistentComponentState.PersistAsJson("roles", roles);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        subscription.Dispose();
     }
 }
