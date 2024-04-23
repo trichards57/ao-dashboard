@@ -4,19 +4,22 @@
 
 @inject NavigationManager NavigationManager
 
-<Container Title="Welcome" IsHome="true">
-    <p>
-        Welcome to the AO Ambulance Dashboard.  You will need to log in to 
-        use this application.
-    </p>
-    <div class="btn-container">
-        <a href="/Account/Login">
+<section class="hero">
+    <div class="hero-body">
+        <p class="title">Welcome</p>
+        <p class="subtitle">
+            Welcome to the AO Ambulance Dashboard.  You will need to log in to
+            use this application.
+        </p>
+    </div>
+    <div class="hero-foot is-flex is-justify-content-center">
+        <a class="button is-primary" href="/Account/Login">
             Log In
         </a>
     </div>
-</Container>
+</section>
 
-@code 
+@code
 {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
