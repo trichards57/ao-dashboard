@@ -45,6 +45,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\emails\" />
     <Folder Include="wwwroot\img\fa\" />
+    <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

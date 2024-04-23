@@ -1,0 +1,101 @@
+﻿@rendermode InteractiveAuto
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/home">
+            AO Dashboard
+        </a>
+        <a @onclick="ToggleMenu" class="navbar-burger @(showMenu ? "is-active" : "")" role="button" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu @(showMenu ? "is-active" : "")">
+        <div class="navbar-start">
+            <NavLink class="navbar-item" href="/home" ActiveClass="is-active">
+                Home
+            </NavLink>
+            <AuthorizeView Policy="CanViewVOR">
+                <Authorized>
+                    <NavLink class="navbar-item" href="/vehicles/status" ActiveClass="is-active">
+                        Vehicle Status
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="CanEditVehicles">
+                <Authorized>
+                    <NavLink class="navbar-item" href="/vehicles/config" ActiveClass="is-active">
+                        Vehicle Setup
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="CanViewUsers">
+                <Authorized>
+                    <NavLink class="navbar-item" href="/users" ActiveClass="is-active">
+                        User Settings
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="CanEditRoles">
+                <Authorized>
+                    <NavLink class="navbar-item" href="/roles" ActiveClass="is-active">
+                        Role Settings
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <div class="navbar-end">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link" @onclick="ToggleAccountDropdown">
+                            @Name
+                        </a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item" href="/Account/Manage">
+                                Manage Profile
+                            </a>
+                            <hr class="navbar-divider" />
+                            <div class="navbar-item">
+                                <form method="post" action="Account/Logout">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="returnUrl" value="" />
+                                    <button type="submit">Log Out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private string? Name { get; set; }
+    private bool showMenu { get; set; }
+    private bool showAccountDropdown { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+        Name = user.Identity?.Name;
+    }
+
+    private void ToggleMenu()
+    {
+        showMenu = !showMenu;
+    }
+
+    private void ToggleAccountDropdown()
+    {
+        showAccountDropdown = !showAccountDropdown;
+    }
+}

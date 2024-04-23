@@ -103,6 +103,15 @@ namespace Dashboard.Components.Account
                         RealName = name ?? email,
                         AmrUsed = amrUsed ?? "Unknown",
                         LastAuthenticated = lastAuthenticated != null ? DateTimeOffset.Parse(lastAuthenticated) : null,
+                        OtherClaims = principal.Claims
+                            .Where(c =>
+                                c.Type != options.ClaimsIdentity.UserIdClaimType &&
+                                c.Type != ClaimTypes.Name &&
+                                c.Type != options.ClaimsIdentity.EmailClaimType &&
+                                c.Type != options.ClaimsIdentity.RoleClaimType &&
+                                c.Type != ClaimTypes.AuthenticationMethod &&
+                                c.Type != "auth_time")
+                            .ToDictionary(c => c.Type, c => c.Value),
                     });
                 }
             }

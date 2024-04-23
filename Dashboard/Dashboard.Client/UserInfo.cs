@@ -1,3 +1,4 @@
+
 namespace Dashboard.Client
 {
     // Add properties to this class and update the server and client AuthenticationStateProviders
@@ -10,5 +11,6 @@ namespace Dashboard.Client
         public required string Role { get; set; }
         public required string AmrUsed { get; set; }
         public required DateTimeOffset? LastAuthenticated { get; set; }
+        public Dictionary<string, string> OtherClaims { get; set; }
     }
 }

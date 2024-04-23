@@ -26,7 +26,7 @@ namespace Dashboard.Client
                 return;
             }
 
-            Claim[] claims = [
+            Claim[] claims = [.. userInfo.OtherClaims.Select(kvp => new Claim(kvp.Key, kvp.Value)),
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
                 new Claim(ClaimTypes.Name, userInfo.RealName),
                 new Claim(ClaimTypes.Email, userInfo.Email),
