@@ -1,5 +1,21 @@
 ﻿@use "bulma/sass";
 
+.ms-login {
+    background-image: url("/img/ms-sign-in.svg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    width: 215px;
+    height: 41px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ms-login {
+        background-image: url("/img/ms-sign-in-dark.svg");
+    }
+}
+
+
 #blazor-error-ui {
     color: black;
     background: lightyellow;

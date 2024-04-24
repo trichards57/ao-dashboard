@@ -1,6 +1,7 @@
 ﻿@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
+@using Dashboard.Client.Validation
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using Dashboard.Data
@@ -10,53 +11,59 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<Container Title="Log In" IsHome Expands>
-    <StatusMessage Message="@errorMessage" />
-    <section>
-        <form action="Account/PerformExternalLogin" method="post">
-            <div>
-                <AntiforgeryToken />
-                <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
-                <button type="submit" class="btn btn-primary" name="provider" value="Microsoft" title="Log in using your Microsoft account">
-                    <img src="/img/fa/microsoft.svg" alt="" />
-                    Log in using your Microsoft account
-                </button>
+<PageTitle>AO Dashboard - Sign In</PageTitle>
+
+<h1 class="title">Sign In</h1>
+<StatusMessage Message="@errorMessage" />
+<section class="block">
+    <h2 class="subtitle">Use your SJA Account</h2>
+    <form action="Account/PerformExternalLogin" method="post">
+        <div class="is-flex is-justify-content-center">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+            <button type="submit" class="button ms-login" name="provider" value="Microsoft" title="Sign in with Microsoft" />
+        </div>
+    </form>
+</section>
+<section class="block">
+    <h2 class="subtitle">Use a Local Account</h2>
+    <EditForm EditContext="editContext" method="post" OnValidSubmit="LoginUser" FormName="login" novalidate>
+        <DataAnnotationsValidator />
+        <ValidationSummary role="alert" class="notification is-danger" />
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <div class="control">
+                <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
             </div>
-        </form>
-    </section>
-    <section>
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-            <DataAnnotationsValidator />
-            <h2>Use a local account</h2>
-            <ValidationSummary role="alert" />
-            <div class="form-group">
-                <label for="email">Email</label>
-                <InputText type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <ValidationMessage For="() => Input.Email" />
+            <ValidationMessage class="help is-danger" For="() => Input.Email" />
+        </div>
+        <div class="field">
+            <label class="label" for="password">Password</label>
+            <div class="control">
+                <InputText class="input" type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="password" />
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <InputText type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="password" />
-                <ValidationMessage For="() => Input.Password" />
-            </div>
-            <div class="form-group">
-                <label>
+            <ValidationMessage class="help is-danger" For="() => Input.Password" />
+        </div>
+        <div class="field">
+            <div class="control">
+                <label class="checkbox">
+                    <InputCheckbox @bind-Value="Input.RememberMe" />
                     Remember me
-                    <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
                 </label>
             </div>
-            <div class="btn-container">
-                <button type="submit">Log in</button>
-                <a class="secondary" href="Account/ForgotPassword">Forgot your password?</a>
-                <a class="secondary" href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
-                <a class="secondary" href="Account/ResendEmailConfirmation">Resend email confirmation</a>
-            </div>
-        </EditForm>
-    </section>
-</Container>
+        </div>
+        <div class="buttons">
+            <button class="button is-primary is-fullwidth" type="submit">Log in</button>
+            <a class="button is-link is-fullwidth" href="Account/ForgotPassword">Forgot your password?</a>
+            <a class="button is-link is-fullwidth" href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+            <a class="button is-link is-fullwidth" href="Account/ResendEmailConfirmation">Resend email confirmation</a>
+        </div>
+    </EditForm>
+</section>
 
 @code {
     private string? errorMessage;
+    private EditContext? editContext;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -74,6 +81,9 @@
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
+
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
     }
 
     public async Task LoginUser()
@@ -103,15 +113,14 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "You need to enter your email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter your email address.")]
+        [NonSjaEmail(ErrorMessage = "SJA email address holders must use 'Sign in with Microsoft'.")]
         public string Email { get; set; } = "";
 
-        [Required]
-        [DataType(DataType.Password)]
+        [Required(ErrorMessage = ("You need to enter your password."))]
         public string Password { get; set; } = "";
 
-        [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
     }
 }
