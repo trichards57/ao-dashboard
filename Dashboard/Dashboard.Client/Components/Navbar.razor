@@ -14,9 +14,18 @@
     </div>
     <div class="navbar-menu @(showMenu ? "is-active" : "")">
         <div class="navbar-start">
-            <NavLink class="navbar-item" href="/home" ActiveClass="is-active">
-                Home
-            </NavLink>
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="navbar-item" href="/home" ActiveClass="is-active">
+                        Home
+                    </NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink class="navbar-item" href="/" ActiveClass="is-active" Match="NavLinkMatch.All">
+                        Home
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
             <AuthorizeView Policy="CanViewVOR">
                 <Authorized>
                     <NavLink class="navbar-item" href="/vehicles/status" ActiveClass="is-active">
