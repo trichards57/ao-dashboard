@@ -9,14 +9,10 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
-<section class="hero">
-    <div class="hero-body">
-        <p class="title">Confirm Your Email</p>
-        <p class="subtitle">
-            @message
-        </p>
-    </div>
-</section>
+<h1 class="title">Confirm Your Email</h1>
+<p class="subtitle">
+    @message
+</p>
 
 @code {
     private string? message;

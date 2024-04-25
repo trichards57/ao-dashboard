@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
+@using Dashboard.Client.Validation
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using Dashboard.Data
@@ -15,49 +16,70 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<Container Title="Register" IsHome Expands>
-    <StatusMessage Message="@Message" />
-    <section>
-        <form action="Account/PerformExternalLogin" method="post">
-            <div>
-                <AntiforgeryToken />
-                <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
-                <button type="submit" class="btn btn-primary" name="provider" value="Microsoft" title="Log in using your Microsoft account">
-                    <i class="fa-brands fa-microsoft"></i>
-                    Register using your Microsoft account
-                </button>
+<PageTitle>AO Dashboard - Register</PageTitle>
+
+<h1 class="title">Register</h1>
+<StatusMessage Message="@Message" />
+<section class="block">
+    <h2 class="subtitle">Use your SJA Account</h2>
+    <form action="Account/PerformExternalLogin" method="post">
+        <div class="is-flex is-justify-content-center">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+            <button type="submit" class="button ms-login" name="provider" value="Microsoft" title="Sign in with Microsoft" />
+        </div>
+    </form>
+</section>
+<section class="block">
+    <EditForm EditContext="editContext" method="post" OnValidSubmit="RegisterUser" FormName="register" novalidate>
+        <DataAnnotationsValidator />
+        <ValidationSummary role="alert" class="notification is-danger" />
+        <div class="field">
+            <label class="label" for="email">Email</label>
+            <div class="control">
+                <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
             </div>
-        </form>
-    </section>
-    <section>
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
-            <h2>Create a local account</h2>
-            <ValidationSummary role="alert" />
-            <div class="form-group">
-                <label for="email">Email</label>
-                <InputText type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <ValidationMessage For="() => Input.Email" />
+            <ValidationMessage class="help is-danger" For="() => Input.Email" />
+        </div>
+        <div class="field">
+            <label class="label" for="password">Password</label>
+            <div class="control">
+                <InputText class="input" type="password" @bind-Value="Input.Password" autocomplete="new-password" aria-required="true" placeholder="password" />
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <InputText type="password" @bind-Value="Input.Password" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <ValidationMessage For="() => Input.Password" />
+            <ValidationMessage class="help is-danger" For="() => Input.Password" />
+        </div>
+        <div class="field">
+            <label class="label" for="password">Confirm Password</label>
+            <div class="control">
+                <InputText class="input" type="password" @bind-Value="Input.ConfirmPassword" autocomplete="new-password" aria-required="true" placeholder="password" />
             </div>
-            <div class="form-group">
-                <label for="confirm-password">Confirm Password</label>
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <ValidationMessage For="() => Input.ConfirmPassword" />
+            <ValidationMessage class="help is-danger" For="() => Input.ConfirmPassword" />
+        </div>
+        <div class="field">
+            <div class="control">
+                <label class="checkbox">
+                    <InputCheckbox @bind-Value="Input.TermsAccept" type="checkbox" /> I have read and agree to the <a href="/Terms">Terms of Service</a>.
+                </label>
             </div>
-            <div class="btn-container">
-                <button type="submit">Register</button>
+            <ValidationMessage class="help is-danger" For="() => Input.TermsAccept" />
+        </div>
+        <div class="field">
+            <div class="control">
+                <label class="checkbox">
+                    <InputCheckbox @bind-Value="Input.PrivacyPolicyAccept" type="checkbox" /> I have read and accept the <a href="/Privacy">Privacy Policy</a>.
+                </label>
             </div>
-        </EditForm>
-    </section>
-</Container>
+            <ValidationMessage class="help is-danger" For="() => Input.PrivacyPolicyAccept" />
+        </div>
+        <div class="buttons">
+            <button class="button is-primary is-fullwidth" type="submit">Register</button>
+        </div>
+    </EditForm>
+</section>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
+    private EditContext? editContext;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
@@ -66,6 +88,12 @@
     private string? ReturnUrl { get; set; }
 
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+    }
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -95,9 +123,7 @@
 
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
-            RedirectManager.RedirectTo(
-                "Account/RegisterConfirmation",
-                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+            RedirectManager.RedirectTo("Account/RegisterConfirmation");
         }
 
         await SignInManager.SignInAsync(user, isPersistent: false);
@@ -106,20 +132,23 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "You need to enter your email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter your email address.")]
+        [NonSjaEmail(ErrorMessage = "SJA email address holders must use 'Sign in with Microsoft'.")]
         public string Email { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = ("You need to enter your password."))]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; } = "";
 
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the privacy policy.")]
+        public bool PrivacyPolicyAccept { get; set; }
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the terms of service.")]
+        public bool TermsAccept { get; set; }
+
     }
 }

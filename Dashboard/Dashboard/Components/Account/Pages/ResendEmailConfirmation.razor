@@ -12,22 +12,22 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<Container Title="Resend Email Confirmation" Expands IsHome>
-    <StatusMessage Message="@message" />
-    <EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="resend-email-confirmation">
-        <DataAnnotationsValidator />
-        <h2>Enter your email</h2>
-        <ValidationSummary role="alert" />
-        <div class="form-group">
-            <label for="email">Email</label>
-            <InputText type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-            <ValidationMessage For="() => Input.Email" />
+<h1 class="title">Resend Email Confirmation</h1>
+<StatusMessage Message="@message" />
+<EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="resend-email-confirmation">
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <div class="field">
+        <label class="label" for="email">Email</label>
+        <div class="control">
+            <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
         </div>
-        <div class="btn-container">
-            <button type="submit">Resend</button>
-        </div>
-    </EditForm>
-</Container>
+        <ValidationMessage class="help is-danger" For="() => Input.Email" />
+    </div>
+    <div class="buttons">
+        <button class="button is-primary is-fullwidth" type="submit">Resend</button>
+    </div>
+</EditForm>
 
 @code {
     private string? message;
