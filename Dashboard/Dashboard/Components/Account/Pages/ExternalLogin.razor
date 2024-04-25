@@ -17,10 +17,17 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
 
-<PageTitle>AO Dashboard - Register</PageTitle>
+<PageTitle>AO Dashboard - Register</PageTitle>  
 
 <h1 class="title">Register</h1>
-<StatusMessage Message="@message" />
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+
 <p>
     You've successfully sign in with your SJA account. Please can you check the form below and hit Register to finish.
 </p>
@@ -90,13 +97,13 @@
     {
         if (RemoteError is not null)
         {
-            RedirectManager.RedirectToWithStatus("Account/Login", $"Error from external provider: {RemoteError}", HttpContext);
+            RedirectManager.RedirectToWithStatus("Account/Login", "There was an error logging in.", HttpContext);
         }
 
         var info = await SignInManager.GetExternalLoginInfoAsync();
         if (info is null)
         {
-            RedirectManager.RedirectToWithStatus("Account/Login", "Error loading external login information.", HttpContext);
+            RedirectManager.RedirectToWithStatus("Account/Login", "There was an error logging in.", HttpContext);
         }
 
         externalLoginInfo = info;
@@ -109,8 +116,6 @@
                 return;
             }
 
-            // We should only reach this page via the login callback, so redirect back to
-            // the login page if we get here some other way.
             RedirectManager.RedirectTo("Account/Login");
         }
     }
@@ -178,7 +183,7 @@
                 // If account confirmation is required, we need to show the link if we don't have a real email sender
                 if (UserManager.Options.SignIn.RequireConfirmedAccount)
                 {
-                    RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email });
+                    RedirectManager.RedirectTo("Account/RegisterConfirmation");
                 }
 
                 await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
@@ -186,7 +191,7 @@
             }
         }
 
-        message = $"Error: {string.Join(",", result.Errors.Select(error => error.Description))}";
+        message = string.Join(",", result.Errors.Select(error => error.Description));
     }
 
     private sealed class InputModel

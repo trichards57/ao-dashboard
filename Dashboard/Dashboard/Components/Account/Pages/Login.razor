@@ -14,7 +14,12 @@
 <PageTitle>AO Dashboard - Sign In</PageTitle>
 
 <h1 class="title">Sign In</h1>
-<StatusMessage Message="@errorMessage" />
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="notification is-danger">
+        @errorMessage
+    </div>
+}
 <section class="block">
     <h2 class="subtitle">Use your SJA Account</h2>
     <form action="Account/PerformExternalLogin" method="post">
@@ -53,7 +58,7 @@
             </div>
         </div>
         <div class="buttons">
-            <button class="button is-primary is-fullwidth" type="submit">Log in</button>
+            <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
             <a class="button is-link is-fullwidth" href="Account/ForgotPassword">Forgot your password?</a>
             <a class="button is-link is-fullwidth" href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
             <a class="button is-link is-fullwidth" href="Account/ResendEmailConfirmation">Resend email confirmation</a>
@@ -82,6 +87,14 @@
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
 
+        var messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+        if (messageFromCookie is not null)
+        {
+            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            errorMessage = messageFromCookie;
+        }
+
         editContext = new(Input);
         editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
     }
@@ -107,7 +120,7 @@
         }
         else
         {
-            errorMessage = "Error: Invalid login attempt.";
+            errorMessage = "Sign in failed.  That email address or password wasn't recognised.";
         }
     }
 

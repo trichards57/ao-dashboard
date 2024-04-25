@@ -9,29 +9,38 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<LoginWithRecoveryCode> Logger
 
-<Container Title="Log In" IsHome Expands>
-    <StatusMessage Message="@message" />
-    <p>
-        You have requested to log in with a recovery code. This login will not be remembered until you provide
-        an authenticator app code at log in or disable 2FA and log in again.
-    </p>
-    <EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-recovery-code">
-        <DataAnnotationsValidator />
-        <ValidationSummary class="text-danger" role="alert" />
-        <div class="form-group">
-            <label for="recovery-code" class="form-label">Recovery Code</label>
-            <InputText @bind-Value="Input.RecoveryCode" autocomplete="one-time-code" aria-required="true" />
-            <ValidationMessage For="() => Input.RecoveryCode" />
+<PageTitle>AO Dashboard - Sign In</PageTitle>
+
+<h1 class="title">Sign In</h1>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+<p>
+    You have requested to log in with a recovery code. This login will not be remembered until you provide
+    an authenticator app code at log in or disable 2FA and log in again.
+</p>
+<EditForm EditContext="editContext" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-recovery-code">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="notification is-danger" role="alert" />
+    <div class="field">
+        <label class="label" for="recovery-code">Recovery Code</label>
+        <div class="control">
+            <InputText class="input" @bind-Value="Input.RecoveryCode" autocomplete="one-time-code" aria-required="true" />
         </div>
-        <div class="btn-container">
-            <button type="submit">Log in</button>
-        </div>
-    </EditForm>
-</Container>
+        <ValidationMessage class="help is-danger" For="() => Input.RecoveryCode" />
+    </div>
+    <div class="buttons">
+        <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
+    </div>
+</EditForm>
 
 @code {
     private string? message;
     private ApplicationUser user = default!;
+    private EditContext? editContext;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
@@ -41,6 +50,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         // Ensure the user has gone through the username & password screen first
         user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ??
             throw new InvalidOperationException("Unable to load two-factor authentication user.");
@@ -67,15 +79,13 @@
         else
         {
             Logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", userId);
-            message = "Error: Invalid recovery code entered.";
+            message = "The recovery code was not valid.";
         }
     }
 
     private sealed class InputModel
     {
-        [Required]
-        [DataType(DataType.Text)]
-        [Display(Name = "Recovery Code")]
+        [Required(ErrorMessage = "You need to enter a recovery code.")]
         public string RecoveryCode { get; set; } = "";
     }
 }

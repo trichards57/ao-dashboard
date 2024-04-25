@@ -9,35 +9,47 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<LoginWith2fa> Logger
 
-<Container Title="Log In" IsHome Expands>
-    <StatusMessage Message="@message" />
-    <p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
-    <EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-2fa">
-        <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
-        <input type="hidden" name="RememberMe" value="@RememberMe" />
-        <DataAnnotationsValidator />
-        <ValidationSummary class="text-danger" role="alert" />
-        <div class="form-group">
-            <label for="two-factor-code">Authenticator Code</label>
-            <InputText @bind-Value="Input.TwoFactorCode" autocomplete="one-time-code" aria-required="true" />
-            <ValidationMessage For="() => Input.TwoFactorCode" />
+<PageTitle>AO Dashboard - Sign In</PageTitle>
+
+<h1 class="title">Sign In</h1>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+<p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
+<EditForm EditContext="editContext" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-2fa" novalidate>
+    <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+    <input type="hidden" name="RememberMe" value="@RememberMe" />
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <div class="field">
+        <label class="label" for="two-factor-code">Authenticator Code</label>
+        <div class="control">
+            <InputText class="input" @bind-Value="Input.TwoFactorCode" autocomplete="one-time-code" aria-required="true" />
         </div>
-        <div class="form-group">
-            <label>
-                Remember this machine
+        <ValidationMessage class="help is-danger" For="() => Input.TwoFactorCode" />
+    </div>
+    <div class="field">
+        <div class="control">
+            <label class="checkbox">
                 <InputCheckbox @bind-Value="Input.RememberMachine" />
+                Remember this machine
             </label>
         </div>
-        <div class="btn-container">
-            <button type="submit">Log in</button>
-            <a class="secondary" href="Account/LoginWithRecoveryCode?ReturnUrl=@ReturnUrl">Log In with a Recovery Code</a>
-        </div>
-    </EditForm>
-</Container>
+    </div>
+    <div class="buttons">
+        <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
+        <a class="button is-link is-fullwidth" href="Account/LoginWithRecoveryCode?ReturnUrl=@ReturnUrl">Log In with a Recovery Code</a>
+    </div>
+</EditForm>
+
 
 @code {
     private string? message;
     private ApplicationUser user = default!;
+    private EditContext? editContext;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
@@ -50,9 +62,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         // Ensure the user has gone through the username & password screen first
         user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ??
             throw new InvalidOperationException("Unable to load two-factor authentication user.");
+
     }
 
     private async Task OnValidSubmitAsync()
@@ -74,19 +90,16 @@
         else
         {
             Logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", userId);
-            message = "Error: Invalid authenticator code.";
+            message = "The authenticator code was not valid.";
         }
     }
 
     private sealed class InputModel
     {
-        [Required]
+        [Required(ErrorMessage = "You need to enter an authenticator code.")]
         [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Text)]
-        [Display(Name = "Authenticator code")]
         public string? TwoFactorCode { get; set; }
 
-        [Display(Name = "Remember this machine")]
         public bool RememberMachine { get; set; }
     }
 }

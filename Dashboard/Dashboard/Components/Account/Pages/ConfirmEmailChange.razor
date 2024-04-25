@@ -9,6 +9,8 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
+<PageTitle>AO Dashboard - Confirm Your Email</PageTitle>
+
 <h1 class="title">Confirm Your Email</h1>
 <p class="subtitle">
     @message
@@ -31,16 +33,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        const string errorMessage = "The confirmation link wasn't valid. It may have expired. Please try again.";
+
         if (UserId is null || Email is null || Code is null)
         {
-            RedirectManager.RedirectToWithStatus(
-                "Account/Login", "Error: Invalid email change confirmation link.", HttpContext);
+            message = errorMessage;
+            return;
         }
 
         var user = await UserManager.FindByIdAsync(UserId);
         if (user is null)
         {
-            message = "Unable to find user with Id '{userId}'";
+            message = errorMessage;
             return;
         }
 
@@ -48,16 +52,14 @@
         var result = await UserManager.ChangeEmailAsync(user, Email, code);
         if (!result.Succeeded)
         {
-            message = "Error changing email.";
+            message = errorMessage;
             return;
         }
 
-        // In our UI email and user name are one and the same, so when we update the email
-        // we need to update the user name.
         var setUserNameResult = await UserManager.SetUserNameAsync(user, Email);
         if (!setUserNameResult.Succeeded)
         {
-            message = "Error changing user name.";
+            message = errorMessage;
             return;
         }
 
