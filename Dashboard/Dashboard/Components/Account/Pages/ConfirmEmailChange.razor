@@ -9,9 +9,14 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
-<Container Title="Confirm Email Change" Expands>
-    <StatusMessage Message="@message" />
-</Container>
+<section class="hero">
+    <div class="hero-body">
+        <p class="title">Confirm Your Email</p>
+        <p class="subtitle">
+            @message
+        </p>
+    </div>
+</section>
 
 @code {
     private string? message;

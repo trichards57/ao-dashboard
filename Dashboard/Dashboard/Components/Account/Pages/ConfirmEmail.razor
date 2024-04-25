@@ -8,6 +8,15 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
 
+<section class="hero">
+    <div class="hero-body">
+        <p class="title">Confirm Your Email</p>
+        <p class="subtitle">
+            @statusMessage
+        </p>
+    </div>
+</section>
+
 <Container Title="Confirm Email" Expands>
     <StatusMessage Message="@statusMessage" />
 </Container>
