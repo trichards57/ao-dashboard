@@ -9,32 +9,69 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 
-<Container Title="Profile" Expands>
+<ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
     <StatusMessage />
 
-    <div class="btn-container">
-        @if (!isMicrosoftAccount)
-        {
-            <a href="/Account/Manage/Email">Change Email</a>
-            <a href="/Account/Manage/ChangePassword">Change Password</a>
-            <a href="/Account/Manage/TwoFactorAuthentication">Two-Factor Authentication</a>
-        }
-        <a href="/Account/Manage/PersonalData">Manage Personal Data</a>
-    </div>
-</Container>
+    <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <DataAnnotationsValidator />
+        <ValidationSummary role="alert" class="notification is-danger" />
+        <div class="field">
+            <label for="name" class="label">Name</label>
+            <div class="control">
+                <InputText @bind-Value="@Input.Name" class="input" placeholder="Real Name" />
+            </div>
+            <ValidationMessage class="help is-danger" For="() => Input.Name" />
+        </div>
+        <div class="buttons">
+            <button type="submit" class="button is-primary is-fullwidth">Save</button>
+        </div>
+    </EditForm>
+</ManageLayout>
 
 @code {
-    private bool isMicrosoftAccount = false;
-
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    private bool isMicrosoftAccount = false;
+    private string? username;
+    private string? phoneNumber;
+    private ApplicationUser user = default!;
+
     protected override async Task OnInitializedAsync()
     {
-        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
-
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         var logins = await UserManager.GetLoginsAsync(user);
-
         isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            Input.Name = user.RealName;
+        }
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.Name != user.RealName)
+        {
+            user.RealName = Input.Name!;
+            var result = await UserManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus("Unable to change your name.", HttpContext);
+            }
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated.", HttpContext);
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter your name.")]
+        public string? Name { get; set; }
     }
 }

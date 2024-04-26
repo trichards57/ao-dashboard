@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
+@using Dashboard.Client.Validation
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using Dashboard.Data
@@ -12,24 +13,26 @@
 @inject IdentityUserAccessor UserAccessor
 @inject NavigationManager NavigationManager
 
-<Container Title="Change Email" Expands>
+<ManageLayout>
     <StatusMessage Message="@message" />
+
     <EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post">
         <DataAnnotationsValidator />
-        <h2>Change your email</h2>
-        <ValidationSummary role="alert" />
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" value="@email" class="form-control" placeholder="Please enter your email." disabled />
+        <ValidationSummary role="alert" class="notification is-danger" />
+        <div class="field">
+            <label for="email" class="label">Email</label>
+            <input type="email" value="@email" class="input" placeholder="Please enter your email." disabled />
         </div>
-        <div class="form-group">
-            <label for="new-email">New email</label>
-            <InputText @bind-Value="Input.NewEmail" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
-            <ValidationMessage For="() => Input.NewEmail" />
+        <div class="field">
+            <label for="new-email" class="label">New email</label>
+            <InputText class="input" @bind-Value="Input.NewEmail" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
+            <ValidationMessage class="help is-danger" For="() => Input.NewEmail" />
         </div>
-        <button type="submit">Change email</button>
+        <div class="buttons">
+            <button type="submit" class="button is-primary is-fullwidth">Change email</button>
+        </div>
     </EditForm>
-</Container>
+</ManageLayout>
 
 @code {
     private string? message;
@@ -46,6 +49,13 @@
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         email = await UserManager.GetEmailAsync(user);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
 
         Input.NewEmail ??= email;
     }
@@ -70,30 +80,11 @@
         message = "Confirmation link to change email sent. Please check your email.";
     }
 
-    private async Task OnSendEmailVerificationAsync()
-    {
-        if (email is null)
-        {
-            return;
-        }
-
-        var userId = await UserManager.GetUserIdAsync(user);
-        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
-
-        await EmailSender.SendConfirmationLinkAsync(user, email, HtmlEncoder.Default.Encode(callbackUrl));
-
-        message = "Verification email sent. Please check your email.";
-    }
-
     private sealed class InputModel
     {
-        [Required]
+        [Required(ErrorMessage = "You need to enter your email address.")]
         [EmailAddress]
-        [Display(Name = "New email")]
+        [NonSjaEmail(ErrorMessage = "SJA email address holders cannot use local accounts.")]
         public string? NewEmail { get; set; }
     }
 }

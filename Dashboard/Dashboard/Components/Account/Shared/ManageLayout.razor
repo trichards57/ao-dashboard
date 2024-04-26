@@ -1,17 +1,20 @@
-﻿@inherits LayoutComponentBase
-@layout AccountLayout
+﻿@using Dashboard.Data
+@using Microsoft.AspNetCore.Identity
 
-<h1>Manage your account</h1>
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <ManageNavMenu />
-        </div>
-        <div class="col-md-9">
-            @Body
-        </div>
-    </div>
-</div>
+<h1 class="title">Manage your profile</h1>
+<h2 class="subtitle">Change your account settings</h2>
+<ManageNavMenu IsMicrosoftAccount="@IsMicrosoftAccount" />
+
+@ChildContent
+
+@code {
+    [Parameter]
+    public bool IsMicrosoftAccount { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+}
+
