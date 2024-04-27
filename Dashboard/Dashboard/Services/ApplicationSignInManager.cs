@@ -13,6 +13,16 @@ public class ApplicationSignInManager : SignInManager<ApplicationUser>
     {
     }
 
+    public override Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool lockoutOnFailure)
+    {
+        if (userName.EndsWith("@sja.org.uk"))
+        {
+            return Task.FromResult(SignInResult.NotAllowed);
+        }
+
+        return base.PasswordSignInAsync(userName, password, isPersistent, lockoutOnFailure);
+    }
+
     public override Task SignInWithClaimsAsync(ApplicationUser user, AuthenticationProperties? authenticationProperties, IEnumerable<Claim> additionalClaims)
     {
         List<Claim> claims = [.. additionalClaims.Where(c => c.Type != "amr"), new Claim("auth_time", DateTimeOffset.UtcNow.ToString("o"))];
