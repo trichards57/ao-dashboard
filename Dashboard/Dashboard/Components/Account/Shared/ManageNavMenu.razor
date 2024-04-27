@@ -44,25 +44,28 @@
     {
         var path = HttpContext.Request.Path;
 
-        if (path == "/Account/Manage")
+        switch (path.ToString())
         {
-            isProfileActive = true;
-        }
-        else if (path == "/Account/Manage/Email")
-        {
-            isEmailActive = true;
-        }
-        else if (path == "/Account/Manage/ChangePassword")
-        {
-            isChangePasswordActive = true;
-        }
-        else if (path == "/Account/Manage/TwoFactorAuthentication")
-        {
-            isTwoFactorActive = true;
-        }
-        else if (path == "/Account/Manage/PersonalData")
-        {
-            isPersonalDataActive = true;
+            case "/Account/Manage":
+                isProfileActive = true;
+                break;
+            case "/Account/Manage/Email":
+                isEmailActive = true;
+                break;
+            case "/Account/Manage/ChangePassword":
+                isChangePasswordActive = true;
+                break;
+            case "/Account/Manage/TwoFactorAuthentication":
+            case "/Account/Manage/Disable2fa":
+            case "/Account/Manage/EnableAuthenticator":
+            case "/Account/Manage/GenerateRecoveryCodes":
+            case "/Account/Manage/ResetAuthenticator":
+                isTwoFactorActive = true;
+                break;
+            case "/Account/Manage/PersonalData":
+            case "/Account/Manage/DeletePersonalData":
+                isPersonalDataActive = true;
+                break;
         }
     }
 }

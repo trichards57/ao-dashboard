@@ -10,7 +10,7 @@
 
 <PageTitle>Disable two-factor authentication (2FA)</PageTitle>
 
-<Container Title="Disable Two-Factor Authentication" Expands>
+<ManageLayout>
     <StatusMessage />
     <p>
         <strong>This action only disables 2FA.</strong>
@@ -23,10 +23,10 @@
     <div>
         <form @formname="disable-2fa" @onsubmit="OnSubmitAsync" method="post">
             <AntiforgeryToken />
-            <button type="submit">Disable 2FA</button>
+            <button type="submit" class="button is-danger is-fullwidth">Disable 2FA</button>
         </form>
     </div>
-</Container>
+</ManageLayout>
 
 @code {
     private ApplicationUser user = default!;

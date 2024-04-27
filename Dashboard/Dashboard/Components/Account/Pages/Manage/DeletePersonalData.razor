@@ -10,7 +10,7 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<DeletePersonalData> Logger
 
-<Container Title="Delete Personal Data" Expands>
+<ManageLayout>
     <StatusMessage Message="@message" />
 
     <p>
@@ -23,16 +23,16 @@
             <ValidationSummary role="alert" />
             @if (requirePassword)
             {
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <InputText type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
+                <div class="field">
+                    <label class="label" for="password">Password</label>
+                    <InputText class="input" type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
                     <ValidationMessage For="() => Input.Password" />
                 </div>
             }
-            <button class="delete" type="submit">Delete data and close my account</button>
+            <button class="button is-danger is-fullwidth" type="submit">Delete data and close my account</button>
         </EditForm>
     </div>
-</Container>
+</ManageLayout>
 
 @code {
     private string? message;

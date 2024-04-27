@@ -2,7 +2,7 @@
 
 @inject IdentityUserAccessor UserAccessor
 
-<Container Title="Personal Data" Expands>
+<ManageLayout>
     <StatusMessage />
 
     <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
@@ -11,12 +11,12 @@
     </p>
     <form action="Account/Manage/DownloadPersonalData" method="post">
         <AntiforgeryToken />
-        <button type="submit">Download</button>
+        <div class="buttons">
+            <button type="submit" class="button is-primary is-fullwidth">Download</button>
+            <a href="Account/Manage/DeletePersonalData" class="button is-danger is-fullwidth">Delete</a>
+        </div>
     </form>
-    <div class="btn-container">
-        <a href="Account/Manage/DeletePersonalData" class="delete">Delete</a>
-    </div>
-</Container>
+</ManageLayout>
 
 @code {
     [CascadingParameter]

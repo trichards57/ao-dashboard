@@ -13,7 +13,7 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<EnableAuthenticator> Logger
 
-<Container Title="Configure Two-Factor Authentication" Expands>
+<ManageLayout>
     @if (recoveryCodes is not null)
     {
         <ShowRecoveryCodes RecoveryCodes="recoveryCodes.ToArray()" StatusMessage="@message" />
@@ -47,21 +47,22 @@
         </ol>
         <EditForm Model="Input" FormName="send-code" OnValidSubmit="OnValidSubmitAsync" method="post">
             <DataAnnotationsValidator />
-            <div class="form-group">
-                <label for="code">Verification Code</label>
-                <InputText @bind-Value="Input.Code" autocomplete="one-time-code" placeholder="Please enter the code." />
+            <div class="field">
+                <label class="label" for="code">Verification Code</label>
+                <InputText class="input" @bind-Value="Input.Code" autocomplete="one-time-code" placeholder="Please enter the code." />
                 <ValidationMessage For="() => Input.Code" />
             </div>
-            <button type="submit">Verify</button>
+            <button type="submit" class="button is-primary is-fullwidth">Verify</button>
             <ValidationSummary class="text-danger" role="alert" />
         </EditForm>
     }
-
-</Container>
+</ManageLayout>
 <script type="text/javascript" src="lib/qrcodejs/qrcode.js"></script>
 <script type="text/javascript" src="js/qr.js"></script>
 
 @code {
+    // TODO : Sort out the QR code generation.
+
     private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
     private string? message;
