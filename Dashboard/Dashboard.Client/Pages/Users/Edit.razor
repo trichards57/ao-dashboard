@@ -12,7 +12,9 @@
 @inject IRoleService RoleService
 @inject ILogger<Edit> Logger
 
-<h1 class="title">Update @roleName</h1>
+<PageTitle>AO Dashboard - Edit @userName</PageTitle>
+
+<h1 class="title">Update @userName</h1>
 
 @if (showError)
 {
@@ -20,30 +22,22 @@
 }
 <EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
     <DataAnnotationsValidator />
-    <ValidationSummary role="alert" />
-    <div class="field">
-        <label class="label" for="role">Role</label>
-        <div class="select is-fullwidth">
-            <InputSelect @bind-Value="Input.RoleId">
-                @if (Input.RoleId == "None")
-                {
-                    <option value="None">None</option>
-                }
-                @foreach (var r in Roles.OrderBy(r => r.Name).Where(r => r.Name != "Administrator" || isAdmin))
-                {
-                    <option value="@r.Id">@r.Name</option>
-                }
-            </InputSelect>
-        </div>
-        <ValidationMessage For="() => Input.RoleId" />
-    </div>
-    <div class="buttons">
-        <button class="button is-primary is-fullwidth" type="submit">Save</button>
-    </div>
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <AppSelect Label="Role" Name="role" @bind-Value="Input.RoleId" For="() => Input.RoleId">
+        @if (Input.RoleId == "None")
+        {
+            <option value="None">None</option>
+        }
+        @foreach (var r in Roles.OrderBy(r => r.Name).Where(r => r.Name != "Administrator" || isAdmin))
+        {
+            <option value="@r.Id">@r.Name</option>
+        }
+    </AppSelect>
+    <SubmitButton />
 </EditForm>
 
 @code {
-    private string roleName = default!;
+    private string userName = default!;
     private bool showError = false;
     private bool isAdmin = false;
 
@@ -83,6 +77,6 @@
         }
 
         Input = new UserRoleUpdate { RoleId = input.RoleId ?? "None" };
-        roleName = input.Name;
+        userName = input.Name;
     }
 }
