@@ -10,47 +10,52 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 
-<Container Title="User Roles" Expands>
+<h1 class="title">Edit @roleName</h1>
+
     @if (showError)
-    {
-        <div class="validation-message">There was an error updating the role.</div>
-    }
-    <EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
-        <DataAnnotationsValidator />
-        <h2>Update @roleName</h2>
-        <ValidationSummary role="alert" />
-        <div class="form-group">
-            <label for="email">Vehicle Configuration</label>
+{
+    <div class="validation-message">There was an error updating the role.</div>
+}
+<EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" />
+    <div class="field">
+        <label class="label" for="email">Vehicle Configuration</label>
+        <div class="select is-fullwidth">
             <InputSelect @bind-Value="Input.VehicleConfiguration">
                 <option value="@ReadWrite.Deny">Deny</option>
                 <option value="@ReadWrite.Read">Read</option>
                 <option value="@ReadWrite.Write">Read/Write</option>
             </InputSelect>
-            <ValidationMessage For="() => Input.VehicleConfiguration" />
         </div>
-        <div class="form-group">
-            <label for="email">VOR Data</label>
+        <ValidationMessage For="() => Input.VehicleConfiguration" />
+    </div>
+    <div class="field">
+        <label class="label" for="email">VOR Data</label>
+        <div class="select is-fullwidth">
             <InputSelect @bind-Value="Input.VorData">
                 <option value="@ReadWrite.Deny">Deny</option>
                 <option value="@ReadWrite.Read">Read</option>
                 <option value="@ReadWrite.Write">Read/Write</option>
             </InputSelect>
-            <ValidationMessage For="() => Input.VorData" />
         </div>
-        <div class="form-group">
-            <label for="email">User Role</label>
+        <ValidationMessage For="() => Input.VorData" />
+    </div>
+    <div class="field">
+        <label class="label" for="email">User Role</label>
+        <div class="select is-fullwidth">
             <InputSelect @bind-Value="Input.Permissions">
                 <option value="@ReadWrite.Deny">Deny</option>
                 <option value="@ReadWrite.Read">Read</option>
                 <option value="@ReadWrite.Write">Read/Write</option>
             </InputSelect>
-            <ValidationMessage For="() => Input.Permissions" />
         </div>
-        <div class="btn-container">
-            <button type="submit">Save</button>
-        </div>
-    </EditForm>
-</Container>
+        <ValidationMessage For="() => Input.Permissions" />
+    </div>
+    <div class="buttons">
+        <button class="button is-primary is-fullwidth" type="submit">Save</button>
+    </div>
+</EditForm>
 
 @code {
     private string roleName = default!;
