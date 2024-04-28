@@ -1,4 +1,7 @@
-﻿@rendermode InteractiveAuto
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+
+@rendermode InteractiveAuto
 
 <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
@@ -96,6 +99,15 @@
         var authState = await AuthenticationStateTask;
         var user = authState.User;
         Name = user.Identity?.Name;
+
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        showMenu = false;
+        showAccountDropdown = false;
+        StateHasChanged();
     }
 
     private void ToggleMenu()
@@ -106,5 +118,10 @@
     private void ToggleAccountDropdown()
     {
         showAccountDropdown = !showAccountDropdown;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

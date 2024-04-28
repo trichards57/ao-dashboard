@@ -12,17 +12,18 @@
 @inject IRoleService RoleService
 @inject ILogger<Edit> Logger
 
-<Container Title="User Roles" Expands>
-    @if (showError)
-    {
-        <div class="validation-message">There was an error updating the user.</div>
-    }
-    <EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
-        <DataAnnotationsValidator />
-        <h2>Update @roleName</h2>
-        <ValidationSummary role="alert" />
-        <div class="form-group">
-            <label for="role">Role</label>
+<h1 class="title">Update @roleName</h1>
+
+@if (showError)
+{
+    <div class="validation-message">There was an error updating the user.</div>
+}
+<EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" />
+    <div class="field">
+        <label class="label" for="role">Role</label>
+        <div class="select is-fullwidth">
             <InputSelect @bind-Value="Input.RoleId">
                 @if (Input.RoleId == "None")
                 {
@@ -33,13 +34,13 @@
                     <option value="@r.Id">@r.Name</option>
                 }
             </InputSelect>
-            <ValidationMessage For="() => Input.RoleId" />
         </div>
-        <div class="btn-container">
-            <button type="submit">Save</button>
-        </div>
-    </EditForm>
-</Container>
+        <ValidationMessage For="() => Input.RoleId" />
+    </div>
+    <div class="buttons">
+        <button class="button is-primary is-fullwidth" type="submit">Save</button>
+    </div>
+</EditForm>
 
 @code {
     private string roleName = default!;

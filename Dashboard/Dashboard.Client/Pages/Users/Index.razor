@@ -12,32 +12,32 @@
 @inject ILogger<Edit> Logger
 @inject PersistentComponentState PersistentComponentState
 
-<Container Title="User Roles">
-    <table>
-        <thead>
+<h1 class="title">User Settings</h1>
+
+<table class="table is-striped is-fullwidth">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in users.OrderBy(r => r.Name))
+        {
             <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th></th>
+                <td>@r.Name</td>
+                <td>@(r.Role ?? "None")</td>
+                <td class="edit">
+                    @if (r.Id != userId)
+                    {
+                        <a href="/users/@r.Id/edit">Edit</a>
+                    }
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in users.OrderBy(r => r.Name))
-            {
-                <tr>
-                    <td>@r.Name</td>
-                    <td>@(r.Role ?? "None")</td>
-                    <td class="edit">
-                        @if (r.Id != userId)
-                        {
-                            <a href="/users/@r.Id/edit">Edit</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</Container>
+        }
+    </tbody>
+</table>
 
 @code
 {
