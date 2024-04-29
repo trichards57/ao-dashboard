@@ -61,6 +61,8 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IPlaceService, PlaceService>();
+builder.Services.AddTransient<IVehicleService, VehicleService>();
 
 builder.Services.AddAuthorization(options =>
 {

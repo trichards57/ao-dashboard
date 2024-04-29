@@ -72,7 +72,7 @@ internal static class Program
 
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-        var vorUris = new Uri("/api/vors", UriKind.Relative);
+        var vorUris = new Uri("/api/vor", UriKind.Relative);
 
         foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.xls").OrderBy(f => f))
         {

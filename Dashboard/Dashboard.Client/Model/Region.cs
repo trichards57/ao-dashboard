@@ -8,7 +8,7 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Dashboard.Data;
+namespace Dashboard.Client.Model;
 
 /// <summary>
 /// Represents the region the vehicle 'belongs' to.

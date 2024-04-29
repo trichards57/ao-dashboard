@@ -1,0 +1,116 @@
+﻿@using Dashboard.Client.Model
+@using Dashboard.Client.Services
+
+@inject NavigationManager NavigationManager
+@inject IPlaceService PlaceService
+
+<div class="columns is-desktop">
+    <div class="column">
+        <div class="field">
+            <label class="label" for="region">Region</label>
+            <div class="select is-fullwidth">
+                <select id="region" value="@Place.Region" @onchange="@RegionChanged">
+                    <option value="@Region.All">All</option>
+                    <option value="@Region.EastOfEngland">East of England</option>
+                    <option value="@Region.EastMidlands">East Midlands</option>
+                    <option value="@Region.London">London</option>
+                    <option value="@Region.NorthEast">North East</option>
+                    <option value="@Region.NorthWest">North West</option>
+                    <option value="@Region.SouthEast">South East</option>
+                    <option value="@Region.SouthWest">South West</option>
+                    <option value="@Region.WestMidlands">West Midlands</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="field">
+            <label class="label" for="district">District</label>
+            <div class="select is-fullwidth">
+                <select id="region" value="@Place.District" disabled="@(Districts.Count == 0)" @onchange="@DistrictChanged">
+                    <option value="all">All</option>
+                    @foreach (var d in Districts)
+                    {
+                        <option value="@d">@d</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="field">
+            <label class="label" for="hub">Hub</label>
+            <div class="select is-fullwidth">
+                <select id="hub" value="@Place.Hub" disabled="@(Hubs.Count == 0)" @onchange="@HubChanged">
+                    <option value="all">All</option>
+                    @foreach (var h in Hubs)
+                    {
+                        <option value="@h">@h</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IList<string> Districts { get; set; } = new List<string>();
+    private IList<string> Hubs { get; set; } = new List<string>();
+
+    [Parameter]
+    public Place Place { get; set; } = new Place { Region = Region.All, District="all", Hub="all" };
+
+    private void RegionChanged(ChangeEventArgs e)
+    {
+        var newUri = new Uri(NavigationManager.Uri);
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(e.Value?.ToString() ?? "all", Place.District, Place.Hub));
+    }
+
+    private void DistrictChanged(ChangeEventArgs e)
+    {
+        var newUri = new Uri(NavigationManager.Uri);
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(Place.Region.ToString(), e.Value?.ToString() ?? "all", Place.Hub));
+    }
+
+    private void HubChanged(ChangeEventArgs e)
+    {
+        var newUri = new Uri(NavigationManager.Uri);
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(Place.Region.ToString(), Place.District, e.Value?.ToString() ?? "all"));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Districts.Clear();
+        Hubs.Clear();
+
+        if (Place.Region != Region.All)
+        {
+            Districts = await PlaceService.GetDistricts(Place.Region).ToListAsync();
+
+            if (!Place.District.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                Hubs = await PlaceService.GetHubs(Place.Region, Place.District).ToListAsync();
+            }
+        }
+    }
+
+    private static string CreateQuery(string region, string district, string hub)
+    {
+        if (region.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Empty;
+        }
+
+        if (district.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"?region={region}";
+        }
+
+        if (hub.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"?region={region}&district={district}";
+        }
+
+        return $"?region={region}&district={district}&hub={hub}";
+    }
+}

@@ -132,7 +132,7 @@ namespace Dashboard.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Log");
+                    b.ToTable("Log", (string)null);
                 });
 
             modelBuilder.Entity("Dashboard.Data.Incident", b =>
@@ -165,7 +165,7 @@ namespace Dashboard.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Incidents");
+                    b.ToTable("Incidents", (string)null);
                 });
 
             modelBuilder.Entity("Dashboard.Data.KeyDates", b =>
@@ -181,7 +181,7 @@ namespace Dashboard.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KeyDates");
+                    b.ToTable("KeyDates", (string)null);
 
                     b.HasData(
                         new
@@ -254,7 +254,7 @@ namespace Dashboard.Migrations
                     b.HasIndex("Registration")
                         .IsUnique();
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

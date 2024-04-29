@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
