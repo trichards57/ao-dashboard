@@ -8,8 +8,9 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ResetAuthenticator> Logger
+@inject NavigationManager NavigationManager
 
-<PageTitle> authenticator key</PageTitle>
+<PageTitle>AO Dashboard - Reset Authenticator</PageTitle>
 
 <ManageLayout>
     <StatusMessage />
@@ -30,6 +31,18 @@
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+    }
 
     private async Task OnSubmitAsync()
     {

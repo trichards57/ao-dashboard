@@ -10,7 +10,9 @@
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<DeletePersonalData> Logger
 
-<ManageLayout>
+<PageTitle>AO Dashboard - Delete Personal Data</PageTitle>
+
+<ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
     <StatusMessage Message="@message" />
 
     <p>
@@ -38,6 +40,7 @@
     private string? message;
     private ApplicationUser user = default!;
     private bool requirePassword;
+    private bool isMicrosoftAccount;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -50,6 +53,8 @@
         Input ??= new();
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         requirePassword = await UserManager.HasPasswordAsync(user);
+        var logins = await UserManager.GetLoginsAsync(user);
+        isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
     }
 
     private async Task OnValidSubmitAsync()

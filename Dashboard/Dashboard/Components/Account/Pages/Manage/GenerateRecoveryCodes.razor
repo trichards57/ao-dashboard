@@ -7,6 +7,9 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<GenerateRecoveryCodes> Logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard - Generate Recovery Codes</PageTitle>
 
 <ManageLayout>
     @if (recoveryCodes is not null)
@@ -45,6 +48,13 @@
     protected override async Task OnInitializedAsync()
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
 
         var isTwoFactorEnabled = await UserManager.GetTwoFactorEnabledAsync(user);
         if (!isTwoFactorEnabled)

@@ -1,8 +1,14 @@
 ﻿@page "/Account/Manage/PersonalData"
+@using Dashboard.Data
+@using Microsoft.AspNetCore.Identity
 
 @inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
 
-<ManageLayout>
+<PageTitle>AO Dashboard - Manage Personal Data</PageTitle>
+
+<ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
     <StatusMessage />
 
     <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
@@ -19,11 +25,15 @@
 </ManageLayout>
 
 @code {
+    private bool isMicrosoftAccount;
+
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        _ = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
     }
 }

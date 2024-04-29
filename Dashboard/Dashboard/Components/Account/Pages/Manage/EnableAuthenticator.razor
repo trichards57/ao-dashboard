@@ -12,6 +12,9 @@
 @inject UrlEncoder UrlEncoder
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<EnableAuthenticator> Logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard - Enable Two-Factor Authentication</PageTitle>
 
 <ManageLayout>
     @if (recoveryCodes is not null)
@@ -80,6 +83,13 @@
     protected override async Task OnInitializedAsync()
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
 
         await LoadSharedKeyAndQrCodeUriAsync(user);
     }
