@@ -42,7 +42,9 @@ internal static class Helpers
         var combinedIds = string.Concat(strings);
 
         if (!string.IsNullOrWhiteSpace(extraTag))
+        {
             combinedIds = extraTag + combinedIds;
+        }
 
         return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(combinedIds))).Trim('=');
     }
@@ -58,7 +60,9 @@ internal static class Helpers
     public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Region region, string? district = null, string? hub = null)
     {
         if (region == Region.All)
+        {
             return vehicles;
+        }
 
         var filteredVehicles = vehicles
             .Where(v => v.Region == region);
@@ -68,10 +72,26 @@ internal static class Helpers
             filteredVehicles = filteredVehicles.Where(v => v.District == district);
 
             if (!string.IsNullOrWhiteSpace(hub))
+            {
                 filteredVehicles = filteredVehicles.Where(v => v.Hub == hub);
+            }
         }
 
         return filteredVehicles;
+    }
+
+    /// <summary>
+    /// Gets all the vehicles at the specified place.
+    /// </summary>
+    /// <param name="vehicles">The vehicle items to query.</param>
+    /// <param name="place">The place to check for.</param>
+    /// <returns>All the vehicles in <paramref name="vehicles"/> that are in the given place.</returns>
+    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Place place)
+    {
+        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
+        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
+
+        return GetForPlace(vehicles, place.Region, district, hub);
     }
 
     /// <summary>
@@ -85,7 +105,9 @@ internal static class Helpers
     public static IQueryable<Incident> GetForPlace(this IQueryable<Incident> incidents, Region region, string? district = null, string? hub = null)
     {
         if (region == Region.All)
+        {
             return incidents;
+        }
 
         var filteredIncidents = incidents
             .Where(v => v.Vehicle.Region == region);
@@ -95,10 +117,26 @@ internal static class Helpers
             filteredIncidents = filteredIncidents.Where(v => v.Vehicle.District == district);
 
             if (!string.IsNullOrWhiteSpace(hub))
+            {
                 filteredIncidents = filteredIncidents.Where(v => v.Vehicle.Hub == hub);
+            }
         }
 
         return filteredIncidents;
+    }
+
+    /// <summary>
+    /// Gets all the incidents at the specified place.
+    /// </summary>
+    /// <param name="incidents">The incident items to query.</param>
+    /// <param name="place">The place to check for.</param>
+    /// <returns>All the incidents in <paramref name="incidents"/> that are in the given place.</returns>
+    public static IQueryable<Incident> GetForPlace(this IQueryable<Incident> incidents, Place place)
+    {
+        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
+        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
+
+        return GetForPlace(incidents, place.Region, district, hub);
     }
 
     /// <summary>

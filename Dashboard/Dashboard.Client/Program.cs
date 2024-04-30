@@ -14,6 +14,7 @@ builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticat
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPlaceService, PlaceService>();
+builder.Services.AddTransient<IVorService, VorService>();
 
 builder.Services.AddScoped(sp =>
     new HttpClient

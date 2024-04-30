@@ -1,0 +1,38 @@
+﻿.vehicle-availability-container, .historic-availability-container {
+    position: relative;
+}
+
+.vehicle-availability-container {
+    max-width: 200px;
+    justify-self: center;
+}
+
+.vehicle-availability {
+    display: grid;
+}
+
+@media(min-width: 768px) {
+    .graph-container {
+        display: grid;
+    }
+
+    .historic-availability-container {
+        max-width: 480px;
+    }
+}
+
+@media(min-width: 1024px) {
+    .container {
+        width: 1000px;
+        max-width: unset;
+    }
+
+    .historic-availability-container {
+        width: 700px;
+        max-width: unset;
+    }
+
+    .graph-container {
+        grid-template-columns: 250px 1fr;
+    }
+}

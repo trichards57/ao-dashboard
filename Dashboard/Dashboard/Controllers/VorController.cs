@@ -5,8 +5,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Model;
+using Dashboard.Client.Services;
 using Dashboard.Model;
 using Dashboard.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard.Controllers;
@@ -15,19 +18,20 @@ namespace Dashboard.Controllers;
 /// Controller for managing VOR incidents.
 /// </summary>
 /// <param name="vehicleService">Service to manage vehicles.</param>
-/// TODO : Reinstate this when you work out authentication for apps.
-// [Authorize(Policy = "CanEditVOR")]
 [Route("api/vor")]
 [ApiController]
-public class VorController(IVehicleService vehicleService) : ControllerBase
+[Authorize(Policy = "CanViewVOR")]
+public class VorController(IVehicleService vehicleService, IVorService vorService) : ControllerBase
 {
     private readonly IVehicleService vehicleService = vehicleService;
+    private readonly IVorService vorService = vorService;
 
     /// <summary>
     /// Accepts VOR incidents.
     /// </summary>
     /// <param name="incidents">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
+    [Authorize(Policy = "CanEditVOR")]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] IEnumerable<VorIncident> incidents)
     {
@@ -35,4 +39,13 @@ public class VorController(IVehicleService vehicleService) : ControllerBase
 
         return Ok();
     }
+
+    /// <summary>
+    /// Gets the VOR statistics for a place.
+    /// </summary>
+    /// <param name="place">The place to search.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
+    [HttpGet("statistics")]
+    public Task<VorStatistics> GetStatistics([FromQuery] Place place) => vorService.GetVorStatisticsAsync(place);
+
 }
