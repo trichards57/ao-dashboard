@@ -8,6 +8,7 @@
 using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Data;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;
@@ -74,5 +75,34 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
             VorVehicles = vorVehicles,
             PastAvailability = incidentsByMonth,
         };
+    }
+
+    public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    {
+        if (!Enum.IsDefined(place.Region))
+        {
+            throw new ArgumentOutOfRangeException(nameof(place));
+        }
+
+        var context = await contextFactory.CreateDbContextAsync();
+
+        foreach (var v in context.Vehicles
+           .GetActive()
+           .GetForPlace(place)
+           .Select(s => new VorStatus
+           {
+               CallSign = s.CallSign,
+               District = s.District,
+               DueBack = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate : null,
+               Hub = s.Hub,
+               IsVor = s.IsVor,
+               Registration = s.Registration,
+               Region = s.Region,
+               Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
+               Id = s.Id,
+           }))
+        {
+            yield return v;
+        }
     }
 }

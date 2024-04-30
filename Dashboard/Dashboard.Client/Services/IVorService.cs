@@ -12,4 +12,13 @@ public interface IVorService
     /// The VOR statistics for the place.
     /// </returns>
     Task<VorStatistics> GetVorStatisticsAsync(Place place);
+
+    /// <summary>
+    /// Gets the VOR statuses for the vehicles in a place.
+    /// </summary>
+    /// <param name="place">The place to search.</param>
+    /// <returns>
+    /// The VOR statuses for the vehicles in the place.
+    /// </returns>
+    IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
 }

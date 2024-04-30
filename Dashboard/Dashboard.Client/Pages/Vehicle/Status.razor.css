@@ -1,0 +1,42 @@
+﻿.vor-col, .due-back-col {
+    text-align: center;
+}
+
+.no-vehicles {
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.summary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.due-back-col {
+    width: 8.5rem;
+}
+
+.call-sign-col {
+    width: 7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reg-col {
+    width: 7rem;
+}
+
+.vor-col {
+    width: 6rem;
+}
+
+.summary-col {
+    min-width: 8rem;
+}
+
+.table {
+    table-layout: fixed;
+    min-width: 35rem;
+}

@@ -16,4 +16,22 @@ internal class VorService(HttpClient httpClient, ILogger<VorService> logger) : I
 
         return new();
     }
+
+    public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    {
+        var response = await httpClient.GetAsync($"api/vor{place.CreateQuery()}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var statuses = await response.Content.ReadFromJsonAsync<List<VorStatus>>();
+
+            if (statuses != null)
+            {
+                foreach (var status in statuses)
+                {
+                    yield return status;
+                }
+            }
+        }
+    }
 }

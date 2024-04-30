@@ -1,0 +1,86 @@
+﻿<nav class="pagination" role="navigation" aria-label="pagination">
+    <button class="pagination-previous" @onclick="(() => ChangePage.InvokeAsync(Page - 1))" disabled="@(Page == 0)">Previous</button>
+    <button class="pagination-next" @onclick="(() => ChangePage.InvokeAsync(Page + 1))" disabled="@(Page >= Pages - 1)">Next</button>
+    <ul class="pagination-list">
+        @if (pagesToDisplay.Count > 0)
+        {
+            <li>
+                <button @onclick="() => ChangePage.InvokeAsync(0)" class="@(Page == 0 ? "pagination-link is-current" : "pagination-link")">1</button>
+            </li>
+
+            if (pagesToDisplay.First() > 1)
+            {
+                <li>
+                    <span class="pagination-ellipsis">&hellip;</span>
+                </li>
+            }
+
+            @foreach (var p in pagesToDisplay.Where(p => p > 0 && p < Pages - 1))
+            {
+                <li>
+                    <button @onclick="() => ChangePage.InvokeAsync(p)" class="@(Page == p ? "pagination-link is-current" : "pagination-link")">@((p + 1).ToString())</button>
+                </li>
+            }
+
+            if (pagesToDisplay.Last() < Pages - 2)
+            {
+                <li>
+                    <span class="pagination-ellipsis">&hellip;</span>
+                </li>
+            }
+
+            if (Pages > 1)
+            {
+                <li>
+                    <button @onclick="() => ChangePage.InvokeAsync(Pages - 1)" class="@(Page == Pages - 1 ? "pagination-link is-current" : "pagination-link")">@Pages.ToString()</button>
+                </li>
+            }
+        }
+    </ul>
+</nav>
+
+@code
+{
+    [Parameter]
+    public int Page { get; set; }
+
+    [Parameter]
+    public int Pages { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ChangePage { get; set; }
+
+    private List<int> pagesToDisplay = new List<int>();
+
+    protected override void OnParametersSet()
+    {
+        pagesToDisplay.Clear();
+
+        var pages = new List<int>();
+        pages.Add(Page);
+
+        if (Page > 1)
+        {
+            pages.Insert(0, Page - 1);
+        }
+
+        if (Page < Pages)
+        {
+            pages.Add(Page + 1);
+        }
+
+        if (pages.Count < 3)
+        {
+            if (Page - 2 > 0)
+            {
+                pages.Insert(0, Page - 2);
+            }
+            else if (Page + 2 <= Pages)
+            {
+                pages.Add(Page + 2);
+            }
+        }
+
+        pagesToDisplay.AddRange(pages.Distinct());
+    }
+}

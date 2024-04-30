@@ -20,5 +20,5 @@ public class VorStatistics
     /// <summary>
     /// Gets the past availability of vehicles at a place.
     /// </summary>
-    public IReadOnlyDictionary<DateOnly, int> PastAvailability { get; init; }
+    public IReadOnlyDictionary<DateOnly, int> PastAvailability { get; init; } = new Dictionary<DateOnly, int>();
 }

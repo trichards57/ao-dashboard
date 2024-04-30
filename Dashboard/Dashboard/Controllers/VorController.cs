@@ -48,4 +48,6 @@ public class VorController(IVehicleService vehicleService, IVorService vorServic
     [HttpGet("statistics")]
     public Task<VorStatistics> GetStatistics([FromQuery] Place place) => vorService.GetVorStatisticsAsync(place);
 
+    [HttpGet]
+    public IAsyncEnumerable<VorStatus> Get([FromQuery] Place place) => vorService.GetVorStatusesAsync(place);
 }
