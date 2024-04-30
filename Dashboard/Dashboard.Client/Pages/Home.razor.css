@@ -4,7 +4,8 @@
 
 .vehicle-availability-container {
     max-width: 200px;
-    justify-self: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .vehicle-availability {
