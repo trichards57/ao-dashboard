@@ -13,8 +13,15 @@
     .ms-login {
         background-image: url("/img/ms-sign-in-dark.svg");
     }
+
+    .fa-img {
+        filter: invert(98%) sepia(98%) saturate(8%) hue-rotate(148deg) brightness(101%) contrast(105%);
+    }
 }
 
+.fa-img {
+    height: 12px;
+}
 
 #blazor-error-ui {
     color: black;

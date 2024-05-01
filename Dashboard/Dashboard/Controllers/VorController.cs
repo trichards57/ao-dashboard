@@ -8,7 +8,6 @@
 using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Model;
-using Dashboard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,9 +20,9 @@ namespace Dashboard.Controllers;
 [Route("api/vor")]
 [ApiController]
 [Authorize(Policy = "CanViewVOR")]
-public class VorController(IVehicleService vehicleService, IVorService vorService) : ControllerBase
+public class VorController(Services.IVehicleService vehicleService, IVorService vorService) : ControllerBase
 {
-    private readonly IVehicleService vehicleService = vehicleService;
+    private readonly Services.IVehicleService vehicleService = vehicleService;
     private readonly IVorService vorService = vorService;
 
     /// <summary>

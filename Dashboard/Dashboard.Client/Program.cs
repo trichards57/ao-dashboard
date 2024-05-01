@@ -15,6 +15,7 @@ builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPlaceService, PlaceService>();
 builder.Services.AddTransient<IVorService, VorService>();
+builder.Services.AddTransient<IVehicleService, VehicleService>();
 
 builder.Services.AddScoped(sp =>
     new HttpClient
