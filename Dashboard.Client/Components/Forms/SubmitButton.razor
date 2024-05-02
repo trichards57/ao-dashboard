@@ -1,6 +1,11 @@
-﻿<button class="button is-primary is-fullwidth" type="submit">@Label</button>
+﻿<button class="button @ButtonClass is-fullwidth" type="submit">@Label</button>
 
 @code {
     [Parameter]
     public string Label { get; set; } = "Save";
+
+    [Parameter]
+    public bool IsDanger { get; set; } = false;
+
+    private string ButtonClass => IsDanger ? "is-danger" : "is-primary";
 }

@@ -13,34 +13,36 @@
 <PageTitle>AO Dashboard - Delete Personal Data</PageTitle>
 
 <ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
-    <StatusMessage Message="@message" />
+    <h2 class="title is-4">Delete Personal Data</h2>
 
-    <p>
-        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+    <p class="block has-text-weight-bold">
+        Deleting this data will permanently remove your account, and this cannot be recovered.
     </p>
 
-    <div>
-        <EditForm Model="Input" FormName="delete-user" OnValidSubmit="OnValidSubmitAsync" method="post">
-            <DataAnnotationsValidator />
-            <ValidationSummary role="alert" />
-            @if (requirePassword)
-            {
-                <div class="field">
-                    <label class="label" for="password">Password</label>
-                    <InputText class="input" type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
-                    <ValidationMessage For="() => Input.Password" />
-                </div>
-            }
-            <button class="button is-danger is-fullwidth" type="submit">Delete data and close my account</button>
-        </EditForm>
-    </div>
-</ManageLayout>
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="notification is-danger block">
+            @errorMessage
+        </div>
+    }
 
-@code {
-    private string? message;
+    <EditForm Enhance EditContext="editContext" FormName="delete-user" OnValidSubmit="OnValidSubmitAsync" method="post" class="block">
+         <DataAnnotationsValidator />
+         <ValidationSummary class="notification is-danger" role="alert" />
+         @if (requirePassword)
+        {
+            <AppText Name="password" Label="Password" type="password" @bind-Value="Input.Password" For="() => Input.Password" autocomplete="current-password" placeholder="Please enter your password." />
+        }
+        <SubmitButton IsDanger Label="Delete data and close my account" />
+     </EditForm>
+ </ManageLayout>
+
+ @code {
+    private string? errorMessage;
     private ApplicationUser user = default!;
     private bool requirePassword;
     private bool isMicrosoftAccount;
+    private EditContext? editContext;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -50,7 +52,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Input ??= new();
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         requirePassword = await UserManager.HasPasswordAsync(user);
         var logins = await UserManager.GetLoginsAsync(user);
@@ -61,7 +65,7 @@
     {
         if (requirePassword && !await UserManager.CheckPasswordAsync(user, Input.Password))
         {
-            message = "Error: Incorrect password.";
+            errorMessage = "You have entered the wrong password.";
             return;
         }
 
@@ -81,7 +85,7 @@
 
     private sealed class InputModel
     {
-        [DataType(DataType.Password)]
+        [Required(ErrorMessage = "You need to enter your current password.")]
         public string Password { get; set; } = "";
     }
 }
