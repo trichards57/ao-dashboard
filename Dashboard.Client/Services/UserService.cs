@@ -1,13 +1,25 @@
-﻿
+﻿// -----------------------------------------------------------------------
+// <copyright file="UserService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System.Net.Http.Json;
 
 namespace Dashboard.Client.Services;
 
+/// <summary>
+/// Service for interacting with the user API.
+/// </summary>
+/// <param name="httpClient">The HTTP client to use.</param>
+/// <param name="logger">The logger to use.</param>
 internal class UserService(HttpClient httpClient, ILogger<UserService> logger) : IUserService
 {
     private readonly HttpClient httpClient = httpClient;
     private readonly ILogger<UserService> logger = logger;
 
+    /// <inheritdoc/>
     public async Task<UserWithRole?> GetUserWithRole(string id)
     {
         var response = await httpClient.GetAsync($"api/users/{id}");
@@ -22,6 +34,7 @@ internal class UserService(HttpClient httpClient, ILogger<UserService> logger) :
         return null;
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<UserWithRole> GetUsersWithRole()
     {
         var response = await httpClient.GetAsync($"api/users");
@@ -40,9 +53,10 @@ internal class UserService(HttpClient httpClient, ILogger<UserService> logger) :
         }
     }
 
-    public async Task<bool> SetUserRole(string id, UserRoleUpdate permissions)
+    /// <inheritdoc/>
+    public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
     {
-        var response = await httpClient.PutAsJsonAsync($"api/users/{id}", permissions);
+        var response = await httpClient.PutAsJsonAsync($"api/users/{id}", role);
 
         return response.IsSuccessStatusCode;
     }

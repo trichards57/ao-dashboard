@@ -77,13 +77,19 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
         };
     }
 
-    public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    /// <inheritdoc/>
+    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
         {
             throw new ArgumentOutOfRangeException(nameof(place));
         }
 
+        return GetVorStatusesPrivateAsync(place);
+    }
+
+    private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Place place)
+    {
         var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles

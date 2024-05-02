@@ -1,10 +1,24 @@
-﻿using Dashboard.Client.Model;
+﻿// -----------------------------------------------------------------------
+// <copyright file="VorService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Dashboard.Client.Model;
 using System.Net.Http.Json;
 
 namespace Dashboard.Client.Services;
 
-internal class VorService(HttpClient httpClient, ILogger<VorService> logger) : IVorService
+/// <summary>
+/// Service for interacting with the VOR API.
+/// </summary>
+/// <param name="httpClient">The HTTP Client to use.</param>
+internal class VorService(HttpClient httpClient) : IVorService
 {
+    private readonly HttpClient httpClient = httpClient;
+
+    /// <inheritdoc/>
     public async Task<VorStatistics> GetVorStatisticsAsync(Place place)
     {
         var response = await httpClient.GetAsync($"api/vor/statistics{place.CreateQuery()}");
@@ -17,6 +31,7 @@ internal class VorService(HttpClient httpClient, ILogger<VorService> logger) : I
         return new();
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
     {
         var response = await httpClient.GetAsync($"api/vor{place.CreateQuery()}");

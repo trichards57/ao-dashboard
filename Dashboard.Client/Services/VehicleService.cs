@@ -1,4 +1,11 @@
-﻿using Dashboard.Client.Model;
+﻿// -----------------------------------------------------------------------
+// <copyright file="VehicleService.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Dashboard.Client.Model;
 using System.Net.Http;
 using System.Net.Http.Json;
 

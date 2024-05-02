@@ -63,7 +63,7 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetUserRole(string id, UserRoleUpdate permissions)
+    public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
     {
         var user = await userManager.FindByIdAsync(id);
 
@@ -72,15 +72,15 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
             return false;
         }
 
-        var role = await roleManager.FindByIdAsync(permissions.RoleId);
+        var r = await roleManager.FindByIdAsync(role.RoleId);
 
-        if (role == null)
+        if (r == null)
         {
             return false;
         }
 
         await userManager.RemoveFromRolesAsync(user, await userManager.GetRolesAsync(user));
-        await userManager.AddToRoleAsync(user, role.Name!);
+        await userManager.AddToRoleAsync(user, r.Name!);
 
         return true;
     }

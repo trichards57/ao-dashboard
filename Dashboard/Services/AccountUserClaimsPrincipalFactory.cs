@@ -1,17 +1,22 @@
-﻿using Dashboard.Data;
+﻿// -----------------------------------------------------------------------
+// <copyright file="AccountUserClaimsPrincipalFactory.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Dashboard.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace Dashboard.Services;
 
-public class AccountUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>
+/// <summary>
+/// Claims principal factory that standardises the authentication method claim and adds the user's real name claim.
+/// </summary>
+public class AccountUserClaimsPrincipalFactory(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> options) : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>(userManager, roleManager, options)
 {
-    public AccountUserClaimsPrincipalFactory(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> options)
-        : base(userManager, roleManager, options)
-    {
-    }
-
     /// <inheritdoc/>
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(ApplicationUser user)
     {
