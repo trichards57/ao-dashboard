@@ -71,6 +71,13 @@ internal sealed class IdentityRedirectManager(NavigationManager navigationManage
     public void RedirectToCurrentPage() => RedirectTo(CurrentPath);
 
     /// <summary>
+    /// Redirects to the current page with the specified query parameters.
+    /// </summary>
+    /// <param name="queryParameters">The query parameters to add.</param>
+    [DoesNotReturn]
+    public void RedirectToCurrentPage(Dictionary<string, object?> queryParameters) => RedirectTo(CurrentPath, queryParameters);
+
+    /// <summary>
     /// Redirects to the current page with the specified status message.
     /// </summary>
     /// <param name="message">The status message.</param>

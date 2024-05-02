@@ -1,0 +1,54 @@
+﻿@using Dashboard.Client.Model
+@using Dashboard.Client.Services
+
+@inject IJSRuntime JsRuntime
+@inject IVorService VorService
+
+<PlacePicker Place="Place" />
+<div class="columns">
+    <div class="column">
+        <h2 class="subtitle is-5">Vehicle Availability</h2>
+        <div class="vehicle-availability-container">
+            <canvas id="vehicle-availability-chart"></canvas>
+        </div>
+    </div>
+    <div class="column">
+        <h2 class="subtitle is-5">Historic Availability</h2>
+        <div class="historic-availability-container">
+            <canvas id="historic-availability-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool loading;
+    private IJSObjectReference? module;
+    private VorStatistics statistics = new();
+    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
+
+    [SupplyParameterFromQuery]
+    public string Region { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string District { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string Hub { get; set; } = "all";
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./Pages/Home.razor.js");
+            module?.InvokeVoidAsync("loadGraphs", statistics);
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+        statistics = await VorService.GetVorStatisticsAsync(Place);
+        module?.InvokeVoidAsync("loadGraphs", statistics);
+        loading = false;
+    }
+}
