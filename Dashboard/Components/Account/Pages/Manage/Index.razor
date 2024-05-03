@@ -8,25 +8,19 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
+@inject ILogger<Index> Logger
 
 <PageTitle>AO Dashboard - Manage Profile</PageTitle>
 
 <ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
+    <h2 class="title is-4">Manage Profile</h2>
     <StatusMessage />
 
-    <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+    <EditForm Enhance EditContext="editContext" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
         <DataAnnotationsValidator />
-        <ValidationSummary role="alert" class="notification is-danger" />
-        <div class="field">
-            <label for="name" class="label">Name</label>
-            <div class="control">
-                <InputText @bind-Value="@Input.Name" class="input" placeholder="Real Name" />
-            </div>
-            <ValidationMessage class="help is-danger" For="() => Input.Name" />
-        </div>
-        <div class="buttons">
-            <button type="submit" class="button is-primary is-fullwidth">Save</button>
-        </div>
+        <ValidationSummary class="notification is-danger" role="alert" />
+        <AppText Name="name" Label="Name" @bind-Value="Input.Name" For="() => Input.Name" autocomplete="name" placeholder="Please enter your name." />
+        <SubmitButton Label="Update Profile" />
     </EditForm>
 </ManageLayout>
 
@@ -39,9 +33,13 @@
 
     private bool isMicrosoftAccount = false;
     private ApplicationUser user = default!;
+    private EditContext? editContext;
 
     protected override async Task OnInitializedAsync()
     {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         var logins = await UserManager.GetLoginsAsync(user);
         isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
@@ -62,6 +60,10 @@
             if (!result.Succeeded)
             {
                 RedirectManager.RedirectToCurrentPageWithStatus("Unable to change your name.", HttpContext);
+            }
+            else
+            {
+                Logger.User_UpdatedProfile(user.Id);
             }
         }
 

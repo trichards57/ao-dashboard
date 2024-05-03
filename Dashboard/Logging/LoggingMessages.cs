@@ -18,4 +18,7 @@ public static partial class LoggingMessages
 
     [LoggerMessage(EventCode.User_RequestedRecoveryCodes, LogLevel.Information, "User {id} has generated new two-factor authentication codes.")]
     public static partial void User_RequestedRecoveryCodes(this ILogger logger, string id);
+
+    [LoggerMessage(EventCode.User_UpdatedProfile, LogLevel.Information, "User {id} has updated their profile.")]
+    public static partial void User_UpdatedProfile(this ILogger logger, string id);
 }

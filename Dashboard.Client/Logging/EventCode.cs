@@ -7,4 +7,5 @@ public static class EventCode
     public const int User_EmailChangeRequested = 1002;
     public const int User_EnabledTwoFactor = 1003;
     public const int User_RequestedRecoveryCodes = 1004;
+    public const int User_UpdatedProfile = 1005;
 }
