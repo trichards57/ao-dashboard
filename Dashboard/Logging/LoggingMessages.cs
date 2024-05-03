@@ -21,4 +21,7 @@ public static partial class LoggingMessages
 
     [LoggerMessage(EventCode.User_UpdatedProfile, LogLevel.Information, "User {id} has updated their profile.")]
     public static partial void User_UpdatedProfile(this ILogger logger, string id);
+
+    [LoggerMessage(EventCode.User_ResetTwoFactor, LogLevel.Information, "User {id} reset their two-factor authentication key.")]
+    public static partial void User_ResetTwoFactor(this ILogger logger, string id);
 }
