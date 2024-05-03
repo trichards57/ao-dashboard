@@ -17,6 +17,8 @@
 <PageTitle>AO Dashboard - Enable Two-Factor Authentication</PageTitle>
 
 <ManageLayout>
+    <h2 class="title is-4">Enable Two-Factor Authentication</h2>
+   
     @if (recoveryCodes is not null)
     {
         <ShowRecoveryCodes RecoveryCodes="recoveryCodes.ToArray()" StatusMessage="@message" />
