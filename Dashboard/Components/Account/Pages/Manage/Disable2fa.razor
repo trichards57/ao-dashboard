@@ -12,21 +12,20 @@
 <PageTitle>AO Dashboard - Disable Two-Factor Authentication</PageTitle>
 
 <ManageLayout>
-    <StatusMessage />
-    <p>
-        <strong>This action only disables 2FA.</strong>
-    </p>
-    <p>
-        Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key
-        used in an authenticator app you should <a class="simple" href="Account/Manage/ResetAuthenticator">reset your authenticator keys.</a>
-    </p>
-
-    <div>
-        <form @formname="disable-2fa" @onsubmit="OnSubmitAsync" method="post">
-            <AntiforgeryToken />
-            <button type="submit" class="button is-danger is-fullwidth">Disable 2FA</button>
-        </form>
+    <h2 class="title is-4">Disable Two-Factor Authentication</h2>
+    <div class="block">
+        <p class="has-text-weight-bold">
+            This action only disables 2FA.
+        </p>
+        <p>
+            Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key
+            used in an authenticator app you should <a href="Account/Manage/ResetAuthenticator">reset your authenticator keys.</a>
+        </p>
     </div>
+    <form class="block" @formname="disable-2fa" @onsubmit="OnSubmitAsync" method="post">
+        <AntiforgeryToken />
+        <SubmitButton IsDanger Label="Disable Two-Factor Authentication" />
+    </form>
 </ManageLayout>
 
 @code {
