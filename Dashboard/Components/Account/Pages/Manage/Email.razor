@@ -12,27 +12,29 @@
 @inject IEmailSender<ApplicationUser> EmailSender
 @inject IdentityUserAccessor UserAccessor
 @inject NavigationManager NavigationManager
+@inject ILogger<ChangePassword> Logger
 
 <PageTitle>AO Dashboard - Change Email</PageTitle>
 
 <ManageLayout>
-    <StatusMessage Message="@message" />
+    <h2 class="title is-4">Change Email</h2>
 
-    <EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post">
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="block notification is-success">
+            @message
+        </div>
+    }
+
+    <EditForm Enhance EditContext="editContext" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post" class="block" novalidate>
         <DataAnnotationsValidator />
-        <ValidationSummary role="alert" class="notification is-danger" />
+        <ValidationSummary class="notification is-danger" role="alert" />
         <div class="field">
             <label for="email" class="label">Email</label>
             <input type="email" value="@email" class="input" placeholder="Please enter your email." disabled />
         </div>
-        <div class="field">
-            <label for="new-email" class="label">New email</label>
-            <InputText class="input" @bind-Value="Input.NewEmail" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
-            <ValidationMessage class="help is-danger" For="() => Input.NewEmail" />
-        </div>
-        <div class="buttons">
-            <button type="submit" class="button is-primary is-fullwidth">Change email</button>
-        </div>
+        <AppText Name="new-email" Label="New Email" type="email" @bind-Value="Input.NewEmail" For="() => Input.NewEmail" autocomplete="email" placeholder="Please enter new email." />
+        <SubmitButton Label="Update Email" />
     </EditForm>
 </ManageLayout>
 
@@ -40,15 +42,19 @@
     private string? message;
     private ApplicationUser user = default!;
     private string? email;
+    private EditContext? editContext;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromForm(FormName = "change-email")]
+    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         email = await UserManager.GetEmailAsync(user);
         var logins = await UserManager.GetLoginsAsync(user);
@@ -78,14 +84,15 @@
             new Dictionary<string, object?> { ["userId"] = userId, ["email"] = Input.NewEmail, ["code"] = code });
 
         await EmailSender.SendConfirmationLinkAsync(user, Input.NewEmail, HtmlEncoder.Default.Encode(callbackUrl));
+        Logger.User_EmailChangeRequested(userId);
 
-        message = "Confirmation link to change email sent. Please check your email.";
+        message = "A confirmation link to change email sent. Please check your email and follow the link to finish the change.";
     }
 
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "You need to enter your email address.")]
-        [EmailAddress]
+        [Required(ErrorMessage = "You need to enter an email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter an email address.")]
         [NonSjaEmail(ErrorMessage = "SJA email address holders cannot use local accounts.")]
         public string? NewEmail { get; set; }
     }

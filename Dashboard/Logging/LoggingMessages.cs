@@ -9,4 +9,7 @@ public static partial class LoggingMessages
 
     [LoggerMessage(EventCode.User_DisabledTwoFactor, LogLevel.Information, "User {id} has disabled two-factor authentication.")]
     public static partial void User_DisabledTwoFactor(this ILogger logger, string id);
+
+    [LoggerMessage(EventCode.User_EmailChangeRequested, LogLevel.Information, "User {id} has requested a change to their email address.")]
+    public static partial void User_EmailChangeRequested(this ILogger logger, string id);
 }
