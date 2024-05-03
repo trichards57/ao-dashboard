@@ -31,7 +31,9 @@
         <ValidationSummary class="notification is-danger" role="alert" />
         <div class="field">
             <label for="email" class="label">Email</label>
-            <input type="email" value="@email" class="input" placeholder="Please enter your email." disabled />
+            <div class="control">
+                <input type="email" value="@email" class="input" placeholder="Please enter your email." disabled />
+            </div>
         </div>
         <AppText Name="new-email" Label="New Email" type="email" @bind-Value="Input.NewEmail" For="() => Input.NewEmail" autocomplete="email" placeholder="Please enter new email." />
         <SubmitButton Label="Update Email" />
