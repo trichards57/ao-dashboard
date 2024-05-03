@@ -9,16 +9,17 @@
 <PageTitle>AO Dashboard - Manage Personal Data</PageTitle>
 
 <ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
-    <StatusMessage />
-
-    <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-    <p>
-        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-    </p>
-    <form action="Account/Manage/DownloadPersonalData" method="post">
+    <h2 class="title is-4">Manage Personal Data</h2>
+    <div class="block">
+        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p class="has-text-weight-bold">
+            Deleting this data will permanently remove your account, and this cannot be recovered.
+        </p>
+    </div>
+    <form action="Account/Manage/DownloadPersonalData" method="post" class="block">
         <AntiforgeryToken />
         <div class="buttons">
-            <button type="submit" class="button is-primary is-fullwidth">Download</button>
+            <SubmitButton Label="Download" />
             <a href="Account/Manage/DeletePersonalData" class="button is-danger is-fullwidth">Delete</a>
         </div>
     </form>
