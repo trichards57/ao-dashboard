@@ -23,9 +23,15 @@
     }
     else
     {
-        <StatusMessage Message="@message" />
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <div class="block notification is-danger">
+                @message
+            </div>
+        }
+
         <p>To use an authenticator app go through the following steps:</p>
-        <ol class="list">
+        <ol class="list block">
             <li>
                 <p>
                     Download a two-factor authenticator app like Microsoft Authenticator for
@@ -48,20 +54,15 @@
                 </p>
             </li>
         </ol>
-        <EditForm Model="Input" FormName="send-code" OnValidSubmit="OnValidSubmitAsync" method="post">
+        <EditForm Model="Input" FormName="send-code" OnValidSubmit="OnValidSubmitAsync" method="post" class="block">
             <DataAnnotationsValidator />
-            <div class="field">
-                <label class="label" for="code">Verification Code</label>
-                <InputText class="input" @bind-Value="Input.Code" autocomplete="one-time-code" placeholder="Please enter the code." />
-                <ValidationMessage For="() => Input.Code" />
-            </div>
-            <button type="submit" class="button is-primary is-fullwidth">Verify</button>
-            <ValidationSummary class="text-danger" role="alert" />
+            <ValidationSummary class="notification is-danger" role="alert" />
+            <AppText Name="code" Label="Verification Code" @bind-Value="Input.Code" For="() => Input.Code" autocomplete="one-time-code" placeholder="Please enter the code." />
+            <SubmitButton Label="Verify" />
         </EditForm>
     }
 </ManageLayout>
-<script type="text/javascript" src="lib/qrcodejs/qrcode.js"></script>
-<script type="text/javascript" src="js/qr.js"></script>
+<PageScript Src="./Components/Account/Pages/Manage/EnableAuthenticator.razor.js" />
 
 @code {
     // TODO : Sort out the QR code generation.
@@ -104,13 +105,13 @@
 
         if (!is2faTokenValid)
         {
-            message = "Error: Verification code is invalid.";
+            message = "That verification code was invalid.";
             return;
         }
 
         await UserManager.SetTwoFactorEnabledAsync(user, true);
         var userId = await UserManager.GetUserIdAsync(user);
-        Logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
+        Logger.User_EnabledTwoFactor(userId);
 
         message = "Your authenticator app has been verified.";
 
@@ -162,7 +163,7 @@
         return string.Format(
             CultureInfo.InvariantCulture,
             AuthenticatorUriFormat,
-            UrlEncoder.Encode("Microsoft.AspNetCore.Identity.UI"),
+            UrlEncoder.Encode("AO Dashboard"),
             UrlEncoder.Encode(email),
             unformattedKey);
     }
