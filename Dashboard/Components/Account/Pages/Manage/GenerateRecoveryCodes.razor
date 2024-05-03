@@ -12,28 +12,27 @@
 <PageTitle>AO Dashboard - Generate Recovery Codes</PageTitle>
 
 <ManageLayout>
+    <h2 class="title is-4">Generate Recovery Codes</h2>
     @if (recoveryCodes is not null)
     {
         <ShowRecoveryCodes RecoveryCodes="recoveryCodes.ToArray()" StatusMessage="@message" />
     }
     else
     {
-        <p>
-            <strong>Put these codes in a safe place.</strong>
-        </p>
-        <p>
-            If you lose your device and don't have the recovery codes you will lose access to your account.
-        </p>
-        <p>
-            Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key
-            used in an authenticator app you should <a href="Account/Manage/ResetAuthenticator">reset your authenticator keys.</a>
-        </p>
-        <div>
-            <form @formname="generate-recovery-codes" @onsubmit="OnSubmitAsync" method="post">
-                <AntiforgeryToken />
-                <button type="submit" class="button is-primary is-fullwidth">Generate Recovery Codes</button>
-            </form>
+        <div class="block">
+            <p class="has-text-weight-bold">Put these codes in a safe place.</p>
+            <p>
+                If you lose your device and don't have the recovery codes you will lose access to your account.
+            </p>
+            <p>
+                Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key
+                used in an authenticator app you should <a href="Account/Manage/ResetAuthenticator">reset your authenticator keys.</a>
+            </p>
         </div>
+        <form @formname="generate-recovery-codes" @onsubmit="OnSubmitAsync" method="post" class="block">
+            <AntiforgeryToken />
+            <SubmitButton Label="Generate Recovery Codes" />
+        </form>
     }
 </ManageLayout>
 
@@ -69,6 +68,6 @@
         recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
         message = "You have generated new recovery codes.";
 
-        Logger.LogInformation("User with ID '{UserId}' has generated new 2FA recovery codes.", userId);
+        Logger.User_RequestedRecoveryCodes(userId);
     }
 }

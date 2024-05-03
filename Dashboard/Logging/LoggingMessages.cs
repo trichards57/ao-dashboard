@@ -15,4 +15,7 @@ public static partial class LoggingMessages
 
     [LoggerMessage(EventCode.User_EmailChangeRequested, LogLevel.Information, "User {id} has requested a change to their email address.")]
     public static partial void User_EmailChangeRequested(this ILogger logger, string id);
+
+    [LoggerMessage(EventCode.User_RequestedRecoveryCodes, LogLevel.Information, "User {id} has generated new two-factor authentication codes.")]
+    public static partial void User_RequestedRecoveryCodes(this ILogger logger, string id);
 }
