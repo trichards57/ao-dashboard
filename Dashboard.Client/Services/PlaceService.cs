@@ -30,8 +30,6 @@ internal class PlaceService(HttpClient httpClient, ILogger<PlaceService> logger)
 
             yield break;
         }
-
-        logger.LogError("Getting Districts {Region} Failed : {StatusCode}", region, response.StatusCode);
     }
 
     public async IAsyncEnumerable<string> GetHubs(Region region, string district)
@@ -52,7 +50,5 @@ internal class PlaceService(HttpClient httpClient, ILogger<PlaceService> logger)
 
             yield break;
         }
-
-        logger.LogError("Getting Hubs {Region}/{District} Failed : {StatusCode}", region, district, response.StatusCode);
     }
 }

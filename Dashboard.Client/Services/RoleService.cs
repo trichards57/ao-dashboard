@@ -23,8 +23,6 @@ internal class RoleService(HttpClient httpClient, ILogger<RoleService> logger) :
             return await response.Content.ReadFromJsonAsync<RolePermissions>();
         }
 
-        logger.LogError("Getting Permissions {Id} Failed : {StatusCode}", id, response.StatusCode);
-
         return null;
     }
 

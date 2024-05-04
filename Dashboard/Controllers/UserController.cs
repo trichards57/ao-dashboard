@@ -46,7 +46,6 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
 
         if (user == null)
         {
-            logger.LogWarning("User {Id} not found", id);
             return NotFound();
         }
 

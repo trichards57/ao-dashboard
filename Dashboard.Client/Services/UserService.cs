@@ -29,8 +29,6 @@ internal class UserService(HttpClient httpClient, ILogger<UserService> logger) :
             return await response.Content.ReadFromJsonAsync<UserWithRole>();
         }
 
-        logger.LogError("Getting Permissions {Id} Failed : {StatusCode}", id, response.StatusCode);
-
         return null;
     }
 

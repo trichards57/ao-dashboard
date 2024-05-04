@@ -15,7 +15,7 @@ namespace Dashboard.Controllers;
 [ApiController]
 [Authorize(Policy = "CanEditRoles")]
 [Route("api/roles")]
-public class RoleController(IRoleService roleService, ILogger<RoleController> logger) : ControllerBase
+public class RoleController(IRoleService roleService) : ControllerBase
 {
     private readonly IRoleService roleService = roleService;
 
@@ -29,7 +29,6 @@ public class RoleController(IRoleService roleService, ILogger<RoleController> lo
 
         if (role == null)
         {
-            logger.LogWarning("Role {Id} not found", id);
             return NotFound();
         }
 
