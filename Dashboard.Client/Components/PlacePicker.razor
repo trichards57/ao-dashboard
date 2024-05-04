@@ -1,4 +1,5 @@
 ﻿@using Dashboard.Client.Model
+@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
 
 @inject NavigationManager NavigationManager
@@ -63,19 +64,19 @@
     private void RegionChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(e.Value?.ToString() ?? "all", Place.District, Place.Hub));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Enum.Parse<Region>(e.Value?.ToString() ?? "all", true)), Place.District, Place.Hub));
     }
 
     private void DistrictChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(Place.Region.ToString(), e.Value?.ToString() ?? "all", Place.Hub));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Place.Region), e.Value?.ToString() ?? "all", Place.Hub));
     }
 
     private void HubChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(Place.Region.ToString(), Place.District, e.Value?.ToString() ?? "all"));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Place.Region), Place.District, e.Value?.ToString() ?? "all"));
     }
 
     protected override async Task OnParametersSetAsync()

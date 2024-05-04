@@ -4,6 +4,7 @@
 @rendermode InteractiveAuto
 
 @using Dashboard.Client.Model
+@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
 @using Microsoft.AspNetCore.Authorization
 
@@ -80,7 +81,7 @@
     [SupplyParameterFromQuery]
     public string Hub { get; set; } = "all";
 
-    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
+    private Place Place => new Place { Region = RegionConverter.ToRegion(Region ?? "all"), District = District ?? "all", Hub = Hub ?? "all" };
 
     private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
 
