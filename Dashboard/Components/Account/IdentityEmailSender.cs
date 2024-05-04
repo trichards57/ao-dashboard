@@ -16,10 +16,9 @@ namespace Dashboard.Components.Account;
 /// <summary>
 /// Service to handle sending Identity related emails.
 /// </summary>
-internal sealed class IdentityEmailSender(IOptions<IdentityEmailSenderOptions> optionsAccessor, ILogger<IdentityEmailSender> logger) : IEmailSender<ApplicationUser>
+internal sealed class IdentityEmailSender(IOptions<IdentityEmailSenderOptions> optionsAccessor) : IEmailSender<ApplicationUser>
 {
     private readonly IdentityEmailSenderOptions options = optionsAccessor.Value;
-    private readonly ILogger<IdentityEmailSender> logger = logger;
 
     /// <inheritdoc/>
     public Task SendConfirmationLinkAsync(ApplicationUser user, string email, string confirmationLink)

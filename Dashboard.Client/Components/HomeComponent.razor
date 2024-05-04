@@ -21,7 +21,6 @@
 </div>
 
 @code {
-    private bool loading;
     private IJSObjectReference? module;
     private VorStatistics statistics = new();
     private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
@@ -46,9 +45,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        loading = true;
         statistics = await VorService.GetVorStatisticsAsync(Place);
         module?.InvokeVoidAsync("loadGraphs", statistics);
-        loading = false;
     }
 }

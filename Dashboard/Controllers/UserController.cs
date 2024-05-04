@@ -22,7 +22,7 @@ namespace Dashboard.Controllers;
 [Route("api/users")]
 [Authorize(Policy = "CanViewUsers")]
 [ApiController]
-public class UserController(IUserService userService, UserManager<ApplicationUser> userManager, ILogger<RoleController> logger) : ControllerBase
+public class UserController(IUserService userService, UserManager<ApplicationUser> userManager) : ControllerBase
 {
     private readonly UserManager<ApplicationUser> userManager = userManager;
     private readonly IUserService userService = userService;

@@ -45,5 +45,5 @@ public class UserInfo
     /// <summary>
     /// Gets or sets the user's other claims.
     /// </summary>
-    public Dictionary<string, string> OtherClaims { get; set; }
+    public Dictionary<string, string> OtherClaims { get; set; } = [];
 }

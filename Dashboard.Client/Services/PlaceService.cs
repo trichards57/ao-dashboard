@@ -10,8 +10,13 @@ using System.Net.Http.Json;
 
 namespace Dashboard.Client.Services;
 
-internal class PlaceService(HttpClient httpClient, ILogger<PlaceService> logger) : IPlaceService
+/// <summary>
+/// Service for retrieving places.
+/// </summary>
+/// <param name="httpClient">The HTTP Client to use.</param>
+internal class PlaceService(HttpClient httpClient) : IPlaceService
 {
+    /// <inheritdoc/>
     public async IAsyncEnumerable<string> GetDistricts(Region region)
     {
         var response = await httpClient.GetAsync($"api/places/{region}");
@@ -27,11 +32,10 @@ internal class PlaceService(HttpClient httpClient, ILogger<PlaceService> logger)
                     yield return district;
                 }
             }
-
-            yield break;
         }
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<string> GetHubs(Region region, string district)
     {
         var response = await httpClient.GetAsync($"api/places/{region}/{district}");
@@ -47,8 +51,6 @@ internal class PlaceService(HttpClient httpClient, ILogger<PlaceService> logger)
                     yield return hub;
                 }
             }
-
-            yield break;
         }
     }
 }

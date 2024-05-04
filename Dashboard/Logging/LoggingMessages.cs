@@ -46,17 +46,16 @@ public static partial class LoggingMessages
 
     [LoggerMessage(EventCode.User_Login_Success, LogLevel.Information, "User {id} has logged in.")]
     public static partial void User_Login_Success(this ILogger logger, string id);
-    
+
     [LoggerMessage(EventCode.User_Login_ExternalError, LogLevel.Error, "User log in has failed due to an external error : {reason}.")]
     public static partial void User_Login_ExternalError(this ILogger logger, string reason);
-    
+
     [LoggerMessage(EventCode.User_Login_BadRequest, LogLevel.Warning, "User log in has failed due to an incorrect username or password.")]
     public static partial void User_Login_BadRequest(this ILogger logger);
-   
+
     [LoggerMessage(EventCode.User_Login_LockedOut, LogLevel.Warning, "User {id} log in has failed because the account is locked out.")]
     public static partial void User_Login_LockedOut(this ILogger logger, string id);
 
     [LoggerMessage(EventCode.User_Login_NewAccount, LogLevel.Warning, "User {id} log has been created.")]
     public static partial void User_Login_NewAccount(this ILogger logger, string id);
-
 }

@@ -9,11 +9,15 @@ using System.Net.Http.Json;
 
 namespace Dashboard.Client.Services;
 
-internal class RoleService(HttpClient httpClient, ILogger<RoleService> logger) : IRoleService
+/// <summary>
+/// Service for managing roles.
+/// </summary>
+/// <param name="httpClient">The HTTP Client to use.</param>
+internal class RoleService(HttpClient httpClient) : IRoleService
 {
     private readonly HttpClient httpClient = httpClient;
-    private readonly ILogger<RoleService> logger = logger;
 
+    /// <inheritdoc/>
     public async Task<RolePermissions?> GetRolePermissions(string id)
     {
         var response = await httpClient.GetAsync($"api/roles/{id}");
@@ -26,6 +30,7 @@ internal class RoleService(HttpClient httpClient, ILogger<RoleService> logger) :
         return null;
     }
 
+    /// <inheritdoc/>
     public async IAsyncEnumerable<RolePermissions> GetRoles()
     {
         var response = await httpClient.GetAsync($"api/roles");
@@ -44,6 +49,7 @@ internal class RoleService(HttpClient httpClient, ILogger<RoleService> logger) :
         }
     }
 
+    /// <inheritdoc/>
     public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)
     {
         var response = await httpClient.PutAsJsonAsync($"api/roles/{id}", permissions);

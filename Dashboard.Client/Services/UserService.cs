@@ -14,10 +14,9 @@ namespace Dashboard.Client.Services;
 /// </summary>
 /// <param name="httpClient">The HTTP client to use.</param>
 /// <param name="logger">The logger to use.</param>
-internal class UserService(HttpClient httpClient, ILogger<UserService> logger) : IUserService
+internal class UserService(HttpClient httpClient) : IUserService
 {
     private readonly HttpClient httpClient = httpClient;
-    private readonly ILogger<UserService> logger = logger;
 
     /// <inheritdoc/>
     public async Task<UserWithRole?> GetUserWithRole(string id)

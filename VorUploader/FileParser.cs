@@ -58,10 +58,14 @@ internal static class FileParser
             var description = cols[columns["Description"] - 1].Text?.Trim() ?? "";
             var estimatedReturnCol = columns.GetValueOrDefault("EstimatedRepairDate");
             if (estimatedReturnCol == default)
+            {
                 estimatedReturnCol = columns.GetValueOrDefault("ExpectedFinishDate");
+            }
 
             if (string.IsNullOrWhiteSpace(reg) || string.IsNullOrWhiteSpace(fleetNum))
+            {
                 continue;
+            }
 
             DateOnly? estimatedReturn = null;
 

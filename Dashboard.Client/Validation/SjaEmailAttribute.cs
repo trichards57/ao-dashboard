@@ -19,7 +19,8 @@ public class SjaEmailAttribute : ValidationAttribute
     {
         if (value is string email && !email.EndsWith("@sja.org.uk"))
         {
-            return new ValidationResult(FormatErrorMessage(validationContext.DisplayName), 
+            return new ValidationResult(
+                FormatErrorMessage(validationContext.DisplayName),
                 validationContext.MemberName != null ? [validationContext.MemberName] : null);
         }
 

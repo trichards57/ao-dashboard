@@ -53,6 +53,7 @@ internal static class Program
         var accountToLogin = (await client.GetAccountsAsync()).FirstOrDefault(a => a.Username.Contains("sja.org.uk", StringComparison.OrdinalIgnoreCase));
 
         if (accountToLogin != null)
+        {
             try
             {
                 token = await client.AcquireTokenSilent(Scopes, accountToLogin).ExecuteAsync();
@@ -61,6 +62,7 @@ internal static class Program
             {
                 token = null;
             }
+        }
 
         token ??= await client.AcquireTokenInteractive(Scopes).ExecuteAsync();
 
@@ -89,7 +91,9 @@ internal static class Program
             do
             {
                 if (count > 0)
+                {
                     await Task.Delay(TimeSpan.FromSeconds(5));
+                }
 
                 result = await httpClient.PostAsJsonAsync(vorUris, items);
                 count++;
@@ -97,7 +101,9 @@ internal static class Program
             while (count < 3 && !result.IsSuccessStatusCode);
 
             if (!result.IsSuccessStatusCode)
+            {
                 Console.WriteLine($"Received Error : {result.StatusCode}");
+            }
             else
             {
                 var dirPath = Path.GetDirectoryName(file) ?? Environment.CurrentDirectory;

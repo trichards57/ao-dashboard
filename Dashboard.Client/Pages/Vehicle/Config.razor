@@ -80,7 +80,6 @@
                         || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
     private ICollection<VehicleSettings> statuses = new List<VehicleSettings>();
-    private bool loading;
     private int page;
     private const int PageSize = 10;
     private string filter = "";
@@ -92,9 +91,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        loading = true;
         statuses = await vehicleService.GetSettingsAsync(Place).ToListAsync();
-        loading = false;
     }
 
     private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };

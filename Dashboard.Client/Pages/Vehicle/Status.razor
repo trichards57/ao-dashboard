@@ -74,7 +74,6 @@
                         || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
     private ICollection<VorStatus> statuses = new List<VorStatus>();
-    private bool loading;
     private int page;
     private const int PageSize = 10;
     private string filter = "";
@@ -82,8 +81,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        loading = true;
         statuses = await VorService.GetVorStatusesAsync(Place).ToListAsync();
-        loading = false;
     }
 }
