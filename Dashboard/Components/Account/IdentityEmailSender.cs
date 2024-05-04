@@ -78,8 +78,6 @@ internal sealed class IdentityEmailSender(IOptions<IdentityEmailSenderOptions> o
         };
         msg.AddTo(new EmailAddress(email));
         msg.SetClickTracking(false, false);
-        var res = await client.SendEmailAsync(msg);
-
-        logger.LogInformation("Email sent to {Email} with status code {StatusCode}", email, res.StatusCode);
+        await client.SendEmailAsync(msg);
     }
 }
