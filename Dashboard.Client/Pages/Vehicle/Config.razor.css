@@ -1,0 +1,24 @@
+﻿.no-vehicles {
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.call-sign-col {
+    width: 7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reg-col {
+    width: 7rem;
+}
+
+.edit-col {
+    width: 3rem;
+}
+
+.table {
+    table-layout: fixed;
+    min-width: 35rem;
+}

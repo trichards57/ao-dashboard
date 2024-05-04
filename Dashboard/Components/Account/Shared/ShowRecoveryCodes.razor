@@ -1,0 +1,25 @@
+﻿<div class="block notification is-success" role="alert">
+    @StatusMessage
+</div>
+<div class="block notification is-warning" role="alert">
+    <p class="has-text-weight-bold">Put these codes in a safe place.</p>
+    <p>
+        If you lose your device and don't have the recovery codes you will lose access to your account.
+    </p>
+</div>
+<div class="grid">
+    @foreach (var recoveryCode in RecoveryCodes)
+    {
+        <div class="cell">
+            <code class="recovery-code">@recoveryCode</code>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string[] RecoveryCodes { get; set; } = [];
+
+    [Parameter]
+    public string? StatusMessage { get; set; }
+}

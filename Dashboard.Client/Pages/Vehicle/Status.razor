@@ -1,0 +1,86 @@
+﻿@page "/vehicles/status"
+
+@attribute [Authorize(Policy = "CanViewVOR")]
+@rendermode InteractiveAuto
+
+@using Dashboard.Client.Model
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+
+@inject IVorService VorService
+
+<PageTitle>AO Dashboard - Vehicle Status</PageTitle>
+
+<h1 class="title">Vehicle Status</h1>
+
+<PlacePicker />
+<div class="table-container">
+    <table class="table is-striped is-fullwidth">
+    <thead>
+        <tr>
+            <th class="call-sign-col">Call Sign</th>
+            <th class="reg-col">Registration</th>
+            <th class="vor-col">Is VOR?</th>
+            <th class="due-back-col">Expected Back</th>
+            <th>Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (StatusesToDisplay.Any())
+        {
+            foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
+            {
+                <tr>
+                    <td class="call-sign-col" title="@s.CallSign">@s.CallSign</td>
+                    <td class="reg-col">@s.Registration</td>
+                    <td class="vor-col"> <span class="@(s.IsVor ? "tag is-danger" : "tag is-success")">@(s.IsVor ? "Yes" : "No")</span></td>
+                    <td class="due-back-col">@s.DueBack?.ToString("d MMM yy")</td>
+                    <td class="summary" title="@s.Summary">@s.Summary</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="no-vehicles subtitle is-6">No Vehicles</td>
+            </tr>
+        }
+    </tbody>
+    </table>
+</div>
+
+@if (ShowPagination)
+{
+    <PagePicker Page="@(page)"
+                Pages="@((int)Math.Ceiling((float)StatusesToDisplay.Count()/PageSize))"
+                ChangePage="p => page = p" />
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public string Region { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string District { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string Hub { get; set; } = "all";
+
+    private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
+
+    private IEnumerable<VorStatus> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
+                    .Where(v => string.IsNullOrWhiteSpace(filter)
+                        || v.CallSign.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase)
+                        || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+    private ICollection<VorStatus> statuses = new List<VorStatus>();
+    private int page;
+    private const int PageSize = 10;
+    private string filter = "";
+    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        statuses = await VorService.GetVorStatusesAsync(Place).ToListAsync();
+    }
+}

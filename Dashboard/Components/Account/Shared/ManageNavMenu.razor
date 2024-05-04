@@ -1,0 +1,71 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+
+<div class="tabs">
+    <ul class="nav nav-pills flex-column">
+        <li class="@(isProfileActive ? "is-active" : "")">
+            <a href="Account/Manage">Profile</a>
+        </li>
+        @if (!IsMicrosoftAccount)
+        {
+            <li class="@(isEmailActive ? "is-active" : "")">
+                <a href="Account/Manage/Email">Email</a>
+            </li>
+            <li class="@(isChangePasswordActive ? "is-active" : "")">
+                <a href="Account/Manage/ChangePassword">Password</a>
+            </li>
+            <li class="@(isTwoFactorActive ? "is-active" : "")">
+                <a href="Account/Manage/TwoFactorAuthentication">Two-Factor Authentication</a>
+            </li>
+        }
+        <li class="@(isPersonalDataActive ? "is-active" : "")">
+            <a class="nav-link" href="Account/Manage/PersonalData">Personal data</a>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private bool isProfileActive = false;
+    private bool isEmailActive = false;
+    private bool isChangePasswordActive = false;
+    private bool isTwoFactorActive = false;
+    private bool isPersonalDataActive = false;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [Parameter]
+    public bool IsMicrosoftAccount { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var path = HttpContext.Request.Path;
+
+        switch (path.ToString())
+        {
+            case "/Account/Manage":
+                isProfileActive = true;
+                break;
+            case "/Account/Manage/Email":
+                isEmailActive = true;
+                break;
+            case "/Account/Manage/ChangePassword":
+                isChangePasswordActive = true;
+                break;
+            case "/Account/Manage/TwoFactorAuthentication":
+            case "/Account/Manage/Disable2fa":
+            case "/Account/Manage/EnableAuthenticator":
+            case "/Account/Manage/GenerateRecoveryCodes":
+            case "/Account/Manage/ResetAuthenticator":
+                isTwoFactorActive = true;
+                break;
+            case "/Account/Manage/PersonalData":
+            case "/Account/Manage/DeletePersonalData":
+                isPersonalDataActive = true;
+                break;
+        }
+    }
+}

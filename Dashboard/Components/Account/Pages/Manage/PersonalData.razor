@@ -1,0 +1,40 @@
+﻿@page "/Account/Manage/PersonalData"
+@using Dashboard.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard - Manage Personal Data</PageTitle>
+
+<ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
+    <h2 class="title is-4">Manage Personal Data</h2>
+    <div class="block">
+        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p class="has-text-weight-bold">
+            Deleting this data will permanently remove your account, and this cannot be recovered.
+        </p>
+    </div>
+    <form action="Account/Manage/DownloadPersonalData" method="post" class="block">
+        <AntiforgeryToken />
+        <div class="buttons">
+            <SubmitButton Label="Download" />
+            <a href="Account/Manage/DeletePersonalData" class="button is-danger is-fullwidth">Delete</a>
+        </div>
+    </form>
+</ManageLayout>
+
+@code {
+    private bool isMicrosoftAccount;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+    }
+}

@@ -397,3 +397,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /AmbulanceDashboard.Server/appsettings.Production.json
+/Dashboard/Dashboard/wwwroot/css/app.css
+/Dashboard/Dashboard/wwwroot/css/app.css.map

@@ -1,0 +1,101 @@
+﻿@page "/Account/Manage/Email"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Dashboard.Client.Validation
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject IdentityUserAccessor UserAccessor
+@inject NavigationManager NavigationManager
+@inject ILogger<ChangePassword> Logger
+
+<PageTitle>AO Dashboard - Change Email</PageTitle>
+
+<ManageLayout>
+    <h2 class="title is-4">Change Email</h2>
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="block notification is-success">
+            @message
+        </div>
+    }
+
+    <EditForm Enhance EditContext="editContext" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post" class="block" novalidate>
+        <DataAnnotationsValidator />
+        <ValidationSummary class="notification is-danger" role="alert" />
+        <div class="field">
+            <label for="email" class="label">Email</label>
+            <div class="control">
+                <input type="email" value="@email" class="input" placeholder="Please enter your email." disabled />
+            </div>
+        </div>
+        <AppText Name="new-email" Label="New Email" type="email" @bind-Value="Input.NewEmail" For="() => Input.NewEmail" autocomplete="email" placeholder="Please enter new email." />
+        <SubmitButton Label="Update Email" />
+    </EditForm>
+</ManageLayout>
+
+@code {
+    private string? message;
+    private ApplicationUser user = default!;
+    private string? email;
+    private EditContext? editContext;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        email = await UserManager.GetEmailAsync(user);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+
+        Input.NewEmail ??= email;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.NewEmail is null || Input.NewEmail == email)
+        {
+            message = "Your email is unchanged.";
+            return;
+        }
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmailChange").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["email"] = Input.NewEmail, ["code"] = code });
+
+        await EmailSender.SendConfirmationLinkAsync(user, Input.NewEmail, HtmlEncoder.Default.Encode(callbackUrl));
+        Logger.User_Email_ChangeRequested(userId);
+
+        message = "A confirmation link to change email sent. Please check your email and follow the link to finish the change.";
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter an email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter an email address.")]
+        [NonSjaEmail(ErrorMessage = "SJA email address holders cannot use local accounts.")]
+        public string? NewEmail { get; set; }
+    }
+}

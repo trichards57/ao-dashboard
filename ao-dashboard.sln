@@ -9,19 +9,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		AmbulanceDashboard.VorDownloader.ps1 = AmbulanceDashboard.VorDownloader.ps1
-		azure-pipelines.yml = azure-pipelines.yml
+		.github\workflows\codeql.yml = .github\workflows\codeql.yml
 		Contributing.md = Contributing.md
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmbulanceDashboard.Server", "AmbulanceDashboard.Server\AmbulanceDashboard.Server.csproj", "{97035655-7F9B-438D-99E1-65A8D6CBCF1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VorUploader", "VorUploader\VorUploader.csproj", "{32E713B5-48FE-44AD-8BD9-B501EBA4090B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmbulanceDashboard.Shared", "AmbulanceDashboard.Shared\AmbulanceDashboard.Shared.csproj", "{9DA90C57-242A-4421-B040-EC5E1A05CF1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dashboard.Client", "Dashboard.Client\Dashboard.Client.csproj", "{564E3DAD-6744-4267-95F3-20314721A6D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmbulanceDashboard.VorUploader", "AmbulanceDashboard.VorUploader\AmbulanceDashboard.VorUploader.csproj", "{77DB6516-1C25-4A03-AA67-073DDD9727E7}"
-EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AmbulanceDashboard.Client", "AmbulanceDashboard.Client\AmbulanceDashboard.Client.esproj", "{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dashboard", "Dashboard\Dashboard.csproj", "{D705F03E-0301-4FCF-B64C-89318C7518EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,24 +28,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{97035655-7F9B-438D-99E1-65A8D6CBCF1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97035655-7F9B-438D-99E1-65A8D6CBCF1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97035655-7F9B-438D-99E1-65A8D6CBCF1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97035655-7F9B-438D-99E1-65A8D6CBCF1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DA90C57-242A-4421-B040-EC5E1A05CF1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DA90C57-242A-4421-B040-EC5E1A05CF1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DA90C57-242A-4421-B040-EC5E1A05CF1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DA90C57-242A-4421-B040-EC5E1A05CF1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{77DB6516-1C25-4A03-AA67-073DDD9727E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77DB6516-1C25-4A03-AA67-073DDD9727E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77DB6516-1C25-4A03-AA67-073DDD9727E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77DB6516-1C25-4A03-AA67-073DDD9727E7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{41F6591E-6C78-4F55-B571-F9B38DCBAD9B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{32E713B5-48FE-44AD-8BD9-B501EBA4090B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E713B5-48FE-44AD-8BD9-B501EBA4090B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E713B5-48FE-44AD-8BD9-B501EBA4090B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E713B5-48FE-44AD-8BD9-B501EBA4090B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{564E3DAD-6744-4267-95F3-20314721A6D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{564E3DAD-6744-4267-95F3-20314721A6D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{564E3DAD-6744-4267-95F3-20314721A6D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{564E3DAD-6744-4267-95F3-20314721A6D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

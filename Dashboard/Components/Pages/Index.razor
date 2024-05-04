@@ -1,0 +1,36 @@
+﻿@page "/"
+@using Dashboard.Components.Account
+@using Microsoft.AspNetCore.Authorization
+
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard</PageTitle>
+
+<section class="hero">
+    <div class="hero-body">
+        <p class="title">Welcome</p>
+        <p class="subtitle">
+            Welcome to the AO Ambulance Dashboard.  You will need to log in to
+            use this application.
+        </p>
+    </div>
+    <div class="hero-foot is-flex is-justify-content-center">
+        <a class="button is-primary" href="/Account/Login">
+            Log In
+        </a>
+    </div>
+</section>
+
+@code
+{
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        if (HttpContext.User.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/home", replace: true);
+        }
+    }
+}

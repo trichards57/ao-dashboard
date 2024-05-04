@@ -1,0 +1,73 @@
+﻿@page "/Account/Manage/GenerateRecoveryCodes"
+
+@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<GenerateRecoveryCodes> Logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard - Generate Recovery Codes</PageTitle>
+
+<ManageLayout>
+    <h2 class="title is-4">Generate Recovery Codes</h2>
+    @if (recoveryCodes is not null)
+    {
+        <ShowRecoveryCodes RecoveryCodes="recoveryCodes.ToArray()" StatusMessage="@message" />
+    }
+    else
+    {
+        <div class="block">
+            <p class="has-text-weight-bold">Put these codes in a safe place.</p>
+            <p>
+                If you lose your device and don't have the recovery codes you will lose access to your account.
+            </p>
+            <p>
+                Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key
+                used in an authenticator app you should <a href="Account/Manage/ResetAuthenticator">reset your authenticator keys.</a>
+            </p>
+        </div>
+        <form @formname="generate-recovery-codes" @onsubmit="OnSubmitAsync" method="post" class="block">
+            <AntiforgeryToken />
+            <SubmitButton Label="Generate Recovery Codes" />
+        </form>
+    }
+</ManageLayout>
+
+@code {
+    private string? message;
+    private ApplicationUser user = default!;
+    private IEnumerable<string>? recoveryCodes;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+
+        var isTwoFactorEnabled = await UserManager.GetTwoFactorEnabledAsync(user);
+        if (!isTwoFactorEnabled)
+        {
+            throw new InvalidOperationException("Cannot generate recovery codes for user because they do not have 2FA enabled.");
+        }
+    }
+
+    private async Task OnSubmitAsync()
+    {
+        var userId = await UserManager.GetUserIdAsync(user);
+        recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+        message = "You have generated new recovery codes.";
+
+        Logger.User_TwoFactor_RequestedRecoveryCodes(userId);
+    }
+}

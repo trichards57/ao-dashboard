@@ -1,0 +1,73 @@
+﻿@page "/roles"
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@implements IDisposable
+
+@attribute [Authorize(Policy = "CanEditRoles")]
+
+@rendermode InteractiveAuto
+
+@inject IRoleService RoleService
+@inject PersistentComponentState PersistentComponentState
+
+<PageTitle>AO Dashboard - User Roles</PageTitle>
+
+<h1 class="title">User Roles</h1>
+
+<table class="table is-striped is-fullwidth">
+    <thead>
+        <tr>
+            <th>Role</th>
+            <th>Vehicle Configuration</th>
+            <th>VOR Data</th>
+            <th>User Role</th>
+            <th>Role Permissions</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in roles.OrderBy(r => r.Name))
+        {
+            <tr>
+                <td>@r.Name</td>
+                <td>@r.VehicleConfiguration</td>
+                <td>@r.VorData</td>
+                <td>@r.Permissions</td>
+                <td>@(r.Name == "Administrator" ? "Write" : "Deny")</td>
+                <td class="edit">
+                    @if (r.Name != "Administrator")
+                    {
+                        <a href="/roles/@r.Id/edit">Edit</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code
+{
+    private List<RolePermissions> roles = new();
+    private PersistingComponentStateSubscription subscription;
+
+    protected override async Task OnInitializedAsync()
+    {
+        subscription = PersistentComponentState.RegisterOnPersisting(Persist);
+
+        var foundInState = PersistentComponentState.TryTakeFromJson<List<RolePermissions>>("roles", out var state);
+
+        roles.AddRange((foundInState && state != null) ? state : await RoleService.GetRoles().ToListAsync());
+    }
+
+    private Task Persist()
+    {
+        PersistentComponentState.PersistAsJson("roles", roles);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        subscription.Dispose();
+    }
+}

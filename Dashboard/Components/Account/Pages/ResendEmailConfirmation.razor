@@ -1,0 +1,58 @@
+﻿@page "/Account/ResendEmailConfirmation"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>AO Dashboard - Resend Email Confirmation</PageTitle>
+
+<h1 class="title">Resend Email Confirmation</h1>
+<StatusMessage Message="@message" />
+<EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="resend-email-confirmation">
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <AppText Name="email" Label="Email" type="email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="username" aria-required="true" placeholder="Please enter your email address" />
+    <SubmitButton Label="Resend" />
+</EditForm>
+
+@code {
+    private string? message;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    private async Task OnValidSubmitAsync()
+    {
+        var user = await UserManager.FindByEmailAsync(Input.Email!);
+        if (user is null)
+        {
+            message = "Verification email sent. Please check your email.";
+            return;
+        }
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+        message = "Verification email sent. Please check your email.";
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+    }
+}

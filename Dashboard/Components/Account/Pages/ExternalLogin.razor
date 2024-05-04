@@ -1,0 +1,184 @@
+﻿@page "/Account/ExternalLogin"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using System.Text
+@using System.Text.Encodings.Web
+@using Dashboard.Client.Validation
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Dashboard.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<ExternalLogin> Logger
+
+<PageTitle>AO Dashboard - Register</PageTitle>
+
+<h1 class="title">Register</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+
+<p>
+    You've successfully signed in with your SJA account. Please can you check the form below and hit Register to finish.
+</p>
+<EditForm Enhance EditContext="editContext" Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="notification is-danger" role="alert" />
+    <AppText Name="real-name" Label="Name" @bind-Value="Input.RealName" For="() => Input.RealName" autocomplete="name" placeholder="Please enter your name." />
+    <AppText Name="email" Label="Email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="email" placeholder="Please enter your email address." />
+    <AppCheckBox Name="terms-of-service" @bind-Value="Input.TermsAccept" For="() => Input.TermsAccept">
+        I have read and agree to the <a href="/Terms">Terms of Service</a>.
+    </AppCheckBox>
+    <AppCheckBox Name="privacy-policy" @bind-Value="Input.PrivacyPolicyAccept" For="() => Input.PrivacyPolicyAccept">
+        I have read and accept the <a href="/Privacy">Privacy Policy</a>.
+    </AppCheckBox>
+    <SubmitButton Label="Register" />
+</EditForm>
+
+@code {
+    public const string LoginCallbackAction = "LoginCallback";
+    private EditContext? editContext;
+
+    private string? message;
+    private ExternalLoginInfo externalLoginInfo = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? RemoteError { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? Action { get; set; }
+
+    private string? ProviderDisplayName => externalLoginInfo.ProviderDisplayName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
+        if (RemoteError is not null)
+        {
+            Logger.User_Login_ExternalError(RemoteError);
+            RedirectManager.RedirectToWithStatus("Account/Login", "There was an error logging in.", HttpContext);
+        }
+
+        var info = await SignInManager.GetExternalLoginInfoAsync();
+        if (info is null)
+        {
+            RedirectManager.RedirectToWithStatus("Account/Login", "There was an error logging in.", HttpContext);
+        }
+
+        externalLoginInfo = info;
+
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            if (Action == LoginCallbackAction)
+            {
+                await OnLoginCallbackAsync();
+                return;
+            }
+
+            RedirectManager.RedirectTo("Account/Login");
+        }
+    }
+
+    private async Task OnLoginCallbackAsync()
+    {
+        // Sign in the user with this external login provider if the user already has a login.
+        var result = await SignInManager.ExternalLoginSignInAsync(
+            externalLoginInfo.LoginProvider,
+            externalLoginInfo.ProviderKey,
+            isPersistent: false,
+            bypassTwoFactor: true);
+
+        if (result.Succeeded)
+        {
+            Logger.User_Login_Success(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.User_Login_LockedOut(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+
+        // If the user does not have an account, then ask the user to create an account.
+        if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+        {
+            Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+        }
+
+        if (!string.IsNullOrWhiteSpace(externalLoginInfo.Principal.Identity?.Name))
+        {
+            Input.RealName = externalLoginInfo.Principal.Identity.Name;
+        }
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+        var user = new ApplicationUser();
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        user.RealName = Input.RealName;
+
+        var result = await UserManager.CreateAsync(user);
+        if (result.Succeeded)
+        {
+            result = await UserManager.AddLoginAsync(user, externalLoginInfo);
+            if (result.Succeeded)
+            {
+                Logger.User_Login_NewAccount(user.Id);
+
+                var userId = await UserManager.GetUserIdAsync(user);
+                var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                    NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+                    new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+                await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+                RedirectManager.RedirectTo("Account/RegisterConfirmation");
+            }
+        }
+
+        message = string.Join(",", result.Errors.Select(error => error.Description));
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter your email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter your email address.")]
+        [SjaEmail(ErrorMessage = "You need to enter an SJA email address.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "You need to enter your name.")]
+        public string RealName { get; set; } = "";
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the privacy policy.")]
+        public bool PrivacyPolicyAccept { get; set; }
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the terms of service.")]
+        public bool TermsAccept { get; set; }
+    }
+}

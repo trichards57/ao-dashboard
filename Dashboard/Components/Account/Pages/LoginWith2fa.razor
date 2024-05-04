@@ -1,0 +1,94 @@
+﻿@page "/Account/LoginWith2fa"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<LoginWith2fa> Logger
+
+<PageTitle>AO Dashboard - Sign In</PageTitle>
+
+<h1 class="title">Sign In</h1>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+<p>Your login is protected with an authenticator app. Enter your authenticator code below.</p>
+<EditForm EditContext="editContext" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-2fa" novalidate>
+    <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+    <input type="hidden" name="RememberMe" value="@RememberMe" />
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <AppText Name="two-factor-code" Label="Authenticator Code" @bind-Value="Input.TwoFactorCode" For="() => Input.TwoFactorCode" autocomplete="one-time-code" placeholder="Please enter your authenticator code." aria-required="true" />
+    <AppCheckBox Name="remember-machine" @bind-Value="Input.RememberMachine" For="() => Input.RememberMachine" type="checkbox">
+        Remember this machine
+    </AppCheckBox>
+    <div class="buttons">
+        <SubmitButton Label="Sign In" />
+        <a class="button is-link is-fullwidth" href="Account/LoginWithRecoveryCode?ReturnUrl=@ReturnUrl">Log In with a Recovery Code</a>
+    </div>
+</EditForm>
+
+
+@code {
+    private string? message;
+    private ApplicationUser user = default!;
+    private EditContext? editContext;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromQuery]
+    private bool RememberMe { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
+        // Ensure the user has gone through the username & password screen first
+        user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ??
+            throw new InvalidOperationException("Unable to load two-factor authentication user.");
+
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        var authenticatorCode = Input.TwoFactorCode!.Replace(" ", string.Empty).Replace("-", string.Empty);
+        var result = await SignInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, RememberMe, Input.RememberMachine);
+        var userId = await UserManager.GetUserIdAsync(user);
+
+        if (result.Succeeded)
+        {
+            Logger.User_Login_Success(userId);
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.User_Login_LockedOut(userId);
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            Logger.User_Login_BadRequest();
+            message = "The authenticator code was not valid.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter an authenticator code.")]
+        [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        public string? TwoFactorCode { get; set; }
+
+        public bool RememberMachine { get; set; }
+    }
+}

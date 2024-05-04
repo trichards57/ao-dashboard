@@ -1,0 +1,91 @@
+﻿@page "/Account/Manage/DeletePersonalData"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<DeletePersonalData> Logger
+
+<PageTitle>AO Dashboard - Delete Personal Data</PageTitle>
+
+<ManageLayout IsMicrosoftAccount="@isMicrosoftAccount">
+    <h2 class="title is-4">Delete Personal Data</h2>
+
+    <p class="block has-text-weight-bold">
+        Deleting this data will permanently remove your account, and this cannot be recovered.
+    </p>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="notification is-danger block">
+            @errorMessage
+        </div>
+    }
+
+    <EditForm Enhance EditContext="editContext" FormName="delete-user" OnValidSubmit="OnValidSubmitAsync" method="post" class="block">
+         <DataAnnotationsValidator />
+         <ValidationSummary class="notification is-danger" role="alert" />
+         @if (requirePassword)
+        {
+            <AppText Name="password" Label="Password" type="password" @bind-Value="Input.Password" For="() => Input.Password" autocomplete="current-password" placeholder="Please enter your password." />
+        }
+        <SubmitButton IsDanger Label="Delete data and close my account" />
+     </EditForm>
+ </ManageLayout>
+
+ @code {
+    private string? errorMessage;
+    private ApplicationUser user = default!;
+    private bool requirePassword;
+    private bool isMicrosoftAccount;
+    private EditContext? editContext;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        requirePassword = await UserManager.HasPasswordAsync(user);
+        var logins = await UserManager.GetLoginsAsync(user);
+        isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (requirePassword && !await UserManager.CheckPasswordAsync(user, Input.Password))
+        {
+            errorMessage = "You have entered the wrong password.";
+            return;
+        }
+
+        var result = await UserManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException("Unexpected error occurred deleting user.");
+        }
+
+        await SignInManager.SignOutAsync();
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        Logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
+
+        RedirectManager.RedirectToCurrentPage();
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter your current password.")]
+        public string Password { get; set; } = "";
+    }
+}

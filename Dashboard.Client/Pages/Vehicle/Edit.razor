@@ -1,0 +1,131 @@
+﻿@page "/vehicles/config/{Id:guid}"
+@using System.ComponentModel.DataAnnotations
+@using Dashboard.Client.Model
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Policy = "CanEditVehicles")]
+@rendermode InteractiveAuto
+
+@inject IVehicleService VehicleService
+@inject NavigationManager navigationManager
+
+<PageTitle>AO Dashboard - Edit @vehicle.Registration</PageTitle>
+
+<h1 class="title">Edit @vehicle.Registration</h1>
+
+<EditForm Model="vehicle" OnValidSubmit="SaveVehicle">
+    <DataAnnotationsValidator />
+    <div class="field">
+        <label class="label" for="call-sign">Call Sign</label>
+        <div class="control">
+            <InputText class="input" id="call-sign" @bind-Value="vehicle.CallSign" />
+        </div>
+        <ValidationMessage class="help is-danger" For="() => vehicle.CallSign" />
+    </div>
+    <div class="field">
+        <label class="label" for="registration">Registration</label>
+        <div class="control">
+            <InputText class="input" id="registration" @bind-Value="vehicle.Registration" disabled />
+        </div>
+        <ValidationMessage class="help is-danger" For="() => vehicle.Registration" />
+    </div>
+    <AppSelect Label="Vehicle Type" Name="vehicle-type" @bind-Value="vehicle.VehicleType" For="() => vehicle.VehicleType">
+        <option value="@VehicleType.Other">Other</option>
+        <option value="@VehicleType.FrontLineAmbulance">Front-Line Ambulance</option>
+        <option value="@VehicleType.AllWheelDrive">All Wheel Drive</option>
+        <option value="@VehicleType.OffRoadAmbulance">Off-Road Ambulance</option>
+    </AppSelect>
+    <AppSelect Label="Region" Name="region" @bind-Value="vehicle.Region" For="() => vehicle.Region">
+        <option value="@Region.Unknown">Unknown</option>
+        <option value="@Region.EastOfEngland">East of England</option>
+        <option value="@Region.EastMidlands">East Midlands</option>
+        <option value="@Region.London">London</option>
+        <option value="@Region.NorthEast">North East</option>
+        <option value="@Region.NorthWest">North West</option>
+        <option value="@Region.SouthEast">South East</option>
+        <option value="@Region.SouthWest">South West</option>
+        <option value="@Region.WestMidlands">West Midlands</option>
+    </AppSelect>
+    <div class="field">
+        <label class="label" for="district">District</label>
+        <div class="control">
+            <InputText class="input" id="district" @bind-Value="vehicle.District" />
+        </div>
+        <ValidationMessage class="help is-danger" For="() => vehicle.District" />
+    </div>
+    <div class="field">
+        <label class="label" for="hub">Hub</label>
+        <div class="control">
+            <InputText class="input" id="hub" @bind-Value="vehicle.Hub" />
+        </div>
+        <ValidationMessage class="help is-danger" For="() => vehicle.Hub" />
+    </div>
+    <div class="field">
+        <div class="control">
+            <label class="checkbox">
+                <InputCheckbox id="for-disposal" @bind-Value="vehicle.ForDisposal" />
+                For Disposal
+            </label>
+        </div>
+    </div>
+    <button class="button is-primary is-fullwidth" type="submit">Save</button>
+</EditForm>
+
+@code {
+    private InputClass vehicle = new InputClass();
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var data = await VehicleService.GetSettingsAsync(Id);
+
+        if (data == null)
+        {
+            navigationManager.NavigateTo("/vehicles/config");
+            return;
+        }
+
+        vehicle.CallSign = data.CallSign;
+        vehicle.Registration = data.Registration;
+        vehicle.Region = data.Region;
+        vehicle.District = data.District;
+        vehicle.Hub = data.Hub;
+        vehicle.VehicleType = data.VehicleType;
+        vehicle.ForDisposal = data.ForDisposal;
+    }
+
+    private async Task SaveVehicle()
+    {
+        var newData = new UpdateVehicleSettings
+            {
+                CallSign = vehicle.CallSign,
+                Registration = vehicle.Registration,
+                Region = vehicle.Region,
+                District = vehicle.District,
+                Hub = vehicle.Hub,
+                VehicleType = vehicle.VehicleType,
+                ForDisposal = vehicle.ForDisposal
+            };
+
+        await VehicleService.PutSettingsAsync(newData);
+
+        navigationManager.NavigateTo("/vehicles/config");
+    }
+
+    private class InputClass
+    {
+        [Required]
+        public string CallSign { get; set; } = "";
+        public string Registration { get; set; } = "";
+        public Region Region { get; set; } = Region.Unknown;
+        [Required]
+        public string District { get; set; } = "";
+        [Required]
+        public string Hub { get; set; } = "";
+        public VehicleType VehicleType { get; set; } = VehicleType.Other;
+        public bool ForDisposal { get; set; }
+    }
+}

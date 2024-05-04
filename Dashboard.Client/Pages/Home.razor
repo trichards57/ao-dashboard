@@ -1,0 +1,16 @@
+﻿@page "/home"
+
+@attribute [Authorize]
+@rendermode InteractiveAuto
+
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>AO Dashboard - Home</PageTitle>
+
+<h1 class="title">Home</h1>
+
+<AuthorizeView Policy="CanViewVOR">
+    <Authorized>
+        <HomeComponent />        
+    </Authorized>
+</AuthorizeView>

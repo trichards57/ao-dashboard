@@ -1,0 +1,83 @@
+﻿@page "/Account/LoginWithRecoveryCode"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityRedirectManager RedirectManager
+@inject ILogger<LoginWithRecoveryCode> Logger
+
+<PageTitle>AO Dashboard - Sign In</PageTitle>
+
+<h1 class="title">Sign In</h1>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="notification is-danger">
+        @message
+    </div>
+}
+<p>
+    You have requested to log in with a recovery code. This login will not be remembered until you provide
+    an authenticator app code at log in or disable two-factor authentication and log in again.
+</p>
+<EditForm EditContext="editContext" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-recovery-code">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="notification is-danger" role="alert" />
+    <AppText Name="recovery-code" Label="Recovery Code" @bind-Value="Input.RecoveryCode" For="() => Input.RecoveryCode" autocomplete="one-time-code" placeholder="Please enter your recovery code." aria-required="true" />
+    <SubmitButton Label="Sign In" />
+</EditForm>
+
+@code {
+    private string? message;
+    private ApplicationUser user = default!;
+    private EditContext? editContext;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
+        // Ensure the user has gone through the username & password screen first
+        user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ??
+            throw new InvalidOperationException("Unable to load two-factor authentication user.");
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        var recoveryCode = Input.RecoveryCode.Replace(" ", string.Empty);
+
+        var result = await SignInManager.TwoFactorRecoveryCodeSignInAsync(recoveryCode);
+
+        var userId = await UserManager.GetUserIdAsync(user);
+
+        if (result.Succeeded)
+        {
+            Logger.User_Login_Success(userId);
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.User_Login_LockedOut(userId);
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            Logger.User_Login_BadRequest();
+            message = "The recovery code was not valid.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter a recovery code.")]
+        public string RecoveryCode { get; set; } = "";
+    }
+}

@@ -1,0 +1,98 @@
+﻿@page "/vehicles/config"
+
+@attribute [Authorize(Policy = "CanEditVehicles")]
+@rendermode InteractiveAuto
+
+@using Dashboard.Client.Model
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+
+@inject NavigationManager navigationManager
+@inject IVehicleService vehicleService
+
+<PageTitle>AO Dashboard - Vehicle Setup</PageTitle>
+
+<h1 class="title">Vehicle Setup</h1>
+
+<PlacePicker />
+<div class="table-container">
+    <table class="table is-striped is-fullwidth">
+        <thead>
+            <tr>
+                <th class="edit-col"></th>
+                <th class="call-sign-col">Call Sign</th>
+                <th class="reg-col">Registration</th>
+                <th>Region</th>
+                <th>District</th>
+                <th>Hub</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (StatusesToDisplay.Any())
+            {
+                foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
+                {
+                    <tr>
+                        <td class="edit-col">
+                            <a href="/vehicles/config/@s.Id">
+                                <img class="fa-img" src="/img/fa/pen.svg" />
+                            </a>
+                        </td>
+                        <td class="call-sign-col">@s.CallSign</td>
+                        <td class="reg-col">@s.Registration</td>
+                        <td class="place-col">@s.Region</td>
+                        <td class="place-col">@s.District</td>
+                        <td class="place-col">@s.Hub</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="no-vehicles">No Vehicles</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (ShowPagination)
+{
+    <PagePicker Page="@(page)"
+                Pages="@((int)Math.Ceiling((float)StatusesToDisplay.Count()/PageSize))"
+                ChangePage="p => page = p" />
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public string Region { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string District { get; set; } = "all";
+
+    [SupplyParameterFromQuery]
+    public string Hub { get; set; } = "all";
+
+    private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
+
+    private IEnumerable<VehicleSettings> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
+                    .Where(v => string.IsNullOrWhiteSpace(filter)
+                        || v.CallSign.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase)
+                        || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+    private ICollection<VehicleSettings> statuses = new List<VehicleSettings>();
+    private int page;
+    private const int PageSize = 10;
+    private string filter = "";
+
+    private void SearchChanged(ChangeEventArgs e)
+    {
+        filter = e.Value?.ToString() ?? "";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        statuses = await vehicleService.GetSettingsAsync(Place).ToListAsync();
+    }
+
+    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
+}

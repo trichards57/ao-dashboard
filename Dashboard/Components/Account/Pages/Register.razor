@@ -1,0 +1,124 @@
+﻿@page "/Account/Register"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Dashboard.Client.Validation
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>AO Dashboard - Register</PageTitle>
+
+<h1 class="title">Register</h1>
+<StatusMessage Message="@Message" />
+<section class="block">
+    <h2 class="subtitle">Use your SJA Account</h2>
+    <form action="Account/PerformExternalLogin" method="post">
+        <AntiforgeryToken />
+        <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+        <div class="is-flex is-justify-content-center">
+            <button type="submit" class="button ms-login" name="provider" value="Microsoft" title="Sign in with Microsoft" />
+        </div>
+    </form>
+</section>
+<section class="block">
+    <EditForm EditContext="editContext" method="post" OnValidSubmit="RegisterUser" FormName="register" novalidate>
+        <DataAnnotationsValidator />
+        <ValidationSummary role="alert" class="notification is-danger" />
+        <AppText Name="email" Label="Email" type="email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="username" aria-required="true" placeholder="Please enter your email address" />
+        <AppText Name="password" Label="Password" type="password" @bind-Value="Input.Password" For="() => Input.Password" autocomplete="new-password" aria-required="true" placeholder="Please enter a password" />
+        <AppText Name="confirm-password" Label="Confirm Password" type="password" @bind-Value="Input.ConfirmPassword" For="() => Input.ConfirmPassword" autocomplete="new-password" aria-required="true" placeholder="Please confirm your password" />
+        <AppCheckBox Name="terms-of-service" @bind-Value="Input.TermsAccept" For="() => Input.TermsAccept">
+            I have read and agree to the <a href="/Terms">Terms of Service</a>.
+        </AppCheckBox>
+        <AppCheckBox Name="privacy-policy" @bind-Value="Input.PrivacyPolicyAccept" For="() => Input.PrivacyPolicyAccept">
+            I have read and accept the <a href="/Privacy">Privacy Policy</a>.
+        </AppCheckBox>
+        <SubmitButton Label="Register" />
+    </EditForm>
+</section>
+
+@code {
+    private IEnumerable<IdentityError>? identityErrors;
+    private EditContext? editContext;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+    }
+
+    public async Task RegisterUser(EditContext editContext)
+    {
+        var user = new ApplicationUser();
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = (IUserEmailStore<ApplicationUser>)UserStore;
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        var result = await UserManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        Logger.User_Login_NewAccount(user.Id);
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+        if (UserManager.Options.SignIn.RequireConfirmedAccount)
+        {
+            RedirectManager.RedirectTo("Account/RegisterConfirmation");
+        }
+
+        await SignInManager.SignInAsync(user, isPersistent: false);
+        RedirectManager.RedirectTo(ReturnUrl);
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "You need to enter your email address.")]
+        [EmailAddress(ErrorMessage = "You need to enter your email address.")]
+        [NonSjaEmail(ErrorMessage = "SJA email address holders must use 'Sign in with Microsoft'.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = ("You need to enter your password."))]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        public string Password { get; set; } = "";
+
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = "";
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the privacy policy.")]
+        public bool PrivacyPolicyAccept { get; set; }
+
+        [BooleanRequired(ErrorMessage = "You need to confirm that you have read and agree to the terms of service.")]
+        public bool TermsAccept { get; set; }
+
+    }
+}

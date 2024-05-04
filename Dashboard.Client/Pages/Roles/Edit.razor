@@ -1,0 +1,72 @@
+﻿@page "/roles/{id}/edit"
+@using Dashboard.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+@attribute [Authorize(Policy = "CanEditRoles")]
+
+@rendermode InteractiveAuto
+
+@inject NavigationManager NavigationManager
+@inject IRoleService RoleService
+
+<PageTitle>AO Dashboard - Edit @roleName</PageTitle>
+
+<h1 class="title">Edit @roleName</h1>
+
+    @if (showError)
+{
+    <div class="validation-message">There was an error updating the role.</div>
+}
+<EditForm Model="Input" method="post" OnValidSubmit="UpdateRole" FormName="roleUpdate">
+    <DataAnnotationsValidator />
+    <ValidationSummary role="alert" class="notification is-danger" />
+    <AppSelect Label="Vehicle Configuration" Name="vehicle-configuration" @bind-Value="Input.VehicleConfiguration" For="() => Input.VehicleConfiguration">
+        <option value="@ReadWrite.Deny">Deny</option>
+        <option value="@ReadWrite.Read">Read</option>
+        <option value="@ReadWrite.Write">Read/Write</option>
+    </AppSelect>
+    <AppSelect Label="VOR Data" Name="vor-data" @bind-Value="Input.VorData" For="() => Input.VorData">
+        <option value="@ReadWrite.Deny">Deny</option>
+        <option value="@ReadWrite.Read">Read</option>
+        <option value="@ReadWrite.Write">Read/Write</option>
+    </AppSelect>
+    <AppSelect Label="User Role" Name="user-role" @bind-Value="Input.Permissions" For="() => Input.Permissions">
+        <option value="@ReadWrite.Deny">Deny</option>
+        <option value="@ReadWrite.Read">Read</option>
+        <option value="@ReadWrite.Write">Read/Write</option>
+    </AppSelect>
+    <SubmitButton />
+</EditForm>
+
+@code {
+    private string roleName = default!;
+    private bool showError = false;
+
+    [Parameter]
+    public string Id { get; set; } = default!;
+
+    private RolePermissionsUpdate Input { get; set; } = new();
+
+    public async Task UpdateRole()
+    {
+        if (await RoleService.SetRolePermissions(Id, Input))
+        {
+            NavigationManager.NavigateTo("/roles");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var input = await RoleService.GetRolePermissions(Id);
+
+        if (input == null)
+        {
+            NavigationManager.NavigateTo("/roles");
+            return;
+        }
+
+        Input = new RolePermissionsUpdate { Permissions = input.Permissions, VehicleConfiguration = input.VehicleConfiguration, VorData = input.VorData };
+        roleName = input.Name;
+    }
+}

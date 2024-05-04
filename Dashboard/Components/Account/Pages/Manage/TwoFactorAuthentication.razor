@@ -1,0 +1,108 @@
+﻿@page "/Account/Manage/TwoFactorAuthentication"
+
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Identity
+@using Dashboard.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>AO Dashboard - Manage Two-Factor Authentication</PageTitle>
+
+<ManageLayout>
+    <h2 class="title is-4">Manage Two-Factor Authentication</h2>
+    @if (is2faEnabled)
+    {
+        <div class="block">
+            <h3 class="subtitle is-5">Two-Factor Authentication</h3>
+
+            @if (recoveryCodesLeft == 0)
+            {
+                <div class="notification is-danger">
+                    <p class="has-text-weight-bold">You have no recovery codes left.</p>
+                    <p>You must <a href="Account/Manage/GenerateRecoveryCodes">generate a new set of recovery codes</a> before you can log in with a recovery code.</p>
+                </div>
+            }
+            else if (recoveryCodesLeft == 1)
+            {
+                <div class="notification is-warning">
+                    <p class="has-text-weight-bold">You have 1 recovery code left.</p>
+                    <p>You can <a href="Account/Manage/GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
+                </div>
+            }
+            else if (recoveryCodesLeft <= 3)
+            {
+                <div class="notification is-info">
+                    <p class="has-text-weight-bold">You have @recoveryCodesLeft recovery codes left.</p>
+                    <p>You should <a href="Account/Manage/GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
+                </div>
+            }
+
+            <form @formname="forget-browser" @onsubmit="OnSubmitForgetBrowserAsync" method="post">
+                <AntiforgeryToken />
+                <div class="buttons">
+                    @if (isMachineRemembered)
+                    {
+                        <button type="submit" class="button is-warning is-fullwidth">Forget This Browser</button>
+                    }
+                    <a class="button is-warning is-fullwidth" href="Account/Manage/GenerateRecoveryCodes">Reset Recovery Codes</a>
+                    <a class="button is-danger is-fullwidth" href="Account/Manage/Disable2fa">Disable Two-Factor Authentication</a>
+                </div>
+            </form>
+        </div>
+    }
+
+    <div class="block">
+        <h3 class="subtitle is-5">Authenticator app</h3>
+        <div class="buttons">
+            @if (!hasAuthenticator)
+            {
+                <a class="button is-primary is-fullwidth" href="Account/Manage/EnableAuthenticator">Add Authenticator App</a>
+            }
+            else
+            {
+                <a class="button is-primary is-fullwidth" href="Account/Manage/EnableAuthenticator">Set Up Authenticator App</a>
+                <a class="button is-warning is-fullwidth" href="Account/Manage/ResetAuthenticator">Reset Authenticator App</a>
+            }
+        </div>
+    </div>
+</ManageLayout>
+
+@code {
+    private bool canTrack;
+    private bool hasAuthenticator;
+    private int recoveryCodesLeft;
+    private bool is2faEnabled;
+    private bool isMachineRemembered;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var logins = await UserManager.GetLoginsAsync(user);
+        var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+        if (isMicrosoftAccount)
+        {
+            NavigationManager.NavigateTo("/Account/Manage", new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+
+        canTrack = HttpContext.Features.Get<ITrackingConsentFeature>()?.CanTrack ?? true;
+        hasAuthenticator = await UserManager.GetAuthenticatorKeyAsync(user) is not null;
+        is2faEnabled = await UserManager.GetTwoFactorEnabledAsync(user);
+        isMachineRemembered = await SignInManager.IsTwoFactorClientRememberedAsync(user);
+        recoveryCodesLeft = await UserManager.CountRecoveryCodesAsync(user);
+    }
+
+    private async Task OnSubmitForgetBrowserAsync()
+    {
+        await SignInManager.ForgetTwoFactorClientAsync();
+
+        RedirectManager.RedirectToCurrentPage();
+    }
+}

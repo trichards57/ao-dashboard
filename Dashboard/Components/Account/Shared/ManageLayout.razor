@@ -1,0 +1,20 @@
+﻿@using Dashboard.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+
+<h1 class="title">Manage your profile</h1>
+<h2 class="subtitle">Change your account settings</h2>
+<ManageNavMenu IsMicrosoftAccount="@IsMicrosoftAccount" />
+
+@ChildContent
+
+@code {
+    [Parameter]
+    public bool IsMicrosoftAccount { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+}
+
