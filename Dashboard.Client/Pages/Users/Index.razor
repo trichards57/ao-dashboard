@@ -25,18 +25,29 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var r in users.OrderBy(r => r.Name))
+        @if (loading)
         {
             <tr>
-                <td>@r.Name</td>
-                <td>@(r.Role ?? "None")</td>
-                <td class="edit">
-                    @if (r.Id != userId)
-                    {
-                        <a href="/users/@r.Id/edit">Edit</a>
-                    }
+                <td colspan="3">
+                    <progress class="progress my-4" max="100">30%</progress>
                 </td>
             </tr>
+        }
+        else
+        {
+            @foreach (var r in users.OrderBy(r => r.Name))
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@(r.Role ?? "None")</td>
+                    <td class="edit">
+                        @if (r.Id != userId)
+                        {
+                            <a href="/users/@r.Id/edit">Edit</a>
+                        }
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
@@ -46,6 +57,7 @@
     private List<UserWithRole> users = new();
     private string userId = "";
     private PersistingComponentStateSubscription subscription;
+    private bool loading = false;
 
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
@@ -61,12 +73,9 @@
 
         var foundInState = PersistentComponentState.TryTakeFromJson<List<UserWithRole>>("users", out var state);
 
-        var items = (foundInState && state != null) ? state : await UserService.GetUsersWithRole().Where(r => r.Role != "Administrator" || isAdmin).ToListAsync();
-
-        foreach (var r in items)
-        {
-            users.Add(r);
-        }
+        loading = true;
+        users.AddRange((foundInState && state != null) ? state : await UserService.GetUsersWithRole().Where(r => r.Role != "Administrator" || isAdmin).ToListAsync());
+        loading = false;
     }
 
     private Task Persist()

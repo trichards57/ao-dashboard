@@ -69,7 +69,6 @@
     private int page;
     private const int PageSize = 10;
     private string filter = "";
-    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
     private bool loading = false;
 
     [SupplyParameterFromQuery]
@@ -81,9 +80,9 @@
     [SupplyParameterFromQuery]
     public string Hub { get; set; } = "all";
 
-    private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
+    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
 
-    private string StateKey => $"status-{Region}-{District}-{Hub}";
+    private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
 
     private IEnumerable<VorStatus> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
                     .Where(v => string.IsNullOrWhiteSpace(filter)
