@@ -113,7 +113,7 @@
 
         await UserManager.SetTwoFactorEnabledAsync(user, true);
         var userId = await UserManager.GetUserIdAsync(user);
-        Logger.User_EnabledTwoFactor(userId);
+        Logger.User_TwoFactor_Enabled(userId);
 
         message = "Your authenticator app has been verified.";
 

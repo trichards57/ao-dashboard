@@ -86,7 +86,7 @@
             new Dictionary<string, object?> { ["userId"] = userId, ["email"] = Input.NewEmail, ["code"] = code });
 
         await EmailSender.SendConfirmationLinkAsync(user, Input.NewEmail, HtmlEncoder.Default.Encode(callbackUrl));
-        Logger.User_EmailChangeRequested(userId);
+        Logger.User_Email_ChangeRequested(userId);
 
         message = "A confirmation link to change email sent. Please check your email and follow the link to finish the change.";
     }

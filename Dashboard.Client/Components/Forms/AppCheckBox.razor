@@ -1,0 +1,33 @@
+﻿@using System.Linq.Expressions
+
+<div class="field">
+    <div class="control">
+        <label class="checkbox" for="@Name">
+            <InputCheckbox Value="@Value" ValueChanged="@ValueChanged" ValueExpression="@For" id="@Name" type="checkbox" @attributes="@AdditionalAttributes" />@ChildContent
+        </label>
+    </div>
+    <ValidationMessage For="For" class="help is-danger" />
+</div>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    [Parameter]
+    public bool Value { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<bool> ValueChanged { get; set; } = default!;
+
+    [Parameter]
+    public Expression<Func<bool>> For { get; set; } = default!;
+
+    [Parameter]
+    public string Type { get; set; } = "text";
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}

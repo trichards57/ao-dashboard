@@ -19,16 +19,8 @@
 <EditForm Model="Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="resend-email-confirmation">
     <DataAnnotationsValidator />
     <ValidationSummary role="alert" class="notification is-danger" />
-    <div class="field">
-        <label class="label" for="email">Email</label>
-        <div class="control">
-            <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.Email" />
-    </div>
-    <div class="buttons">
-        <button class="button is-primary is-fullwidth" type="submit">Resend</button>
-    </div>
+    <AppText Name="email" Label="Email" type="email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="username" aria-required="true" placeholder="Please enter your email address" />
+    <SubmitButton Label="Resend" />
 </EditForm>
 
 @code {

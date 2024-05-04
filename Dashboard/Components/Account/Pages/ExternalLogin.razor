@@ -29,49 +29,25 @@
 }
 
 <p>
-    You've successfully sign in with your SJA account. Please can you check the form below and hit Register to finish.
+    You've successfully signed in with your SJA account. Please can you check the form below and hit Register to finish.
 </p>
-<EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
+<EditForm Enhance EditContext="editContext" Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
     <DataAnnotationsValidator />
-    <h2>Associate your Microsoft account</h2>
-    <ValidationSummary role="alert" class="notification is-danger" />
-    <div class="field">
-        <label class="label" for="email">Name</label>
-        <div class="control">
-            <InputText class="input" @bind-Value="Input.RealName" autocomplete="name" placeholder="Your Name" />
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.RealName" />
-    </div>
-    <div class="field">
-        <label class="label" for="email">Email</label>
-        <div class="control">
-            <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="email" placeholder="name@example.com" />
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.Email" />
-    </div>
-    <div class="field">
-        <div class="control">
-            <label class="checkbox">
-                <InputCheckbox @bind-Value="Input.TermsAccept" type="checkbox" /> I have read and agree to the <a href="/Terms">Terms of Service</a>.
-            </label>
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.TermsAccept" />
-    </div>
-    <div class="field">
-        <div class="control">
-            <label class="checkbox">
-                <InputCheckbox @bind-Value="Input.PrivacyPolicyAccept" type="checkbox" /> I have read and accept the <a href="/Privacy">Privacy Policy</a>.
-            </label>
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.PrivacyPolicyAccept" />
-    </div>
-    <div class="buttons">
-        <button type="submit" class="button is-primary is-fullwidth">Register</button>
-    </div>
+    <ValidationSummary class="notification is-danger" role="alert" />
+    <AppText Name="real-name" Label="Name" @bind-Value="Input.RealName" For="() => Input.RealName" autocomplete="name" placeholder="Please enter your name." />
+    <AppText Name="email" Label="Email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="email" placeholder="Please enter your email address." />
+    <AppCheckBox Name="terms-of-service" @bind-Value="Input.TermsAccept" For="() => Input.TermsAccept">
+        I have read and agree to the <a href="/Terms">Terms of Service</a>.
+    </AppCheckBox>
+    <AppCheckBox Name="privacy-policy" @bind-Value="Input.PrivacyPolicyAccept" For="() => Input.PrivacyPolicyAccept">
+        I have read and accept the <a href="/Privacy">Privacy Policy</a>.
+    </AppCheckBox>
+    <SubmitButton Label="Register" />
 </EditForm>
 
 @code {
     public const string LoginCallbackAction = "LoginCallback";
+    private EditContext? editContext;
 
     private string? message;
     private ExternalLoginInfo externalLoginInfo = default!;
@@ -95,8 +71,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        editContext = new(Input);
+        editContext.SetFieldCssClassProvider(new BulmaFieldCssClassProvider());
+
         if (RemoteError is not null)
         {
+            Logger.User_Login_ExternalError(RemoteError);
             RedirectManager.RedirectToWithStatus("Account/Login", "There was an error logging in.", HttpContext);
         }
 
@@ -131,14 +111,12 @@
 
         if (result.Succeeded)
         {
-            Logger.LogInformation(
-                "{Name} logged in with {LoginProvider} provider.",
-                externalLoginInfo.Principal.Identity?.Name,
-                externalLoginInfo.LoginProvider);
+            Logger.User_Login_Success(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
         {
+            Logger.User_Login_LockedOut(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
             RedirectManager.RedirectTo("Account/Lockout");
         }
 
@@ -169,7 +147,7 @@
             result = await UserManager.AddLoginAsync(user, externalLoginInfo);
             if (result.Succeeded)
             {
-                Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
+                Logger.User_Login_NewAccount(user.Id);
 
                 var userId = await UserManager.GetUserIdAsync(user);
                 var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);

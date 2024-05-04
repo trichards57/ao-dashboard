@@ -68,6 +68,6 @@
         recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
         message = "You have generated new recovery codes.";
 
-        Logger.User_RequestedRecoveryCodes(userId);
+        Logger.User_TwoFactor_RequestedRecoveryCodes(userId);
     }
 }

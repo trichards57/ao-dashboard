@@ -23,9 +23,9 @@
 <section class="block">
     <h2 class="subtitle">Use your SJA Account</h2>
     <form action="Account/PerformExternalLogin" method="post">
+        <AntiforgeryToken />
+        <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
         <div class="is-flex is-justify-content-center">
-            <AntiforgeryToken />
-            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
             <button type="submit" class="button ms-login" name="provider" value="Microsoft" title="Sign in with Microsoft" />
         </div>
     </form>
@@ -34,31 +34,14 @@
     <h2 class="subtitle">Use a Local Account</h2>
     <EditForm EditContext="editContext" method="post" OnValidSubmit="LoginUser" FormName="login" novalidate>
         <DataAnnotationsValidator />
-        <ValidationSummary role="alert" class="notification is-danger" />
-        <div class="field">
-            <label class="label" for="email">Email</label>
-            <div class="control">
-                <InputText class="input" type="email" @bind-Value="Input.Email" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-            </div>
-            <ValidationMessage class="help is-danger" For="() => Input.Email" />
-        </div>
-        <div class="field">
-            <label class="label" for="password">Password</label>
-            <div class="control">
-                <InputText class="input" type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="password" />
-            </div>
-            <ValidationMessage class="help is-danger" For="() => Input.Password" />
-        </div>
-        <div class="field">
-            <div class="control">
-                <label class="checkbox">
-                    <InputCheckbox @bind-Value="Input.RememberMe" />
-                    Remember me
-                </label>
-            </div>
-        </div>
+        <ValidationSummary class="notification is-danger" role="alert" />
+        <AppText Name="email" Label="Email" type="email" @bind-Value="Input.Email" For="() => Input.Email" autocomplete="username" aria-required="true" placeholder="Please enter your email address" />
+        <AppText Name="password" Label="Password" type="password" @bind-Value="Input.Password" For="() => Input.Password" autocomplete="current-password" aria-required="true" placeholder="Please enter your password" />
+        <AppCheckBox Name="remember-me" @bind-Value="Input.RememberMe" For="() => Input.RememberMe" type="checkbox">
+            Remember me
+        </AppCheckBox>
         <div class="buttons">
-            <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
+            <SubmitButton Label="Sign In" />
             <a class="button is-link is-fullwidth" href="Account/ForgotPassword">Forgot your password?</a>
             <a class="button is-link is-fullwidth" href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
             <a class="button is-link is-fullwidth" href="Account/ResendEmailConfirmation">Resend email confirmation</a>
@@ -104,7 +87,7 @@
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
         if (result.Succeeded)
         {
-            Logger.LogInformation("User logged in.");
+            Logger.User_Login_Success("");
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.RequiresTwoFactor)
@@ -115,11 +98,12 @@
         }
         else if (result.IsLockedOut)
         {
-            Logger.LogWarning("User account locked out.");
+            Logger.User_Login_LockedOut("");
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
+            Logger.User_Login_BadRequest();
             errorMessage = "Sign in failed.  That email address or password wasn't recognised.";
         }
     }

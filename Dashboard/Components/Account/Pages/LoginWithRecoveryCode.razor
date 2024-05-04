@@ -20,21 +20,13 @@
 }
 <p>
     You have requested to log in with a recovery code. This login will not be remembered until you provide
-    an authenticator app code at log in or disable 2FA and log in again.
+    an authenticator app code at log in or disable two-factor authentication and log in again.
 </p>
 <EditForm EditContext="editContext" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="login-with-recovery-code">
     <DataAnnotationsValidator />
     <ValidationSummary class="notification is-danger" role="alert" />
-    <div class="field">
-        <label class="label" for="recovery-code">Recovery Code</label>
-        <div class="control">
-            <InputText class="input" @bind-Value="Input.RecoveryCode" autocomplete="one-time-code" aria-required="true" />
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.RecoveryCode" />
-    </div>
-    <div class="buttons">
-        <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
-    </div>
+    <AppText Name="recovery-code" Label="Recovery Code" @bind-Value="Input.RecoveryCode" For="() => Input.RecoveryCode" autocomplete="one-time-code" placeholder="Please enter your recovery code." aria-required="true" />
+    <SubmitButton Label="Sign In" />
 </EditForm>
 
 @code {
@@ -68,17 +60,17 @@
 
         if (result.Succeeded)
         {
-            Logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", userId);
+            Logger.User_Login_Success(userId);
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
         {
-            Logger.LogWarning("User account locked out.");
+            Logger.User_Login_LockedOut(userId);
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
-            Logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", userId);
+            Logger.User_Login_BadRequest();
             message = "The recovery code was not valid.";
         }
     }

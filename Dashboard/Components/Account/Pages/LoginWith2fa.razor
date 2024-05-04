@@ -24,23 +24,12 @@
     <input type="hidden" name="RememberMe" value="@RememberMe" />
     <DataAnnotationsValidator />
     <ValidationSummary role="alert" class="notification is-danger" />
-    <div class="field">
-        <label class="label" for="two-factor-code">Authenticator Code</label>
-        <div class="control">
-            <InputText class="input" @bind-Value="Input.TwoFactorCode" autocomplete="one-time-code" aria-required="true" />
-        </div>
-        <ValidationMessage class="help is-danger" For="() => Input.TwoFactorCode" />
-    </div>
-    <div class="field">
-        <div class="control">
-            <label class="checkbox">
-                <InputCheckbox @bind-Value="Input.RememberMachine" />
-                Remember this machine
-            </label>
-        </div>
-    </div>
+    <AppText Name="two-factor-code" Label="Authenticator Code" @bind-Value="Input.TwoFactorCode" For="() => Input.TwoFactorCode" autocomplete="one-time-code" placeholder="Please enter your authenticator code." aria-required="true" />
+    <AppCheckBox Name="remember-machine" @bind-Value="Input.RememberMachine" For="() => Input.RememberMachine" type="checkbox">
+        Remember this machine
+    </AppCheckBox>
     <div class="buttons">
-        <button class="button is-primary is-fullwidth" type="submit">Sign in</button>
+        <SubmitButton Label="Sign In" />
         <a class="button is-link is-fullwidth" href="Account/LoginWithRecoveryCode?ReturnUrl=@ReturnUrl">Log In with a Recovery Code</a>
     </div>
 </EditForm>
@@ -79,17 +68,17 @@
 
         if (result.Succeeded)
         {
-            Logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", userId);
+            Logger.User_Login_Success(userId);
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
         {
-            Logger.LogWarning("User with ID '{UserId}' account locked out.", userId);
+            Logger.User_Login_LockedOut(userId);
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
-            Logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", userId);
+            Logger.User_Login_BadRequest();
             message = "The authenticator code was not valid.";
         }
     }

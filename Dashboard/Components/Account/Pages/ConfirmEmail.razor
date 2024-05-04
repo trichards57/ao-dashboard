@@ -7,6 +7,7 @@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
+@inject ILogger<ConfirmEmail> Logger
 
 <PageTitle>AO Dashboard - Confirm Your Email</PageTitle>
 
@@ -46,9 +47,12 @@
             var result = await UserManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
             {
+                Logger.User_Email_Confirmed(user.Id);
                 statusMessage = "Thank you for confirming your email.";
                 return;
             }
+
+            Logger.User_Email_BadConfirmationCode(user.Id);
         }
 
         statusMessage = "The confirmation link wasn't valid.  It may have expired.  Please try again.";
