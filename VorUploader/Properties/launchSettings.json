@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "AODashboard.VorUploader": {
+    "VorUploader": {
       "commandName": "Project",
       "workingDirectory": "C:\\Users\\trich\\OneDrive - St John Ambulance\\VOR"
     }
