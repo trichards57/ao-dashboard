@@ -25,7 +25,7 @@ internal static class Program
 
         builder.SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Environment.CurrentDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddUserSecrets<VorIncident>()
+            .AddUserSecrets<VorIncident>(true)
             .AddEnvironmentVariables();
 
         var configuration = builder.Build();

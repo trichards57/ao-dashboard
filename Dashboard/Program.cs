@@ -82,18 +82,8 @@ builder.Services.AddAuthentication(LocalScheme)
                 return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
             }
 
-            return CookieAuthenticationDefaults.AuthenticationScheme;
+            return IdentityConstants.ApplicationScheme;
         };
-    });
-
-builder.Services.AddAuthentication()
-    .AddCookie(o =>
-    {
-        o.Cookie.Name = "AO-Dashboard";
-        o.Cookie.IsEssential = true;
-        o.Cookie.HttpOnly = true;
-        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        o.Cookie.SameSite = SameSiteMode.Strict;
     });
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
