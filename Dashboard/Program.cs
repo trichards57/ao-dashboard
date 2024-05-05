@@ -12,12 +12,9 @@ using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OpenIddict.Validation;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
 
@@ -69,7 +66,26 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<AccountUserClaimsPrincipalFactory>();
 
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "Dashboard-Auth";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
 const string LocalScheme = "LocalScheme";
+
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.Name = "Dashboard-XSRF";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.Configure<CookieAuthenticationOptions>(
+    IdentityConstants.TwoFactorRememberMeScheme,
+    c => { c.Cookie.Name = "Dashboard-2FA"; });
+builder.Services.Configure<CookieAuthenticationOptions>(
+    IdentityConstants.TwoFactorUserIdScheme,
+    c => { c.Cookie.Name = "Dashboard-2FA-ID"; });
 
 builder.Services.AddAuthentication(LocalScheme)
     .AddPolicyScheme(LocalScheme, "Either Authorization bearer Header or Auth Cookie", o =>
