@@ -10,7 +10,7 @@ namespace VorUploader;
 /// <summary>
 /// Represents a VOR Incident reported in the VOR Report.
 /// </summary>
-public readonly record struct VorIncident
+public class VorIncident
 {
     /// <summary>
     /// Gets the vehicle's call-sign.

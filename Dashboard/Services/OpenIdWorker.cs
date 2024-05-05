@@ -26,7 +26,7 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
 
         var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-        if (await manager.FindByClientIdAsync("console", cancellationToken) == null)
+        if (await manager.FindByClientIdAsync(options.VorUploaderClientId, cancellationToken) == null)
         {
             await manager.CreateAsync(
                 new OpenIddictApplicationDescriptor
@@ -38,6 +38,8 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
                     {
                         Permissions.Endpoints.Token,
                         Permissions.GrantTypes.ClientCredentials,
+                        Permissions.Endpoints.Revocation,
+                        "vor:edit",
                     },
                 },
                 cancellationToken);

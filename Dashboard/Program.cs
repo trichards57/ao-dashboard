@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation;
 using OpenIddict.Validation.AspNetCore;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,13 +121,15 @@ builder.Services.AddOpenIddict()
     .AddCore(o =>
     {
         o.UseEntityFrameworkCore().UseDbContext<ApplicationDbContext>();
+        o.UseQuartz();
     })
     .AddServer(o =>
     {
         o.SetTokenEndpointUris("/connect/token");
+        o.SetRevocationEndpointUris("/connect/revoke");
         o.AllowClientCredentialsFlow();
-        o.AddDevelopmentEncryptionCertificate();
-        o.AddDevelopmentSigningCertificate();
+        o.AddEphemeralEncryptionKey();
+        o.AddEphemeralSigningKey();
         o.UseAspNetCore().EnableTokenEndpointPassthrough();
     })
     .AddValidation(o =>
@@ -137,6 +140,12 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddHostedService<OpenIdWorker>();
 builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+
+builder.Services.AddQuartz(o =>
+{
+    o.UseSimpleTypeLoader();
+    o.UseInMemoryStore();
+}).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 

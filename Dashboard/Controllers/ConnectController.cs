@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -49,6 +50,12 @@ public class ConnectController(IOpenIddictApplicationManager applicationManager,
                 roleType: Claims.Role);
             identity.SetClaim(Claims.Subject, await applicationManager.GetClientIdAsync(application));
             identity.SetClaim(Claims.Name, await applicationManager.GetDisplayNameAsync(application));
+
+            if (await applicationManager.HasPermissionAsync(application, "vor:edit"))
+            {
+                identity.AddClaim(UserClaims.VorData, UserClaims.Edit);
+            }
+
             identity.SetScopes(request.GetScopes());
             identity.SetResources(await scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
             identity.SetDestinations(GetDestinations);

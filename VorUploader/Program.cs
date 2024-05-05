@@ -5,11 +5,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using AODashboard.VorUploader;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Extensions.Msal;
+using Microsoft.Extensions.DependencyInjection;
+using OpenIddict.Client;
 using System.Globalization;
+using System.Net.Http.Json;
 using System.Reflection;
 
 namespace VorUploader;
@@ -19,59 +19,44 @@ namespace VorUploader;
 /// </summary>
 internal static class Program
 {
-    private static readonly string[] Scopes = ["openid", "api://ae7dee55-3f98-4bda-b5cf-7641de4a1776/VOR.Write"];
-
     private static async Task Main()
     {
         var builder = new ConfigurationBuilder();
 
         builder.SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Environment.CurrentDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddUserSecrets<VorIncident>()
             .AddEnvironmentVariables();
 
         var configuration = builder.Build();
 
-        var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-        {
-            Title = "AO Dashboard VOR Uploader",
-        };
+        var baseUri = new Uri(configuration["BaseUri"] ?? throw new InvalidOperationException("BaseUri not set in configuration."));
 
-        var storageProperties = new StorageCreationPropertiesBuilder(configuration["Authentication:CacheFileName"], Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VorUploader")).Build();
-
-        var client = PublicClientApplicationBuilder
-            .Create(configuration["AzureAD:ClientId"])
-            .WithTenantId(configuration["AzureAD:TenantId"])
-            .WithParentActivityOrWindow(ConsoleFunctions.GetConsoleOrTerminalWindow)
-            .WithBroker(brokerOptions)
-            .Build();
-
-        var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-        cacheHelper.RegisterCache(client.UserTokenCache);
-
-        AuthenticationResult? token = null;
-
-        var accountToLogin = (await client.GetAccountsAsync()).FirstOrDefault(a => a.Username.Contains("sja.org.uk", StringComparison.OrdinalIgnoreCase));
-
-        if (accountToLogin != null)
-        {
-            try
+        var services = new ServiceCollection();
+        services.AddOpenIddict()
+            .AddClient(o =>
             {
-                token = await client.AcquireTokenSilent(Scopes, accountToLogin).ExecuteAsync();
-            }
-            catch (MsalUiRequiredException)
-            {
-                token = null;
-            }
-        }
+                o.AllowClientCredentialsFlow();
+                o.DisableTokenStorage();
+                o.UseSystemNetHttp().SetProductInformation(typeof(Program).Assembly);
+                o.AddRegistration(new OpenIddict.Client.OpenIddictClientRegistration
+                {
+                    Issuer = baseUri,
+                    ClientId = configuration["OpenIdWorkerSettings:VorUploaderClientId"],
+                    ClientSecret = configuration["OpenIdWorkerSettings:VorUploaderClientSecret"],
+                });
+            });
 
-        token ??= await client.AcquireTokenInteractive(Scopes).ExecuteAsync();
+        await using var provider = services.BuildServiceProvider();
+
+        var token = await GetTokenAsync(provider);
 
         using var httpClient = new HttpClient()
         {
-            BaseAddress = new Uri(configuration["BaseUri"]!),
+            BaseAddress = baseUri,
         };
 
-        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.AccessToken);
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
         var vorUris = new Uri("/api/vor", UriKind.Relative);
 
@@ -110,6 +95,24 @@ internal static class Program
                 Directory.CreateDirectory(Path.Combine(dirPath, "Uploaded"));
                 File.Move(file, Path.Combine(dirPath, "Uploaded", Path.GetFileName(file)), true);
             }
+
         }
+
+        await CancelToken(provider, token);
+    }
+
+    static async Task<string> GetTokenAsync(IServiceProvider provider)
+    {
+        var service = provider.GetRequiredService<OpenIddictClientService>();
+
+        var result = await service.AuthenticateWithClientCredentialsAsync(new());
+        return result.AccessToken;
+    }
+
+    static async Task CancelToken(IServiceProvider provider, string token)
+    {
+        var service = provider.GetRequiredService<OpenIddictClientService>();
+
+        await service.RevokeTokenAsync(new() { Token = token });
     }
 }
