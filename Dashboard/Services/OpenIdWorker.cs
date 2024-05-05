@@ -1,0 +1,48 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="OpenIdWorker.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Dashboard.Data;
+using Microsoft.Extensions.Options;
+using OpenIddict.Abstractions;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+
+namespace Dashboard.Services;
+
+public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorkerSettings> options) : IHostedService
+{
+    private readonly IServiceProvider serviceProvider = serviceProvider;
+    private readonly OpenIdWorkerSettings options = options.Value;
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        await using var scope = serviceProvider.CreateAsyncScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.EnsureCreatedAsync(cancellationToken);
+
+        var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        if (await manager.FindByClientIdAsync("console", cancellationToken) == null)
+        {
+            await manager.CreateAsync(
+                new OpenIddictApplicationDescriptor
+                {
+                    ClientId = options.VorUploaderClientId,
+                    ClientSecret = options.VorUploaderClientSecret,
+                    DisplayName = "VOR Uploader",
+                    Permissions =
+                    {
+                        Permissions.Endpoints.Token,
+                        Permissions.GrantTypes.ClientCredentials,
+                    },
+                },
+                cancellationToken);
+        }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
