@@ -4,6 +4,7 @@
 @rendermode InteractiveAuto
 
 @using Dashboard.Client.Model
+@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
 @using Microsoft.AspNetCore.Authorization
 
@@ -14,7 +15,7 @@
 
 <h1 class="title">Vehicle Setup</h1>
 
-<PlacePicker />
+<PlacePicker Place="Place" />
 <div class="table-container">
     <table class="table is-striped is-fullwidth">
         <thead>
@@ -28,7 +29,15 @@
             </tr>
         </thead>
         <tbody>
-            @if (StatusesToDisplay.Any())
+            @if (loading)
+            {
+                <tr>
+                    <td colspan="6">
+                        <progress class="progress my-4" max="100">30%</progress>
+                    </td>
+                </tr>
+            }
+            else if (StatusesToDisplay.Any())
             {
                 foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
                 {
@@ -40,7 +49,7 @@
                         </td>
                         <td class="call-sign-col">@s.CallSign</td>
                         <td class="reg-col">@s.Registration</td>
-                        <td class="place-col">@s.Region</td>
+                        <td class="place-col">@RegionConverter.ToDisplayString(s.Region)</td>
                         <td class="place-col">@s.District</td>
                         <td class="place-col">@s.Hub</td>
                     </tr>
@@ -63,6 +72,12 @@
 }
 
 @code {
+    private ICollection<VehicleSettings> statuses = new List<VehicleSettings>();
+    private int page;
+    private const int PageSize = 10;
+    private string filter = "";
+    private bool loading = false;
+
     [SupplyParameterFromQuery]
     public string Region { get; set; } = "all";
 
@@ -71,6 +86,8 @@
 
     [SupplyParameterFromQuery]
     public string Hub { get; set; } = "all";
+    
+    private Place Place => new Place { Region = RegionConverter.ToRegion(Region ?? "all"), District = District ?? "all", Hub = Hub ?? "all" };
 
     private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
 
@@ -79,20 +96,10 @@
                         || v.CallSign.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase)
                         || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
-    private ICollection<VehicleSettings> statuses = new List<VehicleSettings>();
-    private int page;
-    private const int PageSize = 10;
-    private string filter = "";
-
-    private void SearchChanged(ChangeEventArgs e)
-    {
-        filter = e.Value?.ToString() ?? "";
-    }
-
     protected override async Task OnParametersSetAsync()
     {
+        loading = true;
         statuses = await vehicleService.GetSettingsAsync(Place).ToListAsync();
+        loading = false;
     }
-
-    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
 }

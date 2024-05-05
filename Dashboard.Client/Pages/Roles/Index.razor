@@ -27,21 +27,32 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var r in roles.OrderBy(r => r.Name))
+        @if (loading)
         {
             <tr>
-                <td>@r.Name</td>
-                <td>@r.VehicleConfiguration</td>
-                <td>@r.VorData</td>
-                <td>@r.Permissions</td>
-                <td>@(r.Name == "Administrator" ? "Write" : "Deny")</td>
-                <td class="edit">
-                    @if (r.Name != "Administrator")
-                    {
-                        <a href="/roles/@r.Id/edit">Edit</a>
-                    }
+                <td colspan="6">
+                    <progress class="progress my-4" max="100">30%</progress>
                 </td>
             </tr>
+        }
+        else
+        {
+            @foreach (var r in roles.OrderBy(r => r.Name))
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@r.VehicleConfiguration</td>
+                    <td>@r.VorData</td>
+                    <td>@r.Permissions</td>
+                    <td>@(r.Name == "Administrator" ? "Write" : "Deny")</td>
+                    <td class="edit">
+                        @if (r.Name != "Administrator")
+                        {
+                            <a href="/roles/@r.Id/edit">Edit</a>
+                        }
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
@@ -50,6 +61,7 @@
 {
     private List<RolePermissions> roles = new();
     private PersistingComponentStateSubscription subscription;
+    private bool loading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,7 +69,9 @@
 
         var foundInState = PersistentComponentState.TryTakeFromJson<List<RolePermissions>>("roles", out var state);
 
+        loading = true;
         roles.AddRange((foundInState && state != null) ? state : await RoleService.GetRoles().ToListAsync());
+        loading = false;
     }
 
     private Task Persist()

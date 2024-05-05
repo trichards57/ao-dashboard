@@ -4,6 +4,7 @@
 @rendermode InteractiveAuto
 
 @using Dashboard.Client.Model
+@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
 @using Microsoft.AspNetCore.Authorization
 
@@ -13,39 +14,47 @@
 
 <h1 class="title">Vehicle Status</h1>
 
-<PlacePicker />
+<PlacePicker Place="Place" />
 <div class="table-container">
     <table class="table is-striped is-fullwidth">
-    <thead>
-        <tr>
-            <th class="call-sign-col">Call Sign</th>
-            <th class="reg-col">Registration</th>
-            <th class="vor-col">Is VOR?</th>
-            <th class="due-back-col">Expected Back</th>
-            <th>Summary</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (StatusesToDisplay.Any())
-        {
-            foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
+        <thead>
+            <tr>
+                <th class="call-sign-col">Call Sign</th>
+                <th class="reg-col">Registration</th>
+                <th class="vor-col">Is VOR?</th>
+                <th class="due-back-col">Expected Back</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (loading)
             {
                 <tr>
-                    <td class="call-sign-col" title="@s.CallSign">@s.CallSign</td>
-                    <td class="reg-col">@s.Registration</td>
-                    <td class="vor-col"> <span class="@(s.IsVor ? "tag is-danger" : "tag is-success")">@(s.IsVor ? "Yes" : "No")</span></td>
-                    <td class="due-back-col">@s.DueBack?.ToString("d MMM yy")</td>
-                    <td class="summary" title="@s.Summary">@s.Summary</td>
+                    <td colspan="5">
+                        <progress class="progress my-4" max="100">30%</progress>
+                    </td>
                 </tr>
             }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" class="no-vehicles subtitle is-6">No Vehicles</td>
-            </tr>
-        }
-    </tbody>
+            else if (StatusesToDisplay.Any())
+            {
+                foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
+                {
+                    <tr>
+                        <td class="call-sign-col" title="@s.CallSign">@s.CallSign</td>
+                        <td class="reg-col">@s.Registration</td>
+                        <td class="vor-col"> <span class="@(s.IsVor ? "tag is-danger" : "tag is-success")">@(s.IsVor ? "Yes" : "No")</span></td>
+                        <td class="due-back-col">@s.DueBack?.ToString("d MMM yy")</td>
+                        <td class="summary" title="@s.Summary">@s.Summary</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="no-vehicles subtitle is-6">No Vehicles</td>
+                </tr>
+            }
+        </tbody>
     </table>
 </div>
 
@@ -57,6 +66,12 @@
 }
 
 @code {
+    private ICollection<VorStatus> statuses = new List<VorStatus>();
+    private int page;
+    private const int PageSize = 10;
+    private string filter = "";
+    private bool loading = false;
+
     [SupplyParameterFromQuery]
     public string Region { get; set; } = "all";
 
@@ -66,6 +81,8 @@
     [SupplyParameterFromQuery]
     public string Hub { get; set; } = "all";
 
+    private Place Place => new Place { Region = RegionConverter.ToRegion(Region ?? "all"), District = District ?? "all", Hub = Hub ?? "all" };
+
     private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
 
     private IEnumerable<VorStatus> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
@@ -73,14 +90,11 @@
                         || v.CallSign.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase)
                         || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
-    private ICollection<VorStatus> statuses = new List<VorStatus>();
-    private int page;
-    private const int PageSize = 10;
-    private string filter = "";
-    private Place Place => new Place { Region = Enum.Parse<Region>(Region ?? "all", true), District = District ?? "all", Hub = Hub ?? "all" };
 
     protected override async Task OnParametersSetAsync()
     {
+        loading = true;
         statuses = await VorService.GetVorStatusesAsync(Place).ToListAsync();
+        loading = false;
     }
 }

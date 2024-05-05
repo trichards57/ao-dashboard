@@ -31,7 +31,7 @@
 <p>
     You've successfully signed in with your SJA account. Please can you check the form below and hit Register to finish.
 </p>
-<EditForm Enhance EditContext="editContext" Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
+<EditForm Enhance EditContext="editContext" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
     <DataAnnotationsValidator />
     <ValidationSummary class="notification is-danger" role="alert" />
     <AppText Name="real-name" Label="Name" @bind-Value="Input.RealName" For="() => Input.RealName" autocomplete="name" placeholder="Please enter your name." />

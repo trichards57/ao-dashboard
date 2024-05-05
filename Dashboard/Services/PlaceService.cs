@@ -40,7 +40,7 @@ internal class PlaceService(IDbContextFactory<ApplicationDbContext> contextFacto
 
         foreach (var h in context.Vehicles
             .Where(c => c.Region == region && c.District == district && !c.Deleted.HasValue)
-            .Select(c => c.District).Distinct())
+            .Select(c => c.Hub).Distinct())
         {
             yield return h;
         }
