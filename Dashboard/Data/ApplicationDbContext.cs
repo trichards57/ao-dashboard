@@ -76,6 +76,8 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
                 NormalizedUserName = "TRICHARDS57@PM.ME",
                 UserName = "trichards57@pm.me",
                 RealName = "Tony Richards (Admin)",
+                ConcurrencyStamp = "ce3dc57d-0a22-4410-8415-9eef26c71fd8",
+                SecurityStamp = "4fb358dd-0aff-4c04-b217-e99be9af112f",
             });
 
         builder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string> { RoleId = adminGuid, UserId = adminUserGuid });

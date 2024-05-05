@@ -11,9 +11,15 @@ using Dashboard.Components;
 using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Validation;
+using OpenIddict.Validation.AspNetCore;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +52,10 @@ builder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    options.UseSqlServer(connectionString);
+    options.UseOpenIddict();
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
@@ -59,6 +68,33 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddUserManager<ApplicationUserManager>()
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<AccountUserClaimsPrincipalFactory>();
+
+const string LocalScheme = "LocalScheme";
+
+builder.Services.AddAuthentication(LocalScheme)
+    .AddPolicyScheme(LocalScheme, "Either Authorization bearer Header or Auth Cookie", o =>
+    {
+        o.ForwardDefaultSelector = c =>
+        {
+            var authHeader = c.Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader?.StartsWith("Bearer ") == true)
+            {
+                return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            }
+
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        };
+    });
+
+builder.Services.AddAuthentication()
+    .AddCookie(o =>
+    {
+        o.Cookie.Name = "AO-Dashboard";
+        o.Cookie.IsEssential = true;
+        o.Cookie.HttpOnly = true;
+        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        o.Cookie.SameSite = SameSiteMode.Strict;
+    });
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
 builder.Services.Configure<IdentityEmailSenderOptions>(builder.Configuration);
@@ -80,6 +116,36 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicies();
 });
+
+builder.Services.AddOpenIddict()
+    .AddCore(o =>
+    {
+        o.UseEntityFrameworkCore().UseDbContext<ApplicationDbContext>();
+        o.UseQuartz();
+    })
+    .AddServer(o =>
+    {
+        o.SetTokenEndpointUris("/connect/token");
+        o.SetRevocationEndpointUris("/connect/revoke");
+        o.AllowClientCredentialsFlow();
+        o.AddEphemeralEncryptionKey();
+        o.AddEphemeralSigningKey();
+        o.UseAspNetCore().EnableTokenEndpointPassthrough();
+    })
+    .AddValidation(o =>
+    {
+        o.UseLocalServer();
+        o.UseAspNetCore();
+    });
+
+builder.Services.AddHostedService<OpenIdWorker>();
+builder.Services.AddOptions<OpenIdWorkerSettings>().BindConfiguration("OpenIdWorkerSettings");
+
+builder.Services.AddQuartz(o =>
+{
+    o.UseSimpleTypeLoader();
+    o.UseInMemoryStore();
+}).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
