@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using BlazorApplicationInsights;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Components;
@@ -168,6 +169,11 @@ builder.Services.AddHealthChecks()
     .AddSqlServer(connectionString)
     .AddApplicationStatus()
     .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
+builder.Services.AddBlazorApplicationInsights(x =>
+{
+    x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
 
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],

@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using BlazorApplicationInsights;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -38,5 +39,10 @@ builder.Services.AddScoped(sp =>
     {
         BaseAddress = new Uri(builder.Configuration["HostUrl"] ?? throw new InvalidOperationException("No HostUrl configured.")),
     });
+
+builder.Services.AddBlazorApplicationInsights(x =>
+{
+    x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
 
 await builder.Build().RunAsync();
