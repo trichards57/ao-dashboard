@@ -52,7 +52,7 @@ internal class RoleService(HttpClient httpClient) : IRoleService
     /// <inheritdoc/>
     public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)
     {
-        var response = await httpClient.PutAsJsonAsync($"api/roles/{id}", permissions);
+        var response = await httpClient.PostAsJsonAsync($"api/roles/{id}", permissions);
 
         return response.IsSuccessStatusCode;
     }

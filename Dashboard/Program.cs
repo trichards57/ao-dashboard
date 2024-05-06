@@ -11,6 +11,7 @@ using Dashboard.Components;
 using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
+using HealthChecks.ApplicationStatus.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -153,6 +154,25 @@ builder.Services.AddQuartz(o =>
     o.UseInMemoryStore();
 }).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
+builder.Services.AddApplicationInsightsTelemetry(o =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        o.DeveloperMode = true;
+    }
+
+    o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString)
+    .AddApplicationStatus()
+    .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
+builder.Logging.AddApplicationInsights(
+    configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
+    configureApplicationInsightsLoggerOptions: (options) => { });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -164,14 +184,14 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.MapHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();

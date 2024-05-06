@@ -35,7 +35,7 @@ public class RoleController(IRoleService roleService) : ControllerBase
         return role;
     }
 
-    [HttpPut("{id}")]
+    [HttpPost("{id}")]
     public async Task<ActionResult> Put([Required] string id, [FromBody] RolePermissionsUpdate permissions)
     {
         if (await roleService.SetRolePermissions(id, permissions))

@@ -12,6 +12,15 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+if (builder.HostEnvironment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("appsettings.Development.json");
+}
+else if (builder.HostEnvironment.IsProduction())
+{
+    builder.Configuration.AddJsonFile("appsettings.Production.json");
+}
+
 builder.Services.AddAuthorizationCore(o =>
 {
     o.AddPolicies();

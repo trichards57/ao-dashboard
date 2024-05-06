@@ -7,6 +7,7 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<AnalysisLevel>latest-all</AnalysisLevel>
+		<UserSecretsId>b59e2c3a-e2e2-4c09-9678-2288854349e9</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
