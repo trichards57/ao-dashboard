@@ -5,12 +5,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Graph;
+using Microsoft.Graph.Models;
 using OpenIddict.Client;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace VorUploader;
 
@@ -19,6 +23,9 @@ namespace VorUploader;
 /// </summary>
 internal static class Program
 {
+    const string InboxId = "AAMkAGU0NTA2ODczLTYyZWEtNGZhNS04MDQ0LTIwMDFlMDQzN2M0ZQAuAAAAAAB20NTeTHozS4sqw68MW0ExAQBWg0hGD4wFSaUCnLIUVcwOAAAA-DKkAAA=";
+    const string VorFolderId = "AAMkAGU0NTA2ODczLTYyZWEtNGZhNS04MDQ0LTIwMDFlMDQzN2M0ZQAuAAAAAAB20NTeTHozS4sqw68MW0ExAQD7P9wa3zxsSruC4g1eWMZTAATImwK9AAA=";
+
     private static async Task Main()
     {
         var builder = new ConfigurationBuilder();
@@ -39,7 +46,7 @@ internal static class Program
                 o.AllowClientCredentialsFlow();
                 o.DisableTokenStorage();
                 o.UseSystemNetHttp().SetProductInformation(typeof(Program).Assembly);
-                o.AddRegistration(new OpenIddict.Client.OpenIddictClientRegistration
+                o.AddRegistration(new OpenIddictClientRegistration
                 {
                     Issuer = baseUri,
                     ClientId = configuration["OpenIdWorkerSettings:VorUploaderClientId"],
@@ -49,6 +56,7 @@ internal static class Program
 
         await using var provider = services.BuildServiceProvider();
 
+        // Get AO Dashboard Token
         var token = await GetTokenAsync(provider);
 
         using var httpClient = new HttpClient()
@@ -60,43 +68,113 @@ internal static class Program
 
         var vorUris = new Uri("/api/vor", UriKind.Relative);
 
-        foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.xls").OrderBy(f => f))
+        // Get a Microsoft Graph token
+        var scopes = new[] { "User.Read", "Mail.ReadWrite" };
+        var graphClientId = configuration["Authentication:Microsoft:ClientId"];
+        var tenantId = "91d037fb-4714-4fe8-b084-68c083b8193f";
+
+        var options = new InteractiveBrowserCredentialOptions()
         {
-            Console.WriteLine($"Found File - {file}");
+            TenantId = tenantId,
+            ClientId = graphClientId,
+            RedirectUri = new Uri("http://localhost/"),
+            LoginHint = "tony.richards1@sja.org.uk"
+        };
 
-            var fileDate = DateOnly.Parse(Path.GetFileNameWithoutExtension(file).Split(' ')[0], CultureInfo.CurrentCulture);
+        var interactiveCredential = new InteractiveBrowserCredential(options);
 
-            Console.WriteLine($"File Date  - {fileDate}");
+        using var graphClient = new GraphServiceClient(interactiveCredential, scopes);
 
-            var items = FileParser.ParseFile(file, fileDate);
+        var emails = await graphClient.Me.MailFolders[InboxId].Messages.GetAsync();
 
-            var count = 0;
-            HttpResponseMessage result;
-
-            do
+        if (emails?.Value != null)
+        {
+            foreach (var e in emails.Value.Where(e => e.Subject?.Equals("Daily VOR Report", StringComparison.OrdinalIgnoreCase) == true)) 
             {
-                if (count > 0)
+                var attachments = await graphClient.Me.Messages[e.Id].Attachments.GetAsync();
+                var attachment = attachments?.Value?.Find(a => a.Name?.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) == true);
+
+                if (attachment == null
+                    || e.ReceivedDateTime == null
+                    || attachment is not FileAttachment fa
+                    || fa.ContentBytes == null)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    continue;
                 }
 
-                result = await httpClient.PostAsJsonAsync(vorUris, items);
-                count++;
-            }
-            while (count < 3 && !result.IsSuccessStatusCode);
+                var fileDate = DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
+                Console.WriteLine($"Found File - Date: {e.ReceivedDateTime}");
 
-            if (!result.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Received Error : {result.StatusCode}");
-            }
-            else
-            {
-                var dirPath = Path.GetDirectoryName(file) ?? Environment.CurrentDirectory;
-                Directory.CreateDirectory(Path.Combine(dirPath, "Uploaded"));
-                File.Move(file, Path.Combine(dirPath, "Uploaded", Path.GetFileName(file)), true);
-            }
+                var tempFile = Path.GetRandomFileName();
+                await File.WriteAllBytesAsync(tempFile, fa.ContentBytes);
 
+                var items = FileParser.ParseFile(tempFile, fileDate);
+
+                var count = 0;
+                HttpResponseMessage result;
+
+                do
+                {
+                    if (count > 0)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                    }
+
+                    result = await httpClient.PostAsJsonAsync(vorUris, items);
+                    count++;
+                }
+                while (count < 3 && !result.IsSuccessStatusCode);
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Received Error : {result.StatusCode}");
+                }
+                else
+                {
+                    Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
+                    File.Move(tempFile, Path.Combine(Environment.CurrentDirectory, "Uploaded", $"{fileDate:o} VOR Report.xls"), true);
+                    await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
+                }
+            }
         }
+
+        //foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.xls").OrderBy(f => f))
+        //{
+        //    Console.WriteLine($"Found File - {file}");
+
+        //    var fileDate = DateOnly.Parse(Path.GetFileNameWithoutExtension(file).Split(' ')[0], CultureInfo.CurrentCulture);
+
+        //    Console.WriteLine($"File Date  - {fileDate}");
+
+        //    var items = FileParser.ParseFile(file, fileDate);
+
+        //    var count = 0;
+        //    HttpResponseMessage result;
+
+        //    do
+        //    {
+        //        if (count > 0)
+        //        {
+        //            await Task.Delay(TimeSpan.FromSeconds(5));
+        //        }
+
+        //        result = await httpClient.PostAsJsonAsync(vorUris, items);
+        //        count++;
+        //    }
+        //    while (count < 3 && !result.IsSuccessStatusCode);
+
+        //    if (!result.IsSuccessStatusCode)
+        //    {
+        //        Console.WriteLine($"Received Error : {result.StatusCode}");
+        //    }
+        //    else
+        //    {
+        //        var dirPath = Path.GetDirectoryName(file) ?? Environment.CurrentDirectory;
+        //        Directory.CreateDirectory(Path.Combine(dirPath, "Uploaded"));
+        //        File.Move(file, Path.Combine(dirPath, "Uploaded", Path.GetFileName(file)), true);
+        //    }
+
+        //}
 
         await CancelToken(provider, token);
     }
