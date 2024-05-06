@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using BlazorApplicationInsights;
+using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Components;
@@ -13,12 +14,14 @@ using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
 using HealthChecks.ApplicationStatus.DependencyInjection;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -165,15 +168,30 @@ builder.Services.AddApplicationInsightsTelemetry(o =>
     o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
 });
 
+builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
+
 builder.Services.AddHealthChecks()
     .AddSqlServer(connectionString)
     .AddApplicationStatus()
     .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
 
-builder.Services.AddBlazorApplicationInsights(x =>
-{
-    x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-});
+builder.Services.AddBlazorApplicationInsights(
+    x =>
+    {
+        x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    },
+    async a =>
+    {
+        var t = new TelemetryItem()
+        {
+            Tags = new Dictionary<string, object?> {
+                { "ai.cloud.role", "AO-Dashboard-Client" },
+                { "ai.cloud.roleInstance", "Server-" + (builder.Environment.IsDevelopment() ? "Development" : "Production") },
+            },
+        };
+
+        await a.AddTelemetryInitializer(t);
+    });
 
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],

@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using BlazorApplicationInsights;
+using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -40,9 +41,23 @@ builder.Services.AddScoped(sp =>
         BaseAddress = new Uri(builder.Configuration["HostUrl"] ?? throw new InvalidOperationException("No HostUrl configured.")),
     });
 
-builder.Services.AddBlazorApplicationInsights(x =>
-{
-    x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-});
+builder.Services.AddBlazorApplicationInsights(
+    x =>
+    {
+        x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    },
+    async a =>
+    {
+        var t = new TelemetryItem()
+        {
+            Tags = new Dictionary<string, object?>
+            {
+                { "ai.cloud.role", "AO-Dashboard-Client" },
+                { "ai.cloud.roleInstance", "client-" + (builder.HostEnvironment.IsDevelopment() ? "Development" : "Production") },
+            },
+        };
+
+        await a.AddTelemetryInitializer(t);
+    });
 
 await builder.Build().RunAsync();

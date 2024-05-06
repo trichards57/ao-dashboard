@@ -1,4 +1,7 @@
-﻿@implements IDisposable
+﻿@using BlazorApplicationInsights.Interfaces
+@using System.Security.Claims
+@implements IDisposable
+
 @inject NavigationManager NavigationManager
 
 @rendermode InteractiveAuto
@@ -90,6 +93,7 @@
     private string? Name { get; set; }
     private bool showMenu { get; set; }
     private bool showAccountDropdown { get; set; }
+    private ClaimsPrincipal user;
 
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
@@ -97,7 +101,7 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateTask;
-        var user = authState.User;
+        user = authState.User;
         Name = user.Identity?.Name;
 
         NavigationManager.LocationChanged += OnLocationChanged;
