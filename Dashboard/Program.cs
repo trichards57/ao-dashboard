@@ -5,21 +5,23 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using BlazorApplicationInsights;
+using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Components;
 using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
+using HealthChecks.ApplicationStatus.DependencyInjection;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OpenIddict.Validation;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +71,26 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<AccountUserClaimsPrincipalFactory>();
 
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "Dashboard-Auth";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
 const string LocalScheme = "LocalScheme";
+
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.Name = "Dashboard-XSRF";
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.Configure<CookieAuthenticationOptions>(
+    IdentityConstants.TwoFactorRememberMeScheme,
+    c => { c.Cookie.Name = "Dashboard-2FA"; });
+builder.Services.Configure<CookieAuthenticationOptions>(
+    IdentityConstants.TwoFactorUserIdScheme,
+    c => { c.Cookie.Name = "Dashboard-2FA-ID"; });
 
 builder.Services.AddAuthentication(LocalScheme)
     .AddPolicyScheme(LocalScheme, "Either Authorization bearer Header or Auth Cookie", o =>
@@ -82,18 +103,8 @@ builder.Services.AddAuthentication(LocalScheme)
                 return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
             }
 
-            return CookieAuthenticationDefaults.AuthenticationScheme;
+            return IdentityConstants.ApplicationScheme;
         };
-    });
-
-builder.Services.AddAuthentication()
-    .AddCookie(o =>
-    {
-        o.Cookie.Name = "AO-Dashboard";
-        o.Cookie.IsEssential = true;
-        o.Cookie.HttpOnly = true;
-        o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        o.Cookie.SameSite = SameSiteMode.Strict;
     });
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
@@ -147,6 +158,45 @@ builder.Services.AddQuartz(o =>
     o.UseInMemoryStore();
 }).AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
+builder.Services.AddApplicationInsightsTelemetry(o =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        o.DeveloperMode = true;
+    }
+
+    o.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+builder.Services.AddSingleton<ITelemetryInitializer, AppInsightsTelemetryInitializer>();
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString)
+    .AddApplicationStatus()
+    .AddApplicationInsightsPublisher(builder.Configuration["ApplicationInsights:ConnectionString"]);
+
+builder.Services.AddBlazorApplicationInsights(
+    x =>
+    {
+        x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    },
+    async a =>
+    {
+        var t = new TelemetryItem()
+        {
+            Tags = new Dictionary<string, object?> {
+                { "ai.cloud.role", "AO-Dashboard-Client" },
+                { "ai.cloud.roleInstance", "Server-" + (builder.Environment.IsDevelopment() ? "Development" : "Production") },
+            },
+        };
+
+        await a.AddTelemetryInitializer(t);
+    });
+
+builder.Logging.AddApplicationInsights(
+    configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
+    configureApplicationInsightsLoggerOptions: (options) => { });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -158,14 +208,14 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.MapHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();

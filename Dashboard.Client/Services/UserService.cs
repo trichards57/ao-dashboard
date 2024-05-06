@@ -53,7 +53,7 @@ internal class UserService(HttpClient httpClient) : IUserService
     /// <inheritdoc/>
     public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
     {
-        var response = await httpClient.PutAsJsonAsync($"api/users/{id}", role);
+        var response = await httpClient.PostAsJsonAsync($"api/users/{id}", role);
 
         return response.IsSuccessStatusCode;
     }

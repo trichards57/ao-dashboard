@@ -58,7 +58,7 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
     /// <param name="id">The ID of the user.</param>
     /// <param name="role">The user's role.</param>
     /// <returns>The outcome of the result.</returns>
-    [HttpPut("{id}")]
+    [HttpPost("{id}")]
     [Authorize(Policy = "CanEditUsers")]
     public async Task<ActionResult> Put([Required] string id, [FromBody] UserRoleUpdate role)
     {

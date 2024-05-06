@@ -5,12 +5,23 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using BlazorApplicationInsights;
+using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+if (builder.HostEnvironment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("appsettings.Development.json");
+}
+else if (builder.HostEnvironment.IsProduction())
+{
+    builder.Configuration.AddJsonFile("appsettings.Production.json");
+}
 
 builder.Services.AddAuthorizationCore(o =>
 {
@@ -28,6 +39,25 @@ builder.Services.AddScoped(sp =>
     new HttpClient
     {
         BaseAddress = new Uri(builder.Configuration["HostUrl"] ?? throw new InvalidOperationException("No HostUrl configured.")),
+    });
+
+builder.Services.AddBlazorApplicationInsights(
+    x =>
+    {
+        x.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+    },
+    async a =>
+    {
+        var t = new TelemetryItem()
+        {
+            Tags = new Dictionary<string, object?>
+            {
+                { "ai.cloud.role", "AO-Dashboard-Client" },
+                { "ai.cloud.roleInstance", "client-" + (builder.HostEnvironment.IsDevelopment() ? "Development" : "Production") },
+            },
+        };
+
+        await a.AddTelemetryInitializer(t);
     });
 
 await builder.Build().RunAsync();
