@@ -38,6 +38,8 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
     /// </summary>
     public DbSet<AuditLog> Log { get; set; }
 
+    public DbSet<UserInvite> UserInvites { get; set; }
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -88,5 +90,15 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
 
         builder.Entity<KeyDates>()
             .HasData(new KeyDates { Id = 1, LastUpdateFile = new DateOnly(1990, 1, 1) });
+
+        builder.Entity<UserInvite>()
+            .HasIndex(v => v.Email)
+            .IsUnique();
+        builder.Entity<UserInvite>()
+            .HasOne(u => u.Role).WithMany().HasForeignKey(i => i.RoleId).OnDelete(DeleteBehavior.SetNull);
+        builder.Entity<UserInvite>()
+            .HasOne(u => u.CreatedBy).WithMany().HasForeignKey(i => i.CreatedById).OnDelete(DeleteBehavior.SetNull);
+        builder.Entity<UserInvite>()
+            .Property(u => u.Created).HasDefaultValueSql("GETUTCDATE()");
     }
 }
