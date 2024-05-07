@@ -1,4 +1,11 @@
-﻿@use "bulma/sass";
+﻿$sja-green: #009F4D;
+$sja-dark-green: #007A53;
+$sja-yellow: #E1E000;
+$sja-gray: #97999B;
+$sja-font: "Whitney Book", Arial, sans-serif;
+$sja-title-font: "Whitney SemiBold", Arial, sans-serif;
+
+@use "bulma/sass" with ( $primary: $sja-green, $link: $sja-dark-green, $warning: $sja-yellow, $danger: darkred, $family-primary: $sja-font, $title-family: $sja-title-font );
 
 .ms-login {
     background-image: url("/img/ms-sign-in.svg");
@@ -52,4 +59,3 @@
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
-
