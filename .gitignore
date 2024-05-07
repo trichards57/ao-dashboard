@@ -401,3 +401,7 @@ FodyWeavers.xsd
 /Dashboard/Dashboard/wwwroot/css/app.css.map
 /Dashboard/appsettings.Production.json
 /Dashboard/update.sql
+/Dashboard/wwwroot/css/app.css
+/Dashboard/wwwroot/css/app.css.map
+/Dashboard/wwwroot/css/app.min.css
+/Dashboard/wwwroot/css/app.min.css.map

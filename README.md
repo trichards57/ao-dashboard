@@ -127,7 +127,7 @@ This project provides a dashboard to support managing ambulances.  Current funct
 ## Roadmap
 
 * [x] Vehicle Configuration
-* [ ] VOR Status Display
+* [x] VOR Status Display
 * [ ] Upcoming Workload Display
 * [ ] Vehicle Booking Clashes
 * [ ] Capacity Warnings

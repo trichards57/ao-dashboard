@@ -1,10 +1,23 @@
 {
   "dependencies": {
+    "@fullhuman/postcss-purgecss": "^6.0.0",
+    "autoprefixer": "^10.4.19",
     "bulma": "^1.0.0",
+    "cssnano": "^7.0.1",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
     "sass": "^1.75.0"
   },
   "scripts": {
     "build-bulma": "sass --load-path=node_modules wwwroot/css/app.scss wwwroot/css/app.css",
-    "start": "npm run build-bulma -- --watch"
+    "start": "npm run build-bulma -- --watch",
+    "postcss": "postcss wwwroot/css/app.css -o wwwroot/css/app.min.css"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
   }
 }
