@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Dashboard.Data;
@@ -40,6 +42,8 @@ internal sealed class Incident
     /// <summary>
     /// Gets or sets the ID of the incident.
     /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
     /// <summary>
@@ -51,6 +55,7 @@ internal sealed class Incident
     /// Gets or sets the vehicle the incident is associated with.
     /// </summary>
     [NotNull]
+    [ForeignKey(nameof(VehicleId))]
     public Vehicle? Vehicle { get; set; }
 
     /// <summary>

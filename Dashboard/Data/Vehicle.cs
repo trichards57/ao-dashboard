@@ -61,6 +61,8 @@ internal sealed class Vehicle
     /// <summary>
     /// Gets or sets the vehicle's internal ID.
     /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
     /// <summary>
@@ -81,11 +83,13 @@ internal sealed class Vehicle
     /// <summary>
     /// Gets or sets the vehicle's make.
     /// </summary>
+    [MaxLength(25)]
     public string Make { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the vehicle's model.
     /// </summary>
+    [MaxLength(25)]
     public string Model { get; set; } = "";
 
     /// <summary>

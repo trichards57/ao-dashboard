@@ -62,6 +62,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
+        options.Stores.MaxLengthForKeys = 128;
         options.SignIn.RequireConfirmedAccount = true;
     })
     .AddRoles<IdentityRole>()
@@ -193,9 +194,12 @@ builder.Services.AddBlazorApplicationInsights(
         await a.AddTelemetryInitializer(t);
     });
 
-builder.Logging.AddApplicationInsights(
-    configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
-    configureApplicationInsightsLoggerOptions: (options) => { });
+if (!string.IsNullOrWhiteSpace(builder.Configuration["ApplicationInsights:ConnectionString"]))
+{
+    builder.Logging.AddApplicationInsights(
+        configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
+        configureApplicationInsightsLoggerOptions: (options) => { });
+}
 
 var app = builder.Build();
 
