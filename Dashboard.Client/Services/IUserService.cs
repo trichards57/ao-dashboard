@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Model;
+
 namespace Dashboard.Client.Services;
 
 /// <summary>
@@ -12,6 +14,9 @@ namespace Dashboard.Client.Services;
 /// </summary>
 public interface IUserService
 {
+    Task CancelInvite(string email);
+    IAsyncEnumerable<UserInviteSummary> GetAllInvites();
+
     /// <summary>
     /// Gets all of the users with their roles.
     /// </summary>
@@ -24,6 +29,7 @@ public interface IUserService
     /// <param name="id">The ID of the user.</param>
     /// <returns>The user and their role.</returns>
     Task<UserWithRole?> GetUserWithRole(string id);
+    Task<bool> InviteUser(UserInviteRequest request, string invitingUserId);
 
     /// <summary>
     /// Updates the role of a user.

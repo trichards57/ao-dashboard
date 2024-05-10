@@ -5,11 +5,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client;
+using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Data;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;
 
@@ -17,10 +17,11 @@ namespace Dashboard.Services;
 /// Server-side service for managing roles.
 /// </summary>
 /// <param name="roleManager">The role manager to use.</param>
-internal class UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : IUserService
+internal class UserService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : IUserService
 {
     private readonly RoleManager<IdentityRole> roleManager = roleManager;
     private readonly UserManager<ApplicationUser> userManager = userManager;
+    private readonly ApplicationDbContext context = context;
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<UserWithRole> GetUsersWithRole()
@@ -84,4 +85,48 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
 
         return true;
     }
+
+    /// <inheritdoc/>
+    public async Task<bool> InviteUser(UserInviteRequest request, string invitingUserId)
+    {
+        var invite = new UserInvite
+        {
+            CreatedById = invitingUserId,
+            Email = request.Email,
+            RoleId = request.RoleId,
+        };
+
+        try
+        {
+            context.Add(invite);
+            await context.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException)
+        {
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task CancelInvite(string email)
+    {
+        var invite = await context.UserInvites.FirstOrDefaultAsync(i => i.Email == email);
+
+        if (invite != null)
+        {
+            context.Remove(invite);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    /// <inheritdoc/>
+    public IAsyncEnumerable<UserInviteSummary> GetAllInvites() => context.UserInvites.Select(s => new UserInviteSummary
+    {
+        Id = s.Id,
+        Email = s.Email,
+        Redeemed = s.Accepted.HasValue,
+        Created = s.Created,
+        CreatedBy = s.CreatedBy.RealName,
+    }).AsAsyncEnumerable();
 }

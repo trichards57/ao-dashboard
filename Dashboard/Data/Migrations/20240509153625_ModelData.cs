@@ -1,139 +1,144 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿// -----------------------------------------------------------------------
+// <copyright file="20240509153625_ModelData.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Dashboard.Migrations
+namespace Dashboard.Migrations;
+
+/// <inheritdoc />
+public partial class ModelData : Migration
 {
     /// <inheritdoc />
-    public partial class ModelData : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<string>(
-                name: "Model",
-                table: "Vehicles",
-                type: "nvarchar(25)",
-                maxLength: 25,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+        migrationBuilder.AlterColumn<string>(
+            name: "Model",
+            table: "Vehicles",
+            type: "nvarchar(25)",
+            maxLength: 25,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Make",
-                table: "Vehicles",
-                type: "nvarchar(25)",
-                maxLength: 25,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+        migrationBuilder.AlterColumn<string>(
+            name: "Make",
+            table: "Vehicles",
+            type: "nvarchar(25)",
+            maxLength: 25,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
 
-            migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserTokens", table: "AspNetUserTokens");
-            migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserLogins", table: "AspNetUserLogins");
+        migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserTokens", table: "AspNetUserTokens");
+        migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserLogins", table: "AspNetUserLogins");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "AspNetUserTokens",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
+        migrationBuilder.AlterColumn<string>(
+            name: "Name",
+            table: "AspNetUserTokens",
+            type: "nvarchar(128)",
+            maxLength: 128,
+            nullable: false,
+            oldClrType: typeof(string),
             oldType: "nvarchar(450)");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "LoginProvider",
-                table: "AspNetUserTokens",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
+        migrationBuilder.AlterColumn<string>(
+            name: "LoginProvider",
+            table: "AspNetUserTokens",
+            type: "nvarchar(128)",
+            maxLength: 128,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(450)");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "ProviderKey",
-                table: "AspNetUserLogins",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
+        migrationBuilder.AlterColumn<string>(
+            name: "ProviderKey",
+            table: "AspNetUserLogins",
+            type: "nvarchar(128)",
+            maxLength: 128,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(450)");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "LoginProvider",
-                table: "AspNetUserLogins",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
+        migrationBuilder.AlterColumn<string>(
+            name: "LoginProvider",
+            table: "AspNetUserLogins",
+            type: "nvarchar(128)",
+            maxLength: 128,
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(450)");
 
-            migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", ["UserId", "LoginProvider", "Name"]);
-            migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", ["LoginProvider", "ProviderKey"]);
-        }
+        migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", ["UserId", "LoginProvider", "Name"]);
+        migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", ["LoginProvider", "ProviderKey"]);
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<string>(
-                name: "Model",
-                table: "Vehicles",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(25)",
-                oldMaxLength: 25);
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.AlterColumn<string>(
+            name: "Model",
+            table: "Vehicles",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(25)",
+            oldMaxLength: 25);
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Make",
-                table: "Vehicles",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(25)",
-                oldMaxLength: 25);
+        migrationBuilder.AlterColumn<string>(
+            name: "Make",
+            table: "Vehicles",
+            type: "nvarchar(max)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(25)",
+            oldMaxLength: 25);
 
-            migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserTokens", table: "AspNetUserTokens");
-            migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserLogins", table: "AspNetUserLogins");
+        migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserTokens", table: "AspNetUserTokens");
+        migrationBuilder.DropPrimaryKey(name: "PK_AspNetUserLogins", table: "AspNetUserLogins");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "AspNetUserTokens",
-                type: "nvarchar(450)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
+        migrationBuilder.AlterColumn<string>(
+            name: "Name",
+            table: "AspNetUserTokens",
+            type: "nvarchar(450)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(128)",
+            oldMaxLength: 128);
 
-            migrationBuilder.AlterColumn<string>(
-                name: "LoginProvider",
-                table: "AspNetUserTokens",
-                type: "nvarchar(450)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
+        migrationBuilder.AlterColumn<string>(
+            name: "LoginProvider",
+            table: "AspNetUserTokens",
+            type: "nvarchar(450)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(128)",
+            oldMaxLength: 128);
 
-            migrationBuilder.AlterColumn<string>(
-                name: "ProviderKey",
-                table: "AspNetUserLogins",
-                type: "nvarchar(450)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
+        migrationBuilder.AlterColumn<string>(
+            name: "ProviderKey",
+            table: "AspNetUserLogins",
+            type: "nvarchar(450)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(128)",
+            oldMaxLength: 128);
 
-            migrationBuilder.AlterColumn<string>(
-                name: "LoginProvider",
-                table: "AspNetUserLogins",
-                type: "nvarchar(450)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
+        migrationBuilder.AlterColumn<string>(
+            name: "LoginProvider",
+            table: "AspNetUserLogins",
+            type: "nvarchar(450)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(128)",
+            oldMaxLength: 128);
 
-            migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", ["UserId", "LoginProvider", "Name"]);
-            migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", ["LoginProvider", "ProviderKey"]);
-        }
+        migrationBuilder.AddPrimaryKey("PK_AspNetUserTokens", "AspNetUserTokens", ["UserId", "LoginProvider", "Name"]);
+        migrationBuilder.AddPrimaryKey("PK_AspNetUserLogins", "AspNetUserLogins", ["LoginProvider", "ProviderKey"]);
     }
 }

@@ -185,7 +185,8 @@ builder.Services.AddBlazorApplicationInsights(
     {
         var t = new TelemetryItem()
         {
-            Tags = new Dictionary<string, object?> {
+            Tags = new Dictionary<string, object?>
+            {
                 { "ai.cloud.role", "AO-Dashboard-Client" },
                 { "ai.cloud.roleInstance", "Server-" + (builder.Environment.IsDevelopment() ? "Development" : "Production") },
             },

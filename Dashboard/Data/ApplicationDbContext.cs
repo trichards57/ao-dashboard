@@ -38,6 +38,9 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
     /// </summary>
     public DbSet<AuditLog> Log { get; set; }
 
+    /// <summary>
+    /// Gets or sets the user invitations.
+    /// </summary>
     public DbSet<UserInvite> UserInvites { get; set; }
 
     /// <inheritdoc/>

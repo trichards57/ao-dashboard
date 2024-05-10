@@ -5,14 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Data;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Dashboard.Controllers;
 
@@ -75,5 +75,38 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
         }
 
         return NotFound();
+    }
+
+    /// <summary>
+    /// Gets all of the invited users.
+    /// </summary>
+    /// <returns>The user invites.</returns>
+    [HttpGet("invites")]
+    public IAsyncEnumerable<UserInviteSummary> GetInvites() => userService.GetAllInvites();
+
+    /// <summary>
+    /// Adds a user to the invitation list with the provided role.
+    /// </summary>
+    /// <param name="invite">The invite to add.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the request.</returns>
+    [HttpPost("invites")]
+    public async Task<ActionResult> AddInvite([FromBody] UserInviteRequest invite)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User ID not found.");
+
+        return await userService.InviteUser(invite, userId) ? Ok() : StatusCode(StatusCodes.Status500InternalServerError);
+    }
+
+    /// <summary>
+    /// Cancels a user's invitation.
+    /// </summary>
+    /// <param name="user">The invitation to cancel.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the request.</returns>
+    [HttpPost("cancelInvite")]
+    public async Task<ActionResult> CancelInvite([FromBody] UserInviteCancel user)
+    {
+        await userService.CancelInvite(user.Email);
+
+        return NoContent();
     }
 }

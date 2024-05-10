@@ -12,11 +12,15 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Dashboard.Services;
 
+/// <summary>
+/// Worker that registers the VOR uploader with the OIDC service.
+/// </summary>
 public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorkerSettings> options) : IHostedService
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly OpenIdWorkerSettings options = options.Value;
 
+    /// <inheritdoc/>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
@@ -46,5 +50,6 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
         }
     }
 
+    /// <inheritdoc/>
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
