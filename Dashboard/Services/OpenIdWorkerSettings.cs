@@ -1,9 +1,24 @@
-﻿namespace Dashboard.Services
-{
-    public class OpenIdWorkerSettings
-    {
-        public required string VorUploaderClientId { get; set; } // = "4E16A3B8-78B8-45B8-93A3-FCDD194544D8";
+﻿// -----------------------------------------------------------------------
+// <copyright file="OpenIdWorkerSettings.cs" company="Tony Richards">
+// Copyright (c) Tony Richards. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// -----------------------------------------------------------------------
 
-        public string VorUploaderClientSecret { get; set; } // = "09111D39-B5A3-4719-AF4A-EE768DD81990";
-    }
+namespace Dashboard.Services;
+
+/// <summary>
+/// Represents the settings for the built-in Open ID clients.
+/// </summary>
+public class OpenIdWorkerSettings
+{
+    /// <summary>
+    /// Gets or sets the ID for the VOR Uploader.
+    /// </summary>
+    public required string VorUploaderClientId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the secret for the VOR Uploader.
+    /// </summary>
+    public required string VorUploaderClientSecret { get; set; }
 }

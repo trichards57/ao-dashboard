@@ -14,7 +14,17 @@ namespace Dashboard.Client.Services;
 /// </summary>
 public interface IUserService
 {
+    /// <summary>
+    /// Cancels the invitation for <paramref name="email"/>.
+    /// </summary>
+    /// <param name="email">The email address of the invite to cancel.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task CancelInvite(string email);
+
+    /// <summary>
+    /// Gets all of the user invites.
+    /// </summary>
+    /// <returns>The user invites.</returns>
     IAsyncEnumerable<UserInviteSummary> GetAllInvites();
 
     /// <summary>
@@ -29,6 +39,15 @@ public interface IUserService
     /// <param name="id">The ID of the user.</param>
     /// <returns>The user and their role.</returns>
     Task<UserWithRole?> GetUserWithRole(string id);
+
+    /// <summary>
+    /// Creates an invitation for the provided user.
+    /// </summary>
+    /// <param name="request">The request for an invitation.</param>
+    /// <param name="invitingUserId">The ID of the user that requested the invite.</param>
+    /// <returns>
+    /// <see langword="true"/> if the invite was created, otherwise <see langword="false"/>.
+    /// </returns>
     Task<bool> InviteUser(UserInviteRequest request, string invitingUserId);
 
     /// <summary>
