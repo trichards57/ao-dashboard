@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Model;
+using System.Data;
 using System.Net.Http.Json;
 
 namespace Dashboard.Client.Services;
@@ -19,16 +21,28 @@ internal class UserService(HttpClient httpClient) : IUserService
     private readonly HttpClient httpClient = httpClient;
 
     /// <inheritdoc/>
-    public async Task<UserWithRole?> GetUserWithRole(string id)
+    public Task CancelInvite(string email) => httpClient.PostAsJsonAsync("api/users/cancelInvite", new UserInviteCancel
     {
-        var response = await httpClient.GetAsync($"api/users/{id}");
+        Email = email,
+    });
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<UserInviteSummary> GetAllInvites()
+    {
+        var response = await httpClient.GetAsync($"api/users/invites");
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<UserWithRole>();
-        }
+            var users = await response.Content.ReadFromJsonAsync<List<UserInviteSummary>>();
 
-        return null;
+            if (users != null)
+            {
+                foreach (var user in users)
+                {
+                    yield return user;
+                }
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -48,6 +62,27 @@ internal class UserService(HttpClient httpClient) : IUserService
                 }
             }
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserWithRole?> GetUserWithRole(string id)
+    {
+        var response = await httpClient.GetAsync($"api/users/{id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<UserWithRole>();
+        }
+
+        return null;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> InviteUser(UserInviteRequest request, string invitingUserId)
+    {
+        var response = await httpClient.PostAsJsonAsync($"api/users/invites", request);
+
+        return response.IsSuccessStatusCode;
     }
 
     /// <inheritdoc/>
