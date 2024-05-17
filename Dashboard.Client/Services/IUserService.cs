@@ -15,16 +15,16 @@ namespace Dashboard.Client.Services;
 public interface IUserService
 {
     /// <summary>
-    /// Cancels the invitation for <paramref name="email"/>.
+    /// Cancels the invitation associated with <paramref name="email"/>.
     /// </summary>
-    /// <param name="email">The email address of the invite to cancel.</param>
+    /// <param name="email">The email address.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task CancelInvite(string email);
 
     /// <summary>
-    /// Gets all of the user invites.
+    /// Gets all of the invites currently in the system.
     /// </summary>
-    /// <returns>The user invites.</returns>
+    /// <returns>The list of invites.</returns>
     IAsyncEnumerable<UserInviteSummary> GetAllInvites();
 
     /// <summary>
@@ -41,13 +41,11 @@ public interface IUserService
     Task<UserWithRole?> GetUserWithRole(string id);
 
     /// <summary>
-    /// Creates an invitation for the provided user.
+    /// Creates an invitation with the given user details.
     /// </summary>
-    /// <param name="request">The request for an invitation.</param>
-    /// <param name="invitingUserId">The ID of the user that requested the invite.</param>
-    /// <returns>
-    /// <see langword="true"/> if the invite was created, otherwise <see langword="false"/>.
-    /// </returns>
+    /// <param name="request">The requested user details.</param>
+    /// <param name="invitingUserId">The user making the request.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the result of the operation.</returns>
     Task<bool> InviteUser(UserInviteRequest request, string invitingUserId);
 
     /// <summary>
@@ -77,14 +75,14 @@ public sealed class UserWithRole
     public string Name { get; set; } = "";
 
     /// <summary>
-    /// Gets or sets their role's ID.
-    /// </summary>
-    public string? RoleId { get; set; }
-
-    /// <summary>
     /// Gets or sets the name of their role.
     /// </summary>
     public string? Role { get; set; }
+
+    /// <summary>
+    /// Gets or sets their role's ID.
+    /// </summary>
+    public string? RoleId { get; set; }
 }
 
 /// <summary>

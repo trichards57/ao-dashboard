@@ -22,8 +22,9 @@ namespace Dashboard.Controllers;
 [Route("api/users")]
 [Authorize(Policy = "CanViewUsers")]
 [ApiController]
-public class UserController(IUserService userService, UserManager<ApplicationUser> userManager) : ControllerBase
+public class UserController(IUserService userService, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager) : ControllerBase
 {
+    private readonly RoleManager<IdentityRole> roleManager = roleManager;
     private readonly UserManager<ApplicationUser> userManager = userManager;
     private readonly IUserService userService = userService;
 
@@ -90,9 +91,23 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
     /// <param name="invite">The invite to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the request.</returns>
     [HttpPost("invites")]
+    [Authorize(Policy = "CanEditUsers")]
     public async Task<ActionResult> AddInvite([FromBody] UserInviteRequest invite)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("User ID not found.");
+
+        var inviteRole = await roleManager.FindByIdAsync(invite.RoleId);
+
+        if (inviteRole == null)
+        {
+            ModelState.AddModelError(nameof(invite.RoleId), "Role not found.");
+            return BadRequest(ModelState);
+        }
+
+        if (inviteRole.Name == "Administrator " && !User.IsInRole("Administrator"))
+        {
+            return Forbid();
+        }
 
         return await userService.InviteUser(invite, userId) ? Ok() : StatusCode(StatusCodes.Status500InternalServerError);
     }
@@ -103,6 +118,7 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
     /// <param name="user">The invitation to cancel.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the request.</returns>
     [HttpPost("cancelInvite")]
+    [Authorize(Policy = "CanEditUsers")]
     public async Task<ActionResult> CancelInvite([FromBody] UserInviteCancel user)
     {
         await userService.CancelInvite(user.Email);

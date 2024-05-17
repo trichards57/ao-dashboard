@@ -108,7 +108,7 @@ builder.Services.AddAuthentication(LocalScheme)
         };
     });
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
+builder.Services.AddSingleton<IEmailSender, IdentityEmailSender>();
 builder.Services.Configure<IdentityEmailSenderOptions>(builder.Configuration);
 
 builder.Services.AddScoped(sp =>
