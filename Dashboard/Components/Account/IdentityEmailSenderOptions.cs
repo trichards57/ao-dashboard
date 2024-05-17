@@ -15,8 +15,10 @@ public class IdentityEmailSenderOptions
     /// <summary>
     /// Gets or sets the SendGrid API key.
     /// </summary>
-    /// <value>
-    /// The SendGrid API key.
-    /// </value>
     public string? SendGridKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets the uri to the registration page.
+    /// </summary>
+    public string RegisterLink { get; set; } = "";
 }
