@@ -16,12 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Emails\ConfirmationEmail.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BlazorApplicationInsights" Version="3.0.5" />
     <ProjectReference Include="..\Dashboard.Client\Dashboard.Client.csproj" />
     <PackageReference Include="AspNetCore.HealthChecks.ApplicationStatus" Version="8.0.1" />
@@ -60,12 +54,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\emails\" />
     <Folder Include="wwwroot\img\fa\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Emails\ConfirmationEmail.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
