@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Grpc;
 
 namespace Dashboard.Client.Services;
 
@@ -18,7 +18,7 @@ public interface IVehicleService
     /// <returns>
     /// An <see cref="IAsyncEnumerable{T}"/> of <see cref="VehicleSettings"/>.
     /// </returns>
-    IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place);
+    IAsyncEnumerable<Vehicle> GetSettingsAsync(Place place);
 
     /// <summary>
     /// Gets the settings for a specific vehicle.
@@ -27,7 +27,7 @@ public interface IVehicleService
     /// <returns>
     /// The <see cref="VehicleSettings"/> for the vehicle.
     /// </returns>
-    Task<VehicleSettings?> GetSettingsAsync(Guid id);
+    Task<Vehicle?> GetSettingsAsync(Guid id);
 
     /// <summary>
     /// Updates the settings for a vehicle.
@@ -39,5 +39,5 @@ public interface IVehicleService
     /// <remarks>
     /// Matches the vehicles using the vehicle registration, not the ID.
     /// </remarks>
-    Task PutSettingsAsync(UpdateVehicleSettings settings);
+    Task<bool> PutSettingsAsync(UpdateVehiclesRequest settings);
 }

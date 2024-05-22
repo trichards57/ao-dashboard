@@ -5,11 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
-using Dashboard.Model;
+using Dashboard.Grpc;
+using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard.Controllers;
 
@@ -17,36 +16,52 @@ namespace Dashboard.Controllers;
 /// Controller for managing VOR incidents.
 /// </summary>
 /// <param name="vehicleService">Service to manage vehicles.</param>
-[Route("api/vor")]
-[ApiController]
 [Authorize(Policy = "CanViewVOR")]
-public class VorController(Services.IVehicleService vehicleService, IVorService vorService) : ControllerBase
+public class VorController(Services.IVehicleService vehicleService, IVorService vorService) : Vor.VorBase
 {
     private readonly Services.IVehicleService vehicleService = vehicleService;
     private readonly IVorService vorService = vorService;
 
     /// <summary>
-    /// Accepts VOR incidents.
+    /// Adds VOR incidents to the database.
     /// </summary>
-    /// <param name="incidents">The incidents to add.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the result of the request.
+    /// </returns>
     [Authorize(Policy = "CanEditVOR")]
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] IEnumerable<VorIncident> incidents)
+    public override async Task<AddVorIncidentResponse> AddIncident(AddVorIncidentRequest request, ServerCallContext context)
     {
-        await vehicleService.AddEntriesAsync(incidents.ToList());
-
-        return Ok();
+        await vehicleService.AddEntriesAsync(request.Incidents);
+        return new AddVorIncidentResponse() { Success = true };
     }
 
     /// <summary>
-    /// Gets the VOR statistics for a place.
+    /// Gets the VOR statistics for a given place.
     /// </summary>
-    /// <param name="place">The place to search.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
-    [HttpGet("statistics")]
-    public Task<VorStatistics> GetStatistics([FromQuery] Place place) => vorService.GetVorStatisticsAsync(place);
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the result of the request.
+    /// </returns>
+    public override async Task<GetVorStatisticsResponse> GetStatistics(GetVorStatisticsRequest request, ServerCallContext context)
+        => await vorService.GetVorStatisticsAsync(request.Place);
 
-    [HttpGet]
-    public IAsyncEnumerable<VorStatus> Get([FromQuery] Place place) => vorService.GetVorStatusesAsync(place);
+    /// <summary>
+    /// Gets the VOR statuses for a given place.
+    /// </summary>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="responseStream">The response stream to write to.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.
+    /// </returns>
+    public override async Task GetStatus(GetVorStatusRequest request, IServerStreamWriter<GetVorStatusResponse> responseStream, ServerCallContext context)
+    {
+        await foreach (var status in vorService.GetVorStatusesAsync(request.Place))
+        {
+            await responseStream.WriteAsync(status);
+        }
+    }
 }

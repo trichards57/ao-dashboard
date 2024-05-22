@@ -5,11 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Data;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace Dashboard.Services;
 
@@ -23,14 +21,14 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
     private readonly UserManager<ApplicationUser> userManager = userManager;
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<UserWithRole> GetUsersWithRole()
+    public async IAsyncEnumerable<Grpc.UserWithRole> GetUsersWithRole()
     {
         foreach (var user in userManager.Users)
         {
             var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault();
             var roleId = role == null ? null : (await roleManager.FindByNameAsync(role))?.Id;
 
-            yield return new UserWithRole
+            yield return new Grpc.UserWithRole
             {
                 Id = user.Id,
                 Name = user.RealName,
@@ -41,7 +39,7 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
     }
 
     /// <inheritdoc/>
-    public async Task<UserWithRole?> GetUserWithRole(string id)
+    public async Task<Grpc.UserWithRole?> GetUserWithRole(string id)
     {
         var user = await userManager.FindByIdAsync(id);
 
@@ -53,7 +51,7 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
         var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault();
         var roleId = role == null ? null : (await roleManager.FindByNameAsync(role))?.Id;
 
-        return new UserWithRole
+        return new Grpc.UserWithRole
         {
             Id = user.Id,
             Name = user.RealName,
@@ -63,16 +61,16 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
+    public async Task<bool> SetUserRole(Grpc.UpdateUserRequest update)
     {
-        var user = await userManager.FindByIdAsync(id);
+        var user = await userManager.FindByIdAsync(update.Id);
 
         if (user == null)
         {
             return false;
         }
 
-        var r = await roleManager.FindByIdAsync(role.RoleId);
+        var r = await roleManager.FindByIdAsync(update.RoleId);
 
         if (r == null)
         {

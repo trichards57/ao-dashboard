@@ -70,4 +70,42 @@ public static class RegionConverter
         "nw" => Region.NorthWest,
         _ => Region.Unknown,
     };
+
+    /// <summary>
+    /// Converts the gRPC representation of the region.
+    /// </summary>
+    /// <param name="region">The region.</param>
+    /// <returns>The converted value.</returns>
+    public static Region ToRegion(Grpc.Region region) => region switch
+    {
+        Grpc.Region.All => Region.All,
+        Grpc.Region.London => Region.London,
+        Grpc.Region.SouthWest => Region.SouthWest,
+        Grpc.Region.SouthEast => Region.SouthEast,
+        Grpc.Region.WestMidlands => Region.WestMidlands,
+        Grpc.Region.EastMidlands => Region.EastMidlands,
+        Grpc.Region.EastOfEngland => Region.EastOfEngland,
+        Grpc.Region.NorthEast => Region.NorthEast,
+        Grpc.Region.NorthWest => Region.NorthWest,
+        _ => Region.Unknown,
+    };
+
+    /// <summary>
+    /// Gets the region as a gRPC region.
+    /// </summary>
+    /// <param name="region">The region.</param>
+    /// <returns>The converted value.</returns>
+    public static Grpc.Region ToRegion(Region region) => region switch
+    {
+        Region.All => Grpc.Region.All,
+        Region.London => Grpc.Region.London,
+        Region.SouthWest => Grpc.Region.SouthWest,
+        Region.SouthEast => Grpc.Region.SouthEast,
+        Region.WestMidlands => Grpc.Region.WestMidlands,
+        Region.EastMidlands => Grpc.Region.EastMidlands,
+        Region.EastOfEngland => Grpc.Region.EastOfEngland,
+        Region.NorthEast => Grpc.Region.NorthEast,
+        Region.NorthWest => Grpc.Region.NorthWest,
+        _ => Grpc.Region.Undefined,
+    };
 }

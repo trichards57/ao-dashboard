@@ -5,8 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
-using System.Net.Http.Json;
+using Dashboard.Grpc;
+using Grpc.Core;
 
 namespace Dashboard.Client.Services;
 
@@ -14,43 +14,29 @@ namespace Dashboard.Client.Services;
 /// Service for retrieving places.
 /// </summary>
 /// <param name="httpClient">The HTTP Client to use.</param>
-internal class PlaceService(HttpClient httpClient) : IPlaceService
+internal class PlaceService(Places.PlacesClient client) : IPlaceService
 {
+    private readonly Places.PlacesClient client = client;
+
     /// <inheritdoc/>
     public async IAsyncEnumerable<string> GetDistricts(Region region)
     {
-        var response = await httpClient.GetAsync($"api/places/{region}");
+        var response = client.GetDistricts(new GetDistrictsRequest { Region = region });
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var districts = await response.Content.ReadFromJsonAsync<List<string>>();
-
-            if (districts != null)
-            {
-                foreach (var district in districts)
-                {
-                    yield return district;
-                }
-            }
+            yield return response.ResponseStream.Current.District;
         }
     }
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<string> GetHubs(Region region, string district)
     {
-        var response = await httpClient.GetAsync($"api/places/{region}/{district}");
+        var response = client.GetHubs(new GetHubsRequest { Region = region, District = district });
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var hubs = await response.Content.ReadFromJsonAsync<List<string>>();
-
-            if (hubs != null)
-            {
-                foreach (var hub in hubs)
-                {
-                    yield return hub;
-                }
-            }
+            yield return response.ResponseStream.Current.Hub;
         }
     }
 }

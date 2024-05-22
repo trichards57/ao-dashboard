@@ -1,0 +1,247 @@
+syntax = "proto3";
+option csharp_namespace = "Dashboard.Grpc";
+
+service Places {
+	rpc GetDistricts(GetDistrictsRequest) returns (stream GetDistrictsResponse);
+	rpc GetHubs(GetHubsRequest) returns (stream GetHubsResponse);
+}
+
+service Roles {
+	rpc GetAll(GetAllRolesRequest) returns (stream GetAllRolesResponse);
+	rpc Get(GetRoleRequest) returns (GetRoleResponse);
+	rpc Update(UpdateRoleRequest) returns (UpdateRoleResponse);
+}
+
+service Users {
+	rpc GetAll(GetAllUsersRequest) returns (stream GetAllUsersResponse);
+	rpc Get(GetUserRequest) returns (GetUserResponse);
+	rpc Update(UpdateUserRequest) returns (UpdateUserResponse);
+}
+
+service Vehicles {
+	rpc GetAll(GetAllVehiclesRequest) returns (stream GetAllVehiclesResponse);
+	rpc Get(GetVehicleRequest) returns (GetVehicleResponse);
+	rpc Update(UpdateVehiclesRequest) returns (UpdateVehiclesResponse);
+}
+
+service Vor {
+	rpc AddIncident(AddVorIncidentRequest) returns (AddVorIncidentResponse);
+	rpc GetStatistics(GetVorStatisticsRequest) returns (GetVorStatisticsResponse);
+	rpc GetStatus(GetVorStatusRequest) returns (stream GetVorStatusResponse);
+}
+
+message GetVorStatusRequest {
+	Place place = 1;
+}
+
+message GetVorStatusResponse {
+	string id = 1;
+	Region region = 2;
+	string district = 3;
+	string hub = 4;
+	string registration = 5;
+	string call_sign = 6;
+	string summary = 7;
+	bool is_vor = 8;
+	optional DateOnly due_back = 9;
+}
+
+message GetVorStatisticsRequest {
+	Place place = 1;
+}
+
+message Place {
+	Region region = 1;
+	string district = 2;
+	string hub = 3;
+}
+
+message GetVorStatisticsResponse {
+	uint32 total_vehicles = 1;
+	uint32 available_vehicles = 2;
+	uint32 vor_vehicles = 3;
+	repeated PastAvailabilityEntry past_availability = 4;
+}
+
+message PastAvailabilityEntry {
+	DateOnly date = 1;
+	uint32 available_vehicles = 2;
+}
+
+message AddVorIncidentRequest {
+	repeated VorIncident incidents = 1;
+}
+
+message VorIncident {
+	string call_sign = 1;
+	string registration = 2;
+	string body_type = 3;
+	string make = 4;
+	string model = 5;
+	DateOnly start_date = 6;
+	string description = 7;
+	DateOnly update_date = 8;
+	string comments = 9;
+	optional DateOnly estimated_repair_date = 10;
+}
+
+message DateOnly {
+	uint32 year = 1;
+	uint32 month = 2;
+	uint32 day = 3;
+}
+
+message AddVorIncidentResponse {
+	bool success = 1;
+}
+
+message GetAllVehiclesRequest {
+	Place place = 1;
+}
+
+message GetAllVehiclesResponse {
+	Vehicle vehicle = 1;
+}
+
+message GetVehicleRequest {
+	string id = 1;
+}
+
+message GetVehicleResponse {
+	Vehicle vehicle = 1;
+}
+
+message UpdateVehiclesRequest {
+	string id = 1;
+	optional string registration = 2;
+	optional string call_sign = 3;
+	optional string hub = 4;
+	optional string district = 5;
+	optional Region region = 6;
+	optional VehicleType vehicle_type = 7;
+	optional bool for_disposal = 8;
+}
+
+message UpdateVehiclesResponse {
+	bool success = 1;
+}
+
+message Vehicle {
+	string id = 1;
+	string registration = 2;
+	string call_sign = 3;
+	string hub = 4;
+	string district = 5;
+	Region region = 6;
+	VehicleType vehicle_type = 7;
+	bool for_disposal = 8;
+}
+
+message GetAllUsersRequest { }
+
+message GetAllUsersResponse {
+	UserWithRole user = 1;
+}
+
+message GetUserRequest {
+	string id = 1;
+}
+
+message GetUserResponse {
+	UserWithRole user = 1;
+}
+
+message UpdateUserRequest {
+	string id = 1;
+	string role_id = 2;
+}
+
+message UpdateUserResponse {
+	bool success = 1;
+}
+
+message UserWithRole {
+	string id = 1;
+	string name = 2;
+	string role_id = 3;
+	string role = 4;
+}
+
+message GetAllRolesRequest { }
+
+message GetAllRolesResponse {
+	RolePermissions role = 1;
+}
+
+message GetRoleRequest {
+	string id = 1;
+}
+
+message GetRoleResponse {
+	RolePermissions role = 1;
+}
+
+message UpdateRoleRequest {
+	string id = 1;
+	optional string name = 2;
+	optional ReadWrite permissions = 3;
+	optional ReadWrite vehicle_configuration = 4;
+	optional ReadWrite vor_data = 5;
+}
+
+message UpdateRoleResponse {
+	bool success = 1;
+}
+
+message RolePermissions {
+	string id = 1;
+	string name = 2;
+	ReadWrite permissions = 3;
+	ReadWrite vehicle_configuration = 4;
+	ReadWrite vor_data = 5;
+}
+
+message GetDistrictsRequest {
+	Region region = 1;
+};
+
+message GetDistrictsResponse {
+	string district = 1;
+}
+
+message GetHubsRequest {
+	Region region = 1;
+	string district = 2;
+};
+
+message GetHubsResponse {
+	string hub = 1;
+}
+
+enum ReadWrite {
+	READ_WRITE_UNDEFINED = 0;
+	READ_WRITE_READ_ONLY = 1;
+	READ_WRITE_READ_WRITE = 2;
+	READ_WRITE_DENY = 3;
+}
+
+enum Region {
+	REGION_UNDEFINED = 0;
+	REGION_NORTH_EAST = 1;
+	REGION_NORTH_WEST = 2;
+	REGION_EAST_OF_ENGLAND = 3;
+	REGION_WEST_MIDLANDS = 4;
+	REGION_EAST_MIDLANDS = 5;
+	REGION_LONDON = 6;
+	REGION_SOUTH_EAST = 7;
+	REGION_SOUTH_WEST = 8;
+	REGION_ALL = 9;
+}
+
+enum VehicleType {
+	VEHICLE_TYPE_UNDEFINED = 0;
+	VEHICLE_TYPE_FRONT_LINE_AMBULANCE = 1;
+	VEHICLE_TYPE_ALL_WHEEL_DRIVE = 2;
+	VEHICLE_TYPE_OFF_ROAD_AMBULANCE = 3;
+	VEHICLE_TYPE_OTHER = 4;
+}

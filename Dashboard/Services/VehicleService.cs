@@ -5,30 +5,32 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Client.Model.Converters;
 using Dashboard.Data;
-using Dashboard.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Dashboard.Services;
 
-internal class VehicleService(ApplicationDbContext context) : IVehicleService, Dashboard.Client.Services.IVehicleService
+/// <summary>
+/// A service to manage vehicles.
+/// </summary>
+internal class VehicleService(ApplicationDbContext context) : IVehicleService, Client.Services.IVehicleService
 {
     private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
 
     /// <inheritdoc/>
-    public async Task AddEntriesAsync(IList<VorIncident> vorIncident)
+    public async Task AddEntriesAsync(IList<Grpc.VorIncident> vorIncident)
     {
         using var scope = await context.Database.BeginTransactionAsync();
 
         var lastUpdate = context.KeyDates.OrderBy(k => k.Id).First();
 
-        var fileDate = vorIncident.Max(i => i.UpdateDate);
+        var fileDate = vorIncident.Max(i => DateOnlyConverter.ToData(i.UpdateDate));
 
-        var updateVors = vorIncident.All(i => i.UpdateDate == fileDate) && fileDate >= lastUpdate.LastUpdateFile;
+        var updateVors = vorIncident.All(i => DateOnlyConverter.ToData(i.UpdateDate) == fileDate) && fileDate >= lastUpdate.LastUpdateFile;
 
         if (updateVors)
         {
@@ -57,42 +59,42 @@ internal class VehicleService(ApplicationDbContext context) : IVehicleService, D
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place) => context.Vehicles
+    public IAsyncEnumerable<Grpc.Vehicle> GetSettingsAsync(Grpc.Place place) => context.Vehicles
             .GetNotDeleted()
             .GetForPlace(place)
             .AsNoTracking()
-            .Select(s => new VehicleSettings
+            .Select(s => new Grpc.Vehicle
             {
                 CallSign = s.CallSign,
                 District = s.District,
                 ForDisposal = s.ForDisposal,
                 Hub = s.Hub,
-                Id = s.Id,
+                Id = s.Id.ToString(),
                 Registration = s.Registration,
-                Region = s.Region,
-                VehicleType = s.VehicleType,
+                Region = RegionConverter.ToRegion(s.Region),
+                VehicleType = VehicleTypeConverter.ToGrpc(s.VehicleType),
             })
             .AsAsyncEnumerable();
 
     /// <inheritdoc/>
-    public Task<VehicleSettings?> GetSettingsAsync(Guid id) => context.Vehicles
+    public Task<Grpc.Vehicle?> GetSettingsAsync(Guid id) => context.Vehicles
             .GetNotDeleted()
             .Where(v => v.Id == id)
-            .Select(s => new VehicleSettings
+            .Select(s => new Grpc.Vehicle
             {
                 CallSign = s.CallSign,
                 District = s.District,
                 ForDisposal = s.ForDisposal,
                 Hub = s.Hub,
-                Id = s.Id,
+                Id = s.Id.ToString(),
                 Registration = s.Registration,
-                Region = s.Region,
-                VehicleType = s.VehicleType,
+                Region = RegionConverter.ToRegion(s.Region),
+                VehicleType = VehicleTypeConverter.ToGrpc(s.VehicleType),
             })
             .FirstOrDefaultAsync();
 
     /// <inheritdoc/>
-    public async Task PutSettingsAsync(UpdateVehicleSettings settings)
+    public async Task<bool> PutSettingsAsync(Grpc.UpdateVehiclesRequest settings)
     {
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(s => s.Registration == settings.Registration);
 
@@ -102,22 +104,47 @@ internal class VehicleService(ApplicationDbContext context) : IVehicleService, D
             context.Vehicles.Add(vehicle);
         }
 
-        vehicle.CallSign = settings.CallSign;
-        vehicle.District = settings.District;
-        vehicle.ForDisposal = settings.ForDisposal;
-        vehicle.Hub = settings.Hub;
-        vehicle.Registration = settings.Registration;
-        vehicle.Region = settings.Region;
-        vehicle.VehicleType = settings.VehicleType;
+        if (settings.HasCallSign)
+        {
+            vehicle.CallSign = settings.CallSign;
+        }
+
+        if (settings.HasDistrict)
+        {
+            vehicle.District = settings.District;
+        }
+
+        if (settings.HasForDisposal)
+        {
+            vehicle.ForDisposal = settings.ForDisposal;
+        }
+
+        if (settings.HasHub)
+        {
+            vehicle.Hub = settings.Hub;
+        }
+
+        if (settings.HasRegion)
+        {
+            vehicle.Region = RegionConverter.ToRegion(settings.Region);
+        }
+
+        if (settings.HasVehicleType)
+        {
+            vehicle.VehicleType = VehicleTypeConverter.ToData(settings.VehicleType);
+        }
+
         vehicle.Deleted = null;
         vehicle.LastModified = DateTimeOffset.UtcNow;
         vehicle.ETag = CalculateEtag(vehicle);
         await context.SaveChangesAsync();
+
+        return true;
     }
 
     private static string CalculateEtag(Vehicle vehicle) => Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(vehicle.ETagIdentifier)));
 
-    private async Task AddSingleEntryAsync(VorIncident vorIncident, bool updateVors)
+    private async Task AddSingleEntryAsync(Grpc.VorIncident vorIncident, bool updateVors)
     {
         var trimmedReg = vorIncident.Registration.ToUpperInvariant().Trim().Replace(" ", "", StringComparison.OrdinalIgnoreCase);
         var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.Registration == trimmedReg);
@@ -140,25 +167,25 @@ internal class VehicleService(ApplicationDbContext context) : IVehicleService, D
             vehicle.Deleted = null;
         }
 
-        var incident = await context.Incidents.FirstOrDefaultAsync(i => i.VehicleId == vehicle.Id && i.StartDate == vorIncident.StartDate);
+        var incident = await context.Incidents.FirstOrDefaultAsync(i => i.VehicleId == vehicle.Id && i.StartDate == DateOnlyConverter.ToData(vorIncident.StartDate));
 
         if (incident == null)
         {
             incident = new Incident
             {
                 VehicleId = vehicle.Id,
-                StartDate = vorIncident.StartDate,
+                StartDate = DateOnlyConverter.ToData(vorIncident.StartDate),
                 Description = vorIncident.Description,
             };
             context.Incidents.Add(incident);
         }
 
-        if (incident.EndDate < vorIncident.UpdateDate)
+        if (incident.EndDate < DateOnlyConverter.ToData(vorIncident.UpdateDate))
         {
-            incident.EndDate = vorIncident.UpdateDate;
+            incident.EndDate = DateOnlyConverter.ToData(vorIncident.UpdateDate);
             incident.Description = vorIncident.Description;
             incident.Comments = vorIncident.Comments;
-            incident.EstimatedEndDate = vorIncident.EstimatedRepairDate;
+            incident.EstimatedEndDate = DateOnlyConverter.ToData(vorIncident.EstimatedRepairDate);
         }
 
         if (updateVors)

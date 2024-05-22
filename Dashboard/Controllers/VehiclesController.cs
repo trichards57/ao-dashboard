@@ -5,57 +5,40 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
-using Microsoft.AspNetCore.Mvc;
+using Dashboard.Grpc;
+using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Dashboard.Controllers;
 
 /// <summary>
 /// Controller for managing vehicles.
 /// </summary>
-[Route("api/vehicles")]
-[ApiController]
-public class VehiclesController(IVehicleService vehicleService) : ControllerBase
+[Authorize(Policy = "CanViewVOR")]
+public class VehiclesController(IVehicleService vehicleService) : Grpc.Vehicles.VehiclesBase
 {
     private readonly IVehicleService vehicleService = vehicleService;
 
-    /// <summary>
-    /// Gets all of the vehicles for a given place.
-    /// </summary>
-    /// <param name="place">The place to search.</param>
-    /// <returns>The vehicle settings.</returns>
-    [HttpGet]
-    public IAsyncEnumerable<VehicleSettings> GetVehiclesAsync([FromQuery] Place place) => vehicleService.GetSettingsAsync(place);
-
-    /// <summary>
-    /// Gets the vehicle settings for a given vehicle.
-    /// </summary>
-    /// <param name="id">The ID of the vehicle.</param>
-    /// <returns>The vehicle settings.</returns>
-    [HttpGet("{id}")]
-    public async Task<ActionResult<VehicleSettings>> GetVehicleAsync(Guid id)
+    public override async Task GetAll(GetAllVehiclesRequest request, IServerStreamWriter<GetAllVehiclesResponse> responseStream, ServerCallContext context)
     {
-        var vehicle = await vehicleService.GetSettingsAsync(id);
-
-        if (vehicle == null)
+        await foreach (var vehicle in vehicleService.GetSettingsAsync(request.Place))
         {
-            return NotFound();
+            await responseStream.WriteAsync(new GetAllVehiclesResponse
+            {
+                Vehicle = vehicle,
+            });
         }
-
-        return vehicle;
     }
 
-    /// <summary>
-    /// Updates the settings for a vehicle.
-    /// </summary>
-    /// <param name="settings">The new settings.</param>
-    /// <returns>No content.</returns>
-    [HttpPost]
-    public async Task<IActionResult> PostVehicleAsync([FromBody] UpdateVehicleSettings settings)
+    public override async Task<GetVehicleResponse> Get(GetVehicleRequest request, ServerCallContext context)
     {
-        await vehicleService.PutSettingsAsync(settings);
+        var vehicle = await vehicleService.GetSettingsAsync(Guid.Parse(request.Id)) ?? throw new RpcException(new Status(StatusCode.NotFound, "Vehicle not found"));
 
-        return NoContent();
+        return new GetVehicleResponse { Vehicle = vehicle };
     }
+
+    [Authorize(Policy = "CanEditVehicles")]
+    public override async Task<UpdateVehiclesResponse> Update(UpdateVehiclesRequest request, ServerCallContext context)
+        => new UpdateVehiclesResponse { Success = await vehicleService.PutSettingsAsync(request) };
 }

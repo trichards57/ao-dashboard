@@ -5,10 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Client.Model.Converters;
 using Dashboard.Client.Services;
 using Dashboard.Data;
-using Microsoft.AspNetCore.SignalR;
+using Dashboard.Grpc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;
@@ -22,7 +22,7 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
     private readonly IDbContextFactory<ApplicationDbContext> contextFactory = contextFactory;
 
     /// <inheritdoc/>
-    public async Task<VorStatistics> GetVorStatisticsAsync(Place place)
+    public async Task<GetVorStatisticsResponse> GetVorStatisticsAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
         {
@@ -47,7 +47,7 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
 
         var incidentsLastYear = await context.Incidents
             .GetForPlace(place)
-            .Where(i => i.StartDate <= DateOnly.FromDateTime(endDate) && i.EndDate >= DateOnly.FromDateTime(startDate))
+            .Where(i => i.StartDate <= System.DateOnly.FromDateTime(endDate) && i.EndDate >= System.DateOnly.FromDateTime(startDate))
             .Select(i => new { i.StartDate, i.EndDate })
             .AsNoTracking()
             .ToListAsync();
@@ -56,29 +56,30 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
                               .Select(offset => startDate.AddDays(offset))
                               .ToList();
 
-        var incidentCountPerDay = new Dictionary<DateOnly, int>();
+        var incidentCountPerDay = new Dictionary<System.DateOnly, int>();
 
         foreach (var date in dateRange)
         {
-            var d = DateOnly.FromDateTime(date);
+            var d = System.DateOnly.FromDateTime(date);
             incidentCountPerDay[d] = totalVehicles - incidentsLastYear.Count(i => i.StartDate <= d && i.EndDate >= d);
         }
 
         var incidentsByMonth = incidentCountPerDay.GroupBy(i => new { i.Key.Year, i.Key.Month })
             .Select(g => new { Month = g.Key, Count = (int)Math.Round(g.Average(i => i.Value)) })
-            .ToDictionary(i => new DateOnly(i.Month.Year, i.Month.Month, 1), i => i.Count);
+            .Select(i => new PastAvailabilityEntry { Date = new Grpc.DateOnly { Year = (uint)i.Month.Year, Month = (uint)i.Month.Month, Day = 1 }, AvailableVehicles = (uint)i.Count });
 
-        return new VorStatistics
+        var res = new Grpc.GetVorStatisticsResponse
         {
-            AvailableVehicles = availableVehicles,
-            TotalVehicles = totalVehicles,
-            VorVehicles = vorVehicles,
-            PastAvailability = incidentsByMonth,
+            AvailableVehicles = (uint)availableVehicles,
+            TotalVehicles = (uint)totalVehicles,
+            VorVehicles = (uint)vorVehicles,
         };
+        res.PastAvailability.AddRange(incidentsByMonth);
+        return res;
     }
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    public IAsyncEnumerable<GetVorStatusResponse> GetVorStatusesAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
         {
@@ -88,24 +89,24 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
         return GetVorStatusesPrivateAsync(place);
     }
 
-    private async IAsyncEnumerable<VorStatus> GetVorStatusesPrivateAsync(Place place)
+    private async IAsyncEnumerable<GetVorStatusResponse> GetVorStatusesPrivateAsync(Place place)
     {
         var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var v in context.Vehicles
            .GetActive()
            .GetForPlace(place)
-           .Select(s => new VorStatus
+           .Select(s => new GetVorStatusResponse
            {
                CallSign = s.CallSign,
                District = s.District,
-               DueBack = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate : null,
+               DueBack = s.IsVor ? DateOnlyConverter.ToGrpc(s.Incidents.OrderByDescending(i => i.StartDate).First().EstimatedEndDate) : null,
                Hub = s.Hub,
                IsVor = s.IsVor,
                Registration = s.Registration,
-               Region = s.Region,
+               Region = RegionConverter.ToRegion(s.Region),
                Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
-               Id = s.Id,
+               Id = s.Id.ToString(),
            }))
         {
             yield return v;

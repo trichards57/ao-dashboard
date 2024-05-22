@@ -5,8 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
-using System.Net.Http.Json;
+using Dashboard.Grpc;
+using Grpc.Core;
 
 namespace Dashboard.Client.Services;
 
@@ -14,39 +14,22 @@ namespace Dashboard.Client.Services;
 /// Service for interacting with the VOR API.
 /// </summary>
 /// <param name="httpClient">The HTTP Client to use.</param>
-internal class VorService(HttpClient httpClient) : IVorService
+internal class VorService(Vor.VorClient client) : IVorService
 {
-    private readonly HttpClient httpClient = httpClient;
+    private readonly Vor.VorClient client = client;
 
     /// <inheritdoc/>
-    public async Task<VorStatistics> GetVorStatisticsAsync(Place place)
-    {
-        var response = await httpClient.GetAsync($"api/vor/statistics{place.CreateQuery()}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<VorStatistics>() ?? new();
-        }
-
-        return new();
-    }
+    public async Task<GetVorStatisticsResponse> GetVorStatisticsAsync(Place place)
+        => await client.GetStatisticsAsync(new GetVorStatisticsRequest { Place = place });
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+    public async IAsyncEnumerable<GetVorStatusResponse> GetVorStatusesAsync(Place place)
     {
-        var response = await httpClient.GetAsync($"api/vor{place.CreateQuery()}");
+        var response = client.GetStatus(new GetVorStatusRequest { Place = place });
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var statuses = await response.Content.ReadFromJsonAsync<List<VorStatus>>();
-
-            if (statuses != null)
-            {
-                foreach (var status in statuses)
-                {
-                    yield return status;
-                }
-            }
+            yield return response.ResponseStream.Current;
         }
     }
 }

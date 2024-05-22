@@ -5,7 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Net.Http.Json;
+using Dashboard.Grpc;
+using Grpc.Core;
 
 namespace Dashboard.Client.Services;
 
@@ -14,47 +15,39 @@ namespace Dashboard.Client.Services;
 /// </summary>
 /// <param name="httpClient">The HTTP client to use.</param>
 /// <param name="logger">The logger to use.</param>
-internal class UserService(HttpClient httpClient) : IUserService
+internal class UserService(Users.UsersClient client) : IUserService
 {
-    private readonly HttpClient httpClient = httpClient;
+    private readonly Users.UsersClient client = client;
 
     /// <inheritdoc/>
     public async Task<UserWithRole?> GetUserWithRole(string id)
     {
-        var response = await httpClient.GetAsync($"api/users/{id}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<UserWithRole>();
+            return (await client.GetAsync(new GetUserRequest { Id = id })).User;
         }
-
-        return null;
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return null;
+        }
     }
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<UserWithRole> GetUsersWithRole()
     {
-        var response = await httpClient.GetAsync($"api/users");
+        var response = client.GetAll(new GetAllUsersRequest());
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var users = await response.Content.ReadFromJsonAsync<List<UserWithRole>>();
-
-            if (users != null)
-            {
-                foreach (var user in users)
-                {
-                    yield return user;
-                }
-            }
+            yield return response.ResponseStream.Current.User;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
+    public async Task<bool> SetUserRole(UpdateUserRequest update)
     {
-        var response = await httpClient.PostAsJsonAsync($"api/users/{id}", role);
+        var response = await client.UpdateAsync(update);
 
-        return response.IsSuccessStatusCode;
+        return response.Success;
     }
 }

@@ -5,9 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Client.Model.Converters;
 using Dashboard.Client.Services;
 using Dashboard.Data;
+using Dashboard.Grpc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;
@@ -26,7 +27,7 @@ internal class PlaceService(IDbContextFactory<ApplicationDbContext> contextFacto
         var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var d in context.Vehicles
-            .Where(c => c.Region == region && !c.Deleted.HasValue)
+            .Where(c => c.Region == RegionConverter.ToRegion(region) && !c.Deleted.HasValue)
             .Select(c => c.District).Distinct())
         {
             yield return d;
@@ -39,7 +40,7 @@ internal class PlaceService(IDbContextFactory<ApplicationDbContext> contextFacto
         var context = await contextFactory.CreateDbContextAsync();
 
         foreach (var h in context.Vehicles
-            .Where(c => c.Region == region && c.District == district && !c.Deleted.HasValue)
+            .Where(c => c.Region == RegionConverter.ToRegion(region) && c.District == district && !c.Deleted.HasValue)
             .Select(c => c.Hub).Distinct())
         {
             yield return h;

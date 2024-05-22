@@ -5,10 +5,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Model;
-
 namespace Dashboard.Services;
 
+/// <summary>
+/// Represents a service to manage vehicles.
+/// </summary>
 public interface IVehicleService
 {
     /// <summary>
@@ -17,5 +18,5 @@ public interface IVehicleService
     /// </summary>
     /// <param name="vorIncident">The incidents to add.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddEntriesAsync(IList<VorIncident> vorIncident);
+    Task AddEntriesAsync(IList<Grpc.VorIncident> vorIncident);
 }

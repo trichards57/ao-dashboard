@@ -1,5 +1,6 @@
 ﻿@page "/roles/{id}/edit"
 @using Dashboard.Client.Services
+@using Dashboard.Grpc
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 
@@ -23,18 +24,18 @@
     <ValidationSummary role="alert" class="notification is-danger" />
     <AppSelect Label="Vehicle Configuration" Name="vehicle-configuration" @bind-Value="Input.VehicleConfiguration" For="() => Input.VehicleConfiguration">
         <option value="@ReadWrite.Deny">Deny</option>
-        <option value="@ReadWrite.Read">Read</option>
-        <option value="@ReadWrite.Write">Read/Write</option>
+        <option value="@ReadWrite.ReadOnly">Read</option>
+        <option value="@ReadWrite.ReadWrite">Read/Write</option>
     </AppSelect>
     <AppSelect Label="VOR Data" Name="vor-data" @bind-Value="Input.VorData" For="() => Input.VorData">
         <option value="@ReadWrite.Deny">Deny</option>
-        <option value="@ReadWrite.Read">Read</option>
-        <option value="@ReadWrite.Write">Read/Write</option>
+        <option value="@ReadWrite.ReadOnly">Read</option>
+        <option value="@ReadWrite.ReadWrite">Read/Write</option>
     </AppSelect>
     <AppSelect Label="User Role" Name="user-role" @bind-Value="Input.Permissions" For="() => Input.Permissions">
         <option value="@ReadWrite.Deny">Deny</option>
-        <option value="@ReadWrite.Read">Read</option>
-        <option value="@ReadWrite.Write">Read/Write</option>
+        <option value="@ReadWrite.ReadOnly">Read</option>
+        <option value="@ReadWrite.ReadWrite">Read/Write</option>
     </AppSelect>
     <SubmitButton />
 </EditForm>
@@ -46,11 +47,19 @@
     [Parameter]
     public string Id { get; set; } = default!;
 
-    private RolePermissionsUpdate Input { get; set; } = new();
+    private InputClass Input { get; set; } = new();
 
     public async Task UpdateRole()
     {
-        if (await RoleService.SetRolePermissions(Id, Input))
+        var req = new UpdateRoleRequest
+            {
+                Id = Id,
+                Permissions = Input.Permissions,
+                VehicleConfiguration = Input.VehicleConfiguration,
+                VorData = Input.VorData
+            };
+
+        if (await RoleService.SetRolePermissions(req))
         {
             NavigationManager.NavigateTo("/roles");
         }
@@ -66,7 +75,14 @@
             return;
         }
 
-        Input = new RolePermissionsUpdate { Permissions = input.Permissions, VehicleConfiguration = input.VehicleConfiguration, VorData = input.VorData };
+        Input = new InputClass { Permissions = input.Permissions, VehicleConfiguration = input.VehicleConfiguration, VorData = input.VorData };
         roleName = input.Name;
+    }
+
+    private class InputClass
+    {
+        public ReadWrite Permissions { get; set; }
+        public ReadWrite VehicleConfiguration { get; set; }
+        public ReadWrite VorData { get; set; }
     }
 }

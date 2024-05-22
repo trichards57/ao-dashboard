@@ -18,7 +18,7 @@ public interface IVorService
     /// <returns>
     /// The VOR statistics for the place.
     /// </returns>
-    Task<VorStatistics> GetVorStatisticsAsync(Place place);
+    Task<Grpc.GetVorStatisticsResponse> GetVorStatisticsAsync(Grpc.Place place);
 
     /// <summary>
     /// Gets the VOR statuses for the vehicles in a place.
@@ -27,5 +27,5 @@ public interface IVorService
     /// <returns>
     /// The VOR statuses for the vehicles in the place.
     /// </returns>
-    IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
+    IAsyncEnumerable<Grpc.GetVorStatusResponse> GetVorStatusesAsync(Grpc.Place place);
 }

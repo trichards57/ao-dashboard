@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Dashboard.Client.Model;
+using Dashboard.Client.Model.Converters;
 using Dashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -95,6 +96,20 @@ internal static class Helpers
     }
 
     /// <summary>
+    /// Gets all the vehicles at the specified place.
+    /// </summary>
+    /// <param name="vehicles">The vehicle items to query.</param>
+    /// <param name="place">The place to check for.</param>
+    /// <returns>All the vehicles in <paramref name="vehicles"/> that are in the given place.</returns>
+    public static IQueryable<Vehicle> GetForPlace(this IQueryable<Vehicle> vehicles, Grpc.Place place)
+    {
+        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
+        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
+
+        return GetForPlace(vehicles, RegionConverter.ToRegion(place.Region), district, hub);
+    }
+
+    /// <summary>
     /// Gets all the incidents at the specified place.
     /// </summary>
     /// <param name="incidents">The incident items to query.</param>
@@ -137,6 +152,20 @@ internal static class Helpers
         var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
 
         return GetForPlace(incidents, place.Region, district, hub);
+    }
+
+    /// <summary>
+    /// Gets all the incidents at the specified place.
+    /// </summary>
+    /// <param name="incidents">The incident items to query.</param>
+    /// <param name="place">The place to check for.</param>
+    /// <returns>All the incidents in <paramref name="incidents"/> that are in the given place.</returns>
+    public static IQueryable<Incident> GetForPlace(this IQueryable<Incident> incidents, Grpc.Place place)
+    {
+        var district = place.District.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.District;
+        var hub = place.Hub.Equals("all", StringComparison.OrdinalIgnoreCase) ? null : place.Hub;
+
+        return GetForPlace(incidents, RegionConverter.ToRegion(place.Region), district, hub);
     }
 
     /// <summary>

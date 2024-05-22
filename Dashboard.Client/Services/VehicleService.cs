@@ -5,45 +5,48 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
-using System.Net.Http;
-using System.Net.Http.Json;
+using Dashboard.Grpc;
+using Grpc.Core;
 
 namespace Dashboard.Client.Services;
 
-internal class VehicleService(HttpClient httpClient) : IVehicleService
+/// <summary>
+/// Service to manage vehicles.
+/// </summary>
+/// <param name="client">The gRPC client to use.</param>
+internal class VehicleService(Vehicles.VehiclesClient client) : IVehicleService
 {
-    private readonly HttpClient httpClient = httpClient;
+    private readonly Vehicles.VehiclesClient client = client;
 
-    public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<Vehicle> GetSettingsAsync(Place place)
     {
-        var response = await httpClient.GetAsync($"api/vehicles{place.CreateQuery()}");
+        var response = client.GetAll(new GetAllVehiclesRequest { Place = place });
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var statuses = await response.Content.ReadFromJsonAsync<List<VehicleSettings>>();
-
-            if (statuses != null)
-            {
-                foreach (var status in statuses)
-                {
-                    yield return status;
-                }
-            }
+            yield return response.ResponseStream.Current.Vehicle;
         }
     }
 
-    public async Task<VehicleSettings?> GetSettingsAsync(Guid id)
+    /// <inheritdoc/>
+    public async Task<Vehicle?> GetSettingsAsync(Guid id)
     {
-        var response = await httpClient.GetAsync($"api/vehicles/{id}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<VehicleSettings>();
+            return (await client.GetAsync(new GetVehicleRequest { Id = id.ToString() })).Vehicle;
         }
-
-        return null;
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return null;
+        }
     }
 
-    public Task PutSettingsAsync(UpdateVehicleSettings settings) => httpClient.PostAsJsonAsync("api/vehicles", settings);
+    /// <inheritdoc/>
+    public async Task<bool> PutSettingsAsync(UpdateVehiclesRequest settings)
+    {
+        var result = await client.UpdateAsync(settings);
+
+        return result.Success;
+    }
 }

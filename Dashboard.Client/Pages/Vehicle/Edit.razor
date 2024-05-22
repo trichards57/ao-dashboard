@@ -31,21 +31,21 @@
         <ValidationMessage class="help is-danger" For="() => vehicle.Registration" />
     </div>
     <AppSelect Label="Vehicle Type" Name="vehicle-type" @bind-Value="vehicle.VehicleType" For="() => vehicle.VehicleType">
-        <option value="@VehicleType.Other">Other</option>
-        <option value="@VehicleType.FrontLineAmbulance">Front-Line Ambulance</option>
-        <option value="@VehicleType.AllWheelDrive">All Wheel Drive</option>
-        <option value="@VehicleType.OffRoadAmbulance">Off-Road Ambulance</option>
+        <option value="@Dashboard.Grpc.VehicleType.Other">Other</option>
+        <option value="@Dashboard.Grpc.VehicleType.FrontLineAmbulance">Front-Line Ambulance</option>
+        <option value="@Dashboard.Grpc.VehicleType.AllWheelDrive">All Wheel Drive</option>
+        <option value="@Dashboard.Grpc.VehicleType.OffRoadAmbulance">Off-Road Ambulance</option>
     </AppSelect>
     <AppSelect Label="Region" Name="region" @bind-Value="vehicle.Region" For="() => vehicle.Region">
-        <option value="@Region.Unknown">Unknown</option>
-        <option value="@Region.EastOfEngland">East of England</option>
-        <option value="@Region.EastMidlands">East Midlands</option>
-        <option value="@Region.London">London</option>
-        <option value="@Region.NorthEast">North East</option>
-        <option value="@Region.NorthWest">North West</option>
-        <option value="@Region.SouthEast">South East</option>
-        <option value="@Region.SouthWest">South West</option>
-        <option value="@Region.WestMidlands">West Midlands</option>
+        <option value="@Dashboard.Grpc.Region.Undefined">Unknown</option>
+        <option value="@Dashboard.Grpc.Region.EastOfEngland">East of England</option>
+        <option value="@Dashboard.Grpc.Region.EastMidlands">East Midlands</option>
+        <option value="@Dashboard.Grpc.Region.London">London</option>
+        <option value="@Dashboard.Grpc.Region.NorthEast">North East</option>
+        <option value="@Dashboard.Grpc.Region.NorthWest">North West</option>
+        <option value="@Dashboard.Grpc.Region.SouthEast">South East</option>
+        <option value="@Dashboard.Grpc.Region.SouthWest">South West</option>
+        <option value="@Dashboard.Grpc.Region.WestMidlands">West Midlands</option>
     </AppSelect>
     <div class="field">
         <label class="label" for="district">District</label>
@@ -99,7 +99,7 @@
 
     private async Task SaveVehicle()
     {
-        var newData = new UpdateVehicleSettings
+        var newData = new Dashboard.Grpc.UpdateVehiclesRequest
             {
                 CallSign = vehicle.CallSign,
                 Registration = vehicle.Registration,
@@ -120,12 +120,12 @@
         [Required]
         public string CallSign { get; set; } = "";
         public string Registration { get; set; } = "";
-        public Region Region { get; set; } = Region.Unknown;
+        public Dashboard.Grpc.Region Region { get; set; } = Dashboard.Grpc.Region.Undefined;
         [Required]
         public string District { get; set; } = "";
         [Required]
         public string Hub { get; set; } = "";
-        public VehicleType VehicleType { get; set; } = VehicleType.Other;
+        public Dashboard.Grpc.VehicleType VehicleType { get; set; } = Dashboard.Grpc.VehicleType.Other;
         public bool ForDisposal { get; set; }
     }
 }

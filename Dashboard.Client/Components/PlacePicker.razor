@@ -11,15 +11,15 @@
             <label class="label" for="region">Region</label>
             <div class="select is-fullwidth">
                 <select id="region" value="@Place.Region" @onchange="@RegionChanged">
-                    <option value="@Region.All">All</option>
-                    <option value="@Region.EastOfEngland">East of England</option>
-                    <option value="@Region.EastMidlands">East Midlands</option>
-                    <option value="@Region.London">London</option>
-                    <option value="@Region.NorthEast">North East</option>
-                    <option value="@Region.NorthWest">North West</option>
-                    <option value="@Region.SouthEast">South East</option>
-                    <option value="@Region.SouthWest">South West</option>
-                    <option value="@Region.WestMidlands">West Midlands</option>
+                    <option value="all">All</option>
+                    <option value="ee">East of England</option>
+                    <option value="em">East Midlands</option>
+                    <option value="lon">London</option>
+                    <option value="ne">North East</option>
+                    <option value="nw">North West</option>
+                    <option value="se">South East</option>
+                    <option value="sw">South West</option>
+                    <option value="wm">West Midlands</option>
                 </select>
             </div>
         </div>
@@ -59,24 +59,24 @@
     private IList<string> Hubs { get; set; } = new List<string>();
 
     [Parameter]
-    public Place Place { get; set; } = new Place { Region = Region.All, District="all", Hub="all" };
+    public Dashboard.Grpc.Place Place { get; set; } = new Dashboard.Grpc.Place { Region = Dashboard.Grpc.Region.All, District="all", Hub="all" };
 
     private void RegionChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Enum.Parse<Region>(e.Value?.ToString() ?? "all", true)), Place.District, Place.Hub));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(e.Value?.ToString() ?? "all", Place.District, Place.Hub));
     }
 
     private void DistrictChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Place.Region), e.Value?.ToString() ?? "all", Place.Hub));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(RegionConverter.ToRegion(Place.Region)), e.Value?.ToString() ?? "all", Place.Hub));
     }
 
     private void HubChanged(ChangeEventArgs e)
     {
         var newUri = new Uri(NavigationManager.Uri);
-        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(Place.Region), Place.District, e.Value?.ToString() ?? "all"));
+        NavigationManager.NavigateTo(newUri.AbsolutePath + CreateQuery(RegionConverter.ToString(RegionConverter.ToRegion(Place.Region)), Place.District, e.Value?.ToString() ?? "all"));
     }
 
     protected override async Task OnParametersSetAsync()
@@ -84,7 +84,7 @@
         Districts.Clear();
         Hubs.Clear();
 
-        if (Place.Region != Region.All)
+        if (Place.Region != Dashboard.Grpc.Region.All)
         {
             Districts = await PlaceService.GetDistricts(Place.Region).ToListAsync();
 

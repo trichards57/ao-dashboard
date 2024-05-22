@@ -6,43 +6,61 @@
 // -----------------------------------------------------------------------
 
 using Dashboard.Client.Services;
+using Dashboard.Grpc;
+using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace Dashboard.Controllers;
 
-[ApiController]
+/// <summary>
+/// Controller for managing roles.
+/// </summary>
 [Authorize(Policy = "CanEditRoles")]
-[Route("api/roles")]
-public class RoleController(IRoleService roleService) : ControllerBase
+public class RoleController(IRoleService roleService) : Roles.RolesBase
 {
     private readonly IRoleService roleService = roleService;
 
-    [HttpGet]
-    public IAsyncEnumerable<RolePermissions> Get() => roleService.GetRoles();
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<RolePermissions>> Get([Required] string id)
+    /// <summary>
+    /// Gets all of the registered user roles.
+    /// </summary>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="responseStream">The stream to write responses to.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.
+    /// </returns>
+    public override async Task GetAll(GetAllRolesRequest request, IServerStreamWriter<GetAllRolesResponse> responseStream, ServerCallContext context)
     {
-        var role = await roleService.GetRolePermissions(id);
-
-        if (role == null)
+        await foreach (var role in roleService.GetRoles())
         {
-            return NotFound();
+            await responseStream.WriteAsync(new GetAllRolesResponse { Role = role });
         }
-
-        return role;
     }
 
-    [HttpPost("{id}")]
-    public async Task<ActionResult> Put([Required] string id, [FromBody] RolePermissionsUpdate permissions)
+    /// <summary>
+    /// Gets a specific user role.
+    /// </summary>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the requested role.
+    /// </returns>
+    public override async Task<GetRoleResponse> Get(GetRoleRequest request, ServerCallContext context)
     {
-        if (await roleService.SetRolePermissions(id, permissions))
-        {
-            return Ok();
-        }
+        var role = await roleService.GetRolePermissions(request.Id) ??
+            throw new RpcException(new Status(StatusCode.NotFound, "Role not found"));
 
-        return NotFound();
+        return new GetRoleResponse { Role = role };
     }
+
+    /// <summary>
+    /// Updates a user role.
+    /// </summary>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the result of the role.
+    /// </returns>
+    public override async Task<UpdateRoleResponse> Update(UpdateRoleRequest request, ServerCallContext context)
+        => new UpdateRoleResponse { Success = await roleService.SetRolePermissions(request) };
 }

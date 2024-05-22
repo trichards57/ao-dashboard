@@ -47,13 +47,13 @@
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
 
-    private UserRoleUpdate Input { get; set; } = new();
+    private InputClass Input { get; set; } = new();
 
-    private List<RolePermissions> Roles { get; set; } = new();
+    private List<Grpc.RolePermissions> Roles { get; set; } = new();
 
     public async Task UpdateRole()
     {
-        if (await UserService.SetUserRole(Id, Input))
+        if (await UserService.SetUserRole(new Grpc.UpdateUserRequest { Id = Id, RoleId = Input.RoleId }))
         {
             NavigationManager.NavigateTo("/users");
         }
@@ -76,7 +76,12 @@
             return;
         }
 
-        Input = new UserRoleUpdate { RoleId = input.RoleId ?? "None" };
+        Input = new InputClass { RoleId = input.RoleId ?? "None" };
         userName = input.Name;
+    }
+
+    private class InputClass
+    {
+        public string RoleId { get; set; } = "None";
     }
 }

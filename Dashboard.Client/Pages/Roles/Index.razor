@@ -59,7 +59,7 @@
 
 @code
 {
-    private List<RolePermissions> roles = new();
+    private List<Dashboard.Grpc.RolePermissions> roles = new();
     private PersistingComponentStateSubscription subscription;
     private bool loading = false;
 
@@ -67,7 +67,7 @@
     {
         subscription = PersistentComponentState.RegisterOnPersisting(Persist);
 
-        var foundInState = PersistentComponentState.TryTakeFromJson<List<RolePermissions>>("roles", out var state);
+        var foundInState = PersistentComponentState.TryTakeFromJson<List<Dashboard.Grpc.RolePermissions>>("roles", out var state);
 
         loading = true;
         roles.AddRange((foundInState && state != null) ? state : await RoleService.GetRoles().ToListAsync());

@@ -21,7 +21,7 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
     private readonly RoleManager<IdentityRole> roleManager = roleManager;
 
     /// <inheritdoc/>
-    public async Task<RolePermissions?> GetRolePermissions(string id)
+    public async Task<Grpc.RolePermissions?> GetRolePermissions(string id)
     {
         var role = await roleManager.FindByIdAsync(id);
 
@@ -32,7 +32,7 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
 
         var claims = await roleManager.GetClaimsAsync(role);
 
-        return new RolePermissions
+        return new Grpc.RolePermissions
         {
             Id = role.Id,
             Name = role.Name ?? "",
@@ -43,7 +43,7 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<RolePermissions> GetRoles()
+    public async IAsyncEnumerable<Grpc.RolePermissions> GetRoles()
     {
         var roleList = roleManager.Roles.ToList();
 
@@ -51,7 +51,7 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
         {
             var claims = await roleManager.GetClaimsAsync(r);
 
-            yield return new RolePermissions
+            yield return new Grpc.RolePermissions
             {
                 Id = r.Id,
                 Name = r.Name ?? "",
@@ -63,9 +63,9 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)
+    public async Task<bool> SetRolePermissions(Grpc.UpdateRoleRequest permissions)
     {
-        var role = await roleManager.FindByIdAsync(id);
+        var role = await roleManager.FindByIdAsync(permissions.Id);
 
         if (role == null)
         {
@@ -81,43 +81,43 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
         return true;
     }
 
-    private static ReadWrite CheckPermission(IList<Claim> claims, string type)
+    private static Grpc.ReadWrite CheckPermission(IList<Claim> claims, string type)
     {
         var c = claims.FirstOrDefault(k => k.Type == type);
 
         if (c == null)
         {
-            return ReadWrite.Deny;
+            return Grpc.ReadWrite.Deny;
         }
         else if (c.Value == UserClaims.Read)
         {
-            return ReadWrite.Read;
+            return Grpc.ReadWrite.ReadOnly;
         }
         else if (c.Value == UserClaims.Edit)
         {
-            return ReadWrite.Write;
+            return Grpc.ReadWrite.ReadWrite;
         }
 
-        return ReadWrite.Deny;
+        return Grpc.ReadWrite.Deny;
     }
 
-    private static ReadWrite ClaimToReadWrite(IEnumerable<Claim> claims, string type)
+    private static Grpc.ReadWrite ClaimToReadWrite(IEnumerable<Claim> claims, string type)
     {
         var c = claims.FirstOrDefault(c => c.Type == type);
 
         if (c?.Value == UserClaims.Read)
         {
-            return ReadWrite.Read;
+            return Grpc.ReadWrite.ReadOnly;
         }
         else if (c?.Value == UserClaims.Edit)
         {
-            return ReadWrite.Write;
+            return Grpc.ReadWrite.ReadWrite;
         }
 
-        return ReadWrite.Deny;
+        return Grpc.ReadWrite.Deny;
     }
 
-    private async Task UpdateClaim(IdentityRole role, IEnumerable<Claim> claims, string type, ReadWrite value)
+    private async Task UpdateClaim(IdentityRole role, IEnumerable<Claim> claims, string type, Grpc.ReadWrite value)
     {
         if (ClaimToReadWrite(claims, type) == value)
         {
@@ -131,11 +131,11 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
             await roleManager.RemoveClaimAsync(role, old);
         }
 
-        if (value == ReadWrite.Read)
+        if (value == Grpc.ReadWrite.ReadOnly)
         {
             await roleManager.AddClaimAsync(role, new Claim(type, UserClaims.Read));
         }
-        else if (value == ReadWrite.Write)
+        else if (value == Grpc.ReadWrite.ReadWrite)
         {
             await roleManager.AddClaimAsync(role, new Claim(type, UserClaims.Edit));
         }

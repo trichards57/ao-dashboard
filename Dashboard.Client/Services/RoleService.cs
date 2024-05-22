@@ -5,7 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Net.Http.Json;
+using Dashboard.Grpc;
+using Grpc.Core;
 
 namespace Dashboard.Client.Services;
 
@@ -13,47 +14,41 @@ namespace Dashboard.Client.Services;
 /// Service for managing roles.
 /// </summary>
 /// <param name="httpClient">The HTTP Client to use.</param>
-internal class RoleService(HttpClient httpClient) : IRoleService
+internal class RoleService(Roles.RolesClient client) : IRoleService
 {
-    private readonly HttpClient httpClient = httpClient;
+    private readonly Roles.RolesClient client = client;
 
     /// <inheritdoc/>
     public async Task<RolePermissions?> GetRolePermissions(string id)
     {
-        var response = await httpClient.GetAsync($"api/roles/{id}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return await response.Content.ReadFromJsonAsync<RolePermissions>();
-        }
+            var response = await client.GetAsync(new GetRoleRequest { Id = id });
 
-        return null;
+            return response.Role;
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            return null;
+        }
     }
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<RolePermissions> GetRoles()
     {
-        var response = await httpClient.GetAsync($"api/roles");
+        var response = client.GetAll(new GetAllRolesRequest());
 
-        if (response.IsSuccessStatusCode)
+        while (await response.ResponseStream.MoveNext())
         {
-            var roles = await response.Content.ReadFromJsonAsync<List<RolePermissions>>();
-
-            if (roles != null)
-            {
-                foreach (var role in roles)
-                {
-                    yield return role;
-                }
-            }
+            yield return response.ResponseStream.Current.Role;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)
+    public async Task<bool> SetRolePermissions(UpdateRoleRequest permissions)
     {
-        var response = await httpClient.PostAsJsonAsync($"api/roles/{id}", permissions);
+        var response = await client.UpdateAsync(permissions);
 
-        return response.IsSuccessStatusCode;
+        return response.Success;
     }
 }

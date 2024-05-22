@@ -23,8 +23,12 @@
 
 @code {
     private IJSObjectReference? module;
-    private VorStatistics statistics = new();
-    private Place Place => new Place { Region = RegionConverter.ToRegion(Region ?? "all"), District = District ?? "all", Hub = Hub ?? "all" };
+    private Dashboard.Grpc.GetVorStatisticsResponse statistics = new();
+    private Dashboard.Grpc.Place Place => new Dashboard.Grpc.Place { 
+        Region = RegionConverter.ToRegion(RegionConverter.ToRegion(Region ?? "all")), 
+        District = District ?? "all",
+        Hub = Hub ?? "all" 
+    };
 
     [SupplyParameterFromQuery]
     public string Region { get; set; } = "all";

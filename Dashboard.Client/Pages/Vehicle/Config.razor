@@ -49,7 +49,7 @@
                         </td>
                         <td class="call-sign-col">@s.CallSign</td>
                         <td class="reg-col">@s.Registration</td>
-                        <td class="place-col">@RegionConverter.ToDisplayString(s.Region)</td>
+                        <td class="place-col">@RegionConverter.ToDisplayString(RegionConverter.ToRegion(s.Region))</td>
                         <td class="place-col">@s.District</td>
                         <td class="place-col">@s.Hub</td>
                     </tr>
@@ -72,7 +72,7 @@
 }
 
 @code {
-    private ICollection<VehicleSettings> statuses = new List<VehicleSettings>();
+    private ICollection<Dashboard.Grpc.Vehicle> statuses = new List<Dashboard.Grpc.Vehicle>();
     private int page;
     private const int PageSize = 10;
     private string filter = "";
@@ -87,11 +87,15 @@
     [SupplyParameterFromQuery]
     public string Hub { get; set; } = "all";
     
-    private Place Place => new Place { Region = RegionConverter.ToRegion(Region ?? "all"), District = District ?? "all", Hub = Hub ?? "all" };
+    private Dashboard.Grpc.Place Place => new Dashboard.Grpc.Place {
+        Region = RegionConverter.ToRegion(RegionConverter.ToRegion(Region ?? "all")), 
+        District = District ?? "all", 
+        Hub = Hub ?? "all" 
+    };
 
     private bool ShowPagination => StatusesToDisplay.Count() > PageSize;
 
-    private IEnumerable<VehicleSettings> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
+    private IEnumerable<Dashboard.Grpc.Vehicle> StatusesToDisplay => statuses.OrderBy(v => v.CallSign)
                     .Where(v => string.IsNullOrWhiteSpace(filter)
                         || v.CallSign.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase)
                         || v.Registration.Contains(filter.Trim(), StringComparison.InvariantCultureIgnoreCase));
