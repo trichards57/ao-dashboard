@@ -76,7 +76,7 @@
             return;
         }
 
-        Input = new InputClass { RoleId = input.RoleId ?? "None" };
+        Input = new InputClass { RoleId = string.IsNullOrEmpty(input.RoleId) ? "None" : input.RoleId };
         userName = input.Name;
     }
 

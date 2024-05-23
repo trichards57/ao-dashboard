@@ -25,16 +25,7 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
     {
         foreach (var user in userManager.Users)
         {
-            var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault();
-            var roleId = role == null ? null : (await roleManager.FindByNameAsync(role))?.Id;
-
-            yield return new Grpc.UserWithRole
-            {
-                Id = user.Id,
-                Name = user.RealName,
-                Role = role,
-                RoleId = roleId,
-            };
+            yield return await ToUserWithRole(user);
         }
     }
 
@@ -48,8 +39,13 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
             return null;
         }
 
-        var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault();
-        var roleId = role == null ? null : (await roleManager.FindByNameAsync(role))?.Id;
+        return await ToUserWithRole(user);
+    }
+
+    private async Task<Grpc.UserWithRole> ToUserWithRole(ApplicationUser user)
+    {
+        var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault() ?? string.Empty;
+        var roleId = string.IsNullOrEmpty(role) ? string.Empty : ((await roleManager.FindByNameAsync(role))?.Id ?? string.Empty);
 
         return new Grpc.UserWithRole
         {

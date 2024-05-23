@@ -68,7 +68,7 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
             .Select(g => new { Month = g.Key, Count = (int)Math.Round(g.Average(i => i.Value)) })
             .Select(i => new PastAvailabilityEntry { Date = new Grpc.DateOnly { Year = (uint)i.Month.Year, Month = (uint)i.Month.Month, Day = 1 }, AvailableVehicles = (uint)i.Count });
 
-        var res = new Grpc.GetVorStatisticsResponse
+        var res = new GetVorStatisticsResponse
         {
             AvailableVehicles = (uint)availableVehicles,
             TotalVehicles = (uint)totalVehicles,
@@ -105,7 +105,7 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
                IsVor = s.IsVor,
                Registration = s.Registration,
                Region = RegionConverter.ToRegion(s.Region),
-               Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : null,
+               Summary = s.IsVor ? s.Incidents.OrderByDescending(i => i.StartDate).First().Description : string.Empty,
                Id = s.Id.ToString(),
            }))
         {

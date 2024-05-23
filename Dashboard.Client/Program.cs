@@ -9,6 +9,9 @@ using BlazorApplicationInsights;
 using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
+using Grpc.Net.Client;
+using Grpc.Net.Client.Web;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -59,5 +62,37 @@ builder.Services.AddBlazorApplicationInsights(
 
         await a.AddTelemetryInitializer(t);
     });
+
+builder.Services.AddSingleton(s =>
+{
+    var httpClient = new HttpClient(new GrpcWebHandler(new HttpClientHandler()));
+    var baseUri = s.GetRequiredService<NavigationManager>().BaseUri;
+    return GrpcChannel.ForAddress(baseUri, new GrpcChannelOptions { HttpClient = httpClient });
+});
+builder.Services.AddSingleton(s =>
+{
+    var channel = s.GetRequiredService<GrpcChannel>();
+    return new Dashboard.Grpc.Users.UsersClient(channel);
+});
+builder.Services.AddSingleton(s =>
+{
+    var channel = s.GetRequiredService<GrpcChannel>();
+    return new Dashboard.Grpc.Places.PlacesClient(channel);
+});
+builder.Services.AddSingleton(s =>
+{
+    var channel = s.GetRequiredService<GrpcChannel>();
+    return new Dashboard.Grpc.Roles.RolesClient(channel);
+});
+builder.Services.AddSingleton(s =>
+{
+    var channel = s.GetRequiredService<GrpcChannel>();
+    return new Dashboard.Grpc.Vehicles.VehiclesClient(channel);
+});
+builder.Services.AddSingleton(s =>
+{
+    var channel = s.GetRequiredService<GrpcChannel>();
+    return new Dashboard.Grpc.Vor.VorClient(channel);
+});
 
 await builder.Build().RunAsync();

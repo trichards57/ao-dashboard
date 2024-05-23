@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorApplicationInsights" Version="3.0.5" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
+    <PackageReference Include="Grpc.AspNetCore.Web" Version="2.62.0" />
     <ProjectReference Include="..\Dashboard.Client\Dashboard.Client.csproj" />
     <ProjectReference Include="..\Dashboard.Grpc\Dashboard.Grpc.csproj" />
     <PackageReference Include="AspNetCore.HealthChecks.ApplicationStatus" Version="8.0.1" />

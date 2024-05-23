@@ -11,6 +11,7 @@ using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Components;
 using Dashboard.Components.Account;
+using Dashboard.Controllers;
 using Dashboard.Data;
 using Dashboard.Services;
 using HealthChecks.ApplicationStatus.DependencyInjection;
@@ -193,6 +194,8 @@ builder.Services.AddBlazorApplicationInsights(
         await a.AddTelemetryInitializer(t);
     });
 
+builder.Services.AddGrpc();
+
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
     configureApplicationInsightsLoggerOptions: (options) => { });
@@ -221,8 +224,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
+app.UseGrpcWeb();
 
 app.MapControllers();
+app.MapGrpcService<PlaceController>().EnableGrpcWeb();
+app.MapGrpcService<RoleController>().EnableGrpcWeb();
+app.MapGrpcService<UserController>().EnableGrpcWeb();
+app.MapGrpcService<VehiclesController>().EnableGrpcWeb();
+app.MapGrpcService<VorController>().EnableGrpcWeb();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()

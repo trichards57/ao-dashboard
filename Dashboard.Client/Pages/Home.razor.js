@@ -2,11 +2,9 @@ let pieChart;
 let historicChart;
 
 function dateLabel(d) {
-  const date = new Date(d);
-
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const month = months[date.getMonth()];
-  const year = date.getFullYear() - 2000;
+  const month = months[d.month - 1];
+  const year = d.year - 2000;
 
   return `${month} ${year}`;
 }
@@ -65,10 +63,10 @@ export function loadGraphs(data) {
     historicChart = new Chart(lineCtx, {
       type: 'line',
       data: {
-        labels: Object.keys(data.pastAvailability).map(dateLabel),
+        labels: Object.keys(data.pastAvailability).map(d => dateLabel(d.date)),
         datasets: [{
           label: 'Available Vehicles',
-          data: Object.values(data.pastAvailability),
+          data: data.pastAvailability.map(d => d.availableVehicles),
           fill: false,
         }]
       },
@@ -83,8 +81,8 @@ export function loadGraphs(data) {
     });
   }
   else {
-    historicChart.data.labels = Object.keys(data.pastAvailability).map(dateLabel);
-    historicChart.data.datasets[0].data = Object.values(data.pastAvailability);
+    historicChart.data.labels = data.pastAvailability.map(d => dateLabel(d.date));
+    historicChart.data.datasets[0].data = data.pastAvailability.map(d => d.availableVehicles);
     historicChart.update();
   }
 }

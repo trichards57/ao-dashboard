@@ -10,7 +10,7 @@
         <div class="field">
             <label class="label" for="region">Region</label>
             <div class="select is-fullwidth">
-                <select id="region" value="@Place.Region" @onchange="@RegionChanged">
+                <select id="region" value="@RegionConverter.ToString(RegionConverter.ToRegion(Place.Region))" @onchange="@RegionChanged">
                     <option value="all">All</option>
                     <option value="ee">East of England</option>
                     <option value="em">East Midlands</option>
