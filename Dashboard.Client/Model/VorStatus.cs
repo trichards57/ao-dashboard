@@ -10,19 +10,9 @@ namespace Dashboard.Client.Model;
 public class VorStatus
 {
     /// <summary>
-    /// Gets the internal ID for the vehicle.
+    /// Gets the call-sign for the vehicle.
     /// </summary>
-    public Guid Id { get; init; }
-
-    /// <summary>
-    /// Gets the home region for the vehicle.
-    /// </summary>
-    public Region Region { get; init; }
-
-    /// <summary>
-    /// Gets the home hub for the vehicle.
-    /// </summary>
-    public string Hub { get; init; } = "";
+    public string CallSign { get; init; } = "";
 
     /// <summary>
     /// Gets the home district for the vehicle.
@@ -30,19 +20,19 @@ public class VorStatus
     public string District { get; init; } = "";
 
     /// <summary>
-    /// Gets the registration of the vehicle.
+    /// Gets the date the vehicle is expected back.
     /// </summary>
-    public string Registration { get; init; } = "";
+    public DateOnly? DueBack { get; init; }
 
     /// <summary>
-    /// Gets the call-sign for the vehicle.
+    /// Gets the home hub for the vehicle.
     /// </summary>
-    public string CallSign { get; init; } = "";
+    public string Hub { get; init; } = "";
 
     /// <summary>
-    /// Gets the summary of the vehicle's VOR incident.
+    /// Gets the internal ID for the vehicle.
     /// </summary>
-    public string? Summary { get; init; }
+    public Guid Id { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the vehicle is currently marked VOR.
@@ -50,7 +40,17 @@ public class VorStatus
     public bool IsVor { get; init; }
 
     /// <summary>
-    /// Gets the date the vehicle is expected back.
+    /// Gets the home region for the vehicle.
     /// </summary>
-    public DateOnly? DueBack { get; init; }
+    public Region Region { get; init; }
+
+    /// <summary>
+    /// Gets the registration of the vehicle.
+    /// </summary>
+    public string Registration { get; init; } = "";
+
+    /// <summary>
+    /// Gets the summary of the vehicle's VOR incident.
+    /// </summary>
+    public string? Summary { get; init; }
 }

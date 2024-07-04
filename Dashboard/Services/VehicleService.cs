@@ -185,7 +185,11 @@ internal class VehicleService(ApplicationDbContext context) : IVehicleService, C
             incident.EndDate = DateOnlyConverter.ToData(vorIncident.UpdateDate);
             incident.Description = vorIncident.Description;
             incident.Comments = vorIncident.Comments;
-            incident.EstimatedEndDate = DateOnlyConverter.ToData(vorIncident.EstimatedRepairDate);
+
+            if (vorIncident.EstimatedRepairDate != null)
+            {
+                incident.EstimatedEndDate = DateOnlyConverter.ToData(vorIncident.EstimatedRepairDate);
+            }
         }
 
         if (updateVors)

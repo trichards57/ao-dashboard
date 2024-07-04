@@ -6,15 +6,15 @@
 // -----------------------------------------------------------------------
 
 using Azure.Identity;
+using Dashboard.Grpc;
+using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using OpenIddict.Client;
-using System.Globalization;
-using System.Net.Http.Json;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace VorUploader;
 
@@ -24,8 +24,8 @@ namespace VorUploader;
 internal static class Program
 {
     private const string InboxId = "AAMkAGU0NTA2ODczLTYyZWEtNGZhNS04MDQ0LTIwMDFlMDQzN2M0ZQAuAAAAAAB20NTeTHozS4sqw68MW0ExAQBWg0hGD4wFSaUCnLIUVcwOAAAA-DKkAAA=";
-    private const string VorFolderId = "AAMkAGU0NTA2ODczLTYyZWEtNGZhNS04MDQ0LTIwMDFlMDQzN2M0ZQAuAAAAAAB20NTeTHozS4sqw68MW0ExAQD7P9wa3zxsSruC4g1eWMZTAATImwK9AAA=";
     private const string TokenReplyString = "http://localhost/";
+    private const string VorFolderId = "AAMkAGU0NTA2ODczLTYyZWEtNGZhNS04MDQ0LTIwMDFlMDQzN2M0ZQAuAAAAAAB20NTeTHozS4sqw68MW0ExAQD7P9wa3zxsSruC4g1eWMZTAATImwK9AAA=";
 
     private static async Task CancelToken(IServiceProvider provider, string token)
     {
@@ -81,6 +81,8 @@ internal static class Program
         };
 
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var headers = new Metadata();
+        headers.Add("Authorization", $"Bearer {token}");
 
         var vorUris = new Uri("/api/vor", UriKind.Relative);
 
@@ -101,7 +103,12 @@ internal static class Program
 
         using var graphClient = new GraphServiceClient(interactiveCredential, scopes);
 
-        var emails = await graphClient.Me.MailFolders[InboxId].Messages.GetAsync();
+        var emails = await graphClient.Me.MailFolders[InboxId].Messages.GetAsync(x =>
+        {
+            x.QueryParameters.Top = 100;
+        });
+
+        var grpcClient = new Vor.VorClient(GrpcChannel.ForAddress(baseUri));
 
         if (emails?.Value != null)
         {
@@ -118,7 +125,7 @@ internal static class Program
                     continue;
                 }
 
-                var fileDate = DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
+                var fileDate = System.DateOnly.FromDateTime(e.ReceivedDateTime.Value.Date);
                 Console.WriteLine($"Found File - Date: {e.ReceivedDateTime}");
 
                 var tempFile = Path.GetRandomFileName();
@@ -127,7 +134,7 @@ internal static class Program
                 var items = FileParser.ParseFile(tempFile, fileDate);
 
                 var count = 0;
-                HttpResponseMessage result;
+                AddVorIncidentResponse result;
 
                 do
                 {
@@ -136,20 +143,24 @@ internal static class Program
                         await Task.Delay(TimeSpan.FromSeconds(5));
                     }
 
-                    result = await httpClient.PostAsJsonAsync(vorUris, items);
+                    var req = new AddVorIncidentRequest();
+                    req.Incidents.AddRange(items);
+
+                    result = await grpcClient.AddIncidentAsync(req, headers);
+
                     count++;
                 }
-                while (count < 3 && !result.IsSuccessStatusCode);
+                while (count < 3 && !result.Success);
 
-                if (!result.IsSuccessStatusCode)
+                if (!result.Success)
                 {
-                    Console.WriteLine($"Received Error : {result.StatusCode}");
+                    Console.WriteLine("Received Error.");
                 }
                 else
                 {
                     Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Uploaded"));
                     File.Move(tempFile, Path.Combine(Environment.CurrentDirectory, "Uploaded", $"{fileDate:o} VOR Report.xls"), true);
-                    await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
+                    // await graphClient.Me.Messages[e.Id].Move.PostAsync(new Microsoft.Graph.Me.Messages.Item.Move.MovePostRequestBody { DestinationId = VorFolderId });
                 }
             }
         }

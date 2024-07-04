@@ -20,6 +20,11 @@ public static class UserClaims
     public static string Edit => "Edit";
 
     /// <summary>
+    /// Gets the claim for the user's VOR Data permission level.
+    /// </summary>
+    public static string Permissions => "Permissions";
+
+    /// <summary>
     /// Gets the value when the user has permission to read.
     /// </summary>
     public static string Read => "Read";
@@ -33,11 +38,6 @@ public static class UserClaims
     /// Gets the claim for the user's VOR Data permission level.
     /// </summary>
     public static string VorData => "VORData";
-
-    /// <summary>
-    /// Gets the claim for the user's VOR Data permission level.
-    /// </summary>
-    public static string Permissions => "Permissions";
 }
 
 /// <summary>

@@ -21,6 +21,22 @@ public class RoleController(IRoleService roleService) : Roles.RolesBase
     private readonly IRoleService roleService = roleService;
 
     /// <summary>
+    /// Gets a specific user role.
+    /// </summary>
+    /// <param name="request">The gRPC request.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the requested role.
+    /// </returns>
+    public override async Task<GetRoleResponse> Get(GetRoleRequest request, ServerCallContext context)
+    {
+        var role = await roleService.GetRolePermissions(request.Id) ??
+            throw new RpcException(new Status(StatusCode.NotFound, "Role not found"));
+
+        return new GetRoleResponse { Role = role };
+    }
+
+    /// <summary>
     /// Gets all of the registered user roles.
     /// </summary>
     /// <param name="request">The gRPC request.</param>
@@ -35,22 +51,6 @@ public class RoleController(IRoleService roleService) : Roles.RolesBase
         {
             await responseStream.WriteAsync(new GetAllRolesResponse { Role = role });
         }
-    }
-
-    /// <summary>
-    /// Gets a specific user role.
-    /// </summary>
-    /// <param name="request">The gRPC request.</param>
-    /// <param name="context">The request context.</param>
-    /// <returns>
-    /// A <see cref="Task"/> representing the asynchronous operation.  Resolves to the requested role.
-    /// </returns>
-    public override async Task<GetRoleResponse> Get(GetRoleRequest request, ServerCallContext context)
-    {
-        var role = await roleService.GetRolePermissions(request.Id) ??
-            throw new RpcException(new Status(StatusCode.NotFound, "Role not found"));
-
-        return new GetRoleResponse { Role = role };
     }
 
     /// <summary>

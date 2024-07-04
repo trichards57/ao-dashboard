@@ -29,14 +29,14 @@ internal class ApplicationDbContext(DbContextOptions<ApplicationDbContext> optio
     public DbSet<KeyDates> KeyDates { get; set; }
 
     /// <summary>
-    /// Gets or sets the vehicles logged in the system.
-    /// </summary>
-    public DbSet<Vehicle> Vehicles { get; set; }
-
-    /// <summary>
     /// Gets or sets the audit log.
     /// </summary>
     public DbSet<AuditLog> Log { get; set; }
+
+    /// <summary>
+    /// Gets or sets the vehicles logged in the system.
+    /// </summary>
+    public DbSet<Vehicle> Vehicles { get; set; }
 
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder builder)

@@ -13,6 +13,19 @@ namespace Dashboard.Client.Model.Converters;
 public static class VehicleTypeConverter
 {
     /// <summary>
+    /// Converts a <see cref="Grpc.VehicleType"/> to a <see cref="VehicleType"/>.
+    /// </summary>
+    /// <param name="vehicleType">The value to convert.</param>
+    /// <returns>The converted value.</returns>
+    public static VehicleType ToData(Grpc.VehicleType vehicleType) => vehicleType switch
+    {
+        Grpc.VehicleType.FrontLineAmbulance => VehicleType.FrontLineAmbulance,
+        Grpc.VehicleType.AllWheelDrive => VehicleType.AllWheelDrive,
+        Grpc.VehicleType.OffRoadAmbulance => VehicleType.OffRoadAmbulance,
+        _ => VehicleType.Other,
+    };
+
+    /// <summary>
     /// Converts a <see cref="VehicleType"/> to a <see cref="Grpc.VehicleType"/>.
     /// </summary>
     /// <param name="vehicleType">The value to convert.</param>
@@ -24,18 +37,5 @@ public static class VehicleTypeConverter
         VehicleType.OffRoadAmbulance => Grpc.VehicleType.OffRoadAmbulance,
         VehicleType.Other => Grpc.VehicleType.Other,
         _ => Grpc.VehicleType.Undefined,
-    };
-
-    /// <summary>
-    /// Converts a <see cref="Grpc.VehicleType"/> to a <see cref="VehicleType"/>.
-    /// </summary>
-    /// <param name="vehicleType">The value to convert.</param>
-    /// <returns>The converted value.</returns>
-    public static VehicleType ToData(Grpc.VehicleType vehicleType) => vehicleType switch
-    {
-        Grpc.VehicleType.FrontLineAmbulance => VehicleType.FrontLineAmbulance,
-        Grpc.VehicleType.AllWheelDrive => VehicleType.AllWheelDrive,
-        Grpc.VehicleType.OffRoadAmbulance => VehicleType.OffRoadAmbulance,
-        _ => VehicleType.Other,
     };
 }

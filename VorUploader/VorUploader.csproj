@@ -20,6 +20,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.11.2" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.62.0" />
 		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
@@ -39,6 +40,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="25.1.42" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Dashboard.Grpc\Dashboard.Grpc.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

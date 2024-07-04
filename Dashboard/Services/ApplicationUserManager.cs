@@ -17,39 +17,6 @@ namespace Dashboard.Services;
 public class ApplicationUserManager(IUserStore<ApplicationUser> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<ApplicationUser> passwordHasher, IEnumerable<IUserValidator<ApplicationUser>> userValidators, IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger) : UserManager<ApplicationUser>(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
 {
     /// <inheritdoc/>
-    public override Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
-    {
-        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
-        {
-            return Task.FromResult(string.Empty);
-        }
-
-        return base.GeneratePasswordResetTokenAsync(user);
-    }
-
-    /// <inheritdoc/>
-    public override Task<IdentityResult> CreateAsync(ApplicationUser user, string password)
-    {
-        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
-        {
-            return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = "EmailDomain", Description = "@sja.org.uk email addresses are not allowed for local accounts." }));
-        }
-
-        return base.CreateAsync(user, password);
-    }
-
-    /// <inheritdoc/>
-    public override Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
-    {
-        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
-        {
-            return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = "EmailDomain", Description = "@sja.org.uk passwords must be changed with Microsoft." }));
-        }
-
-        return base.ResetPasswordAsync(user, token, newPassword);
-    }
-
-    /// <inheritdoc/>
     public override Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password) => throw new InvalidOperationException("Adding passwords is not supported for Microsoft accounts. Use Microsoft to manage your password.");
 
     /// <inheritdoc/>
@@ -64,6 +31,17 @@ public class ApplicationUserManager(IUserStore<ApplicationUser> store, IOptions<
     }
 
     /// <inheritdoc/>
+    public override Task<IdentityResult> CreateAsync(ApplicationUser user, string password)
+    {
+        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = "EmailDomain", Description = "@sja.org.uk email addresses are not allowed for local accounts." }));
+        }
+
+        return base.CreateAsync(user, password);
+    }
+
+    /// <inheritdoc/>
     public override Task<IEnumerable<string>?> GenerateNewTwoFactorRecoveryCodesAsync(ApplicationUser user, int number)
     {
         if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
@@ -75,6 +53,17 @@ public class ApplicationUserManager(IUserStore<ApplicationUser> store, IOptions<
     }
 
     /// <inheritdoc/>
+    public override Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+    {
+        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        return base.GeneratePasswordResetTokenAsync(user);
+    }
+
+    /// <inheritdoc/>
     public override Task<string> GenerateTwoFactorTokenAsync(ApplicationUser user, string tokenProvider)
     {
         if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
@@ -83,5 +72,16 @@ public class ApplicationUserManager(IUserStore<ApplicationUser> store, IOptions<
         }
 
         return base.GenerateTwoFactorTokenAsync(user, tokenProvider);
+    }
+
+    /// <inheritdoc/>
+    public override Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
+    {
+        if (user.Email?.EndsWith("@sja.org.uk", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = "EmailDomain", Description = "@sja.org.uk passwords must be changed with Microsoft." }));
+        }
+
+        return base.ResetPasswordAsync(user, token, newPassword);
     }
 }

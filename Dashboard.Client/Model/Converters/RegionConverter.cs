@@ -15,25 +15,6 @@ namespace Dashboard.Client.Model.Converters;
 public static class RegionConverter
 {
     /// <summary>
-    /// Gets the string representation of the region.
-    /// </summary>
-    /// <param name="region">The region.</param>
-    /// <returns>The shortened string.</returns>
-    public static string ToString(Region region) => region switch
-    {
-        Region.All => "all",
-        Region.London => "lon",
-        Region.SouthWest => "sw",
-        Region.SouthEast => "se",
-        Region.WestMidlands => "wm",
-        Region.EastMidlands => "em",
-        Region.EastOfEngland => "ee",
-        Region.NorthEast => "ne",
-        Region.NorthWest => "nw",
-        _ => "unk",
-    };
-
-    /// <summary>
     /// Gets the display string for the region.
     /// </summary>
     /// <param name="region">The region.</param>
@@ -107,5 +88,24 @@ public static class RegionConverter
         Region.NorthEast => Grpc.Region.NorthEast,
         Region.NorthWest => Grpc.Region.NorthWest,
         _ => Grpc.Region.Undefined,
+    };
+
+    /// <summary>
+    /// Gets the string representation of the region.
+    /// </summary>
+    /// <param name="region">The region.</param>
+    /// <returns>The shortened string.</returns>
+    public static string ToString(Region region) => region switch
+    {
+        Region.All => "all",
+        Region.London => "lon",
+        Region.SouthWest => "sw",
+        Region.SouthEast => "se",
+        Region.WestMidlands => "wm",
+        Region.EastMidlands => "em",
+        Region.EastOfEngland => "ee",
+        Region.NorthEast => "ne",
+        Region.NorthWest => "nw",
+        _ => "unk",
     };
 }

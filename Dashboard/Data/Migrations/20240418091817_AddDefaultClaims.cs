@@ -15,38 +15,6 @@ namespace Dashboard.Migrations
     public partial class AddDefaultClaims : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.InsertData(
-                table: "AspNetRoleClaims",
-                columns: ["Id", "ClaimType", "ClaimValue", "RoleId"],
-                values: new object[,]
-                {
-                    { 1, "Permissions", "Edit", "91D78E3D-3170-4057-A6ED-6A78E84B2E73" },
-                    { 2, "Permissions", "Edit", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
-                    { 3, "VehicleConfiguration", "Edit", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
-                    { 4, "VORData", "Read", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
-                    { 5, "Permissions", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
-                    { 6, "VehicleConfiguration", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
-                    { 7, "VORData", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
-                    { 8, "VehicleConfiguration", "Read", "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB" },
-                    { 9, "VORData", "Read", "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB" },
-                });
-
-            migrationBuilder.UpdateData(
-                table: "AspNetUsers",
-                keyColumn: "Id",
-                keyValue: "55BFD5CA-BFD4-4833-8790-4177D5C895A4",
-                columns: ["ConcurrencyStamp", "SecurityStamp"],
-                values: ["22b18e57-1b53-4d69-adf4-29e94689b409", "cf98f09a-4e97-4e6d-975c-2ebcecc470bb"]);
-
-            migrationBuilder.InsertData(
-                table: "Log",
-                columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
-                values: [Guid.NewGuid(), "Applied AddDefaultClaims migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
-        }
-
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
@@ -105,6 +73,38 @@ namespace Dashboard.Migrations
                 table: "Log",
                 columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
                 values: [Guid.NewGuid(), "Reverted AddDefaultClaims migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
+        }
+
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.InsertData(
+                table: "AspNetRoleClaims",
+                columns: ["Id", "ClaimType", "ClaimValue", "RoleId"],
+                values: new object[,]
+                {
+                    { 1, "Permissions", "Edit", "91D78E3D-3170-4057-A6ED-6A78E84B2E73" },
+                    { 2, "Permissions", "Edit", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
+                    { 3, "VehicleConfiguration", "Edit", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
+                    { 4, "VORData", "Read", "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67" },
+                    { 5, "Permissions", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
+                    { 6, "VehicleConfiguration", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
+                    { 7, "VORData", "Read", "872C8D27-13EE-4805-9604-FBA55BD26477" },
+                    { 8, "VehicleConfiguration", "Read", "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB" },
+                    { 9, "VORData", "Read", "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB" },
+                });
+
+            migrationBuilder.UpdateData(
+                table: "AspNetUsers",
+                keyColumn: "Id",
+                keyValue: "55BFD5CA-BFD4-4833-8790-4177D5C895A4",
+                columns: ["ConcurrencyStamp", "SecurityStamp"],
+                values: ["22b18e57-1b53-4d69-adf4-29e94689b409", "cf98f09a-4e97-4e6d-975c-2ebcecc470bb"]);
+
+            migrationBuilder.InsertData(
+                table: "Log",
+                columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
+                values: [Guid.NewGuid(), "Applied AddDefaultClaims migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
         }
     }
 }

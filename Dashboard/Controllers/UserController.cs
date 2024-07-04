@@ -20,6 +20,13 @@ public class UserController(IUserService userService) : Users.UsersBase
 {
     private readonly IUserService userService = userService;
 
+    public override async Task<GetUserResponse> Get(GetUserRequest request, ServerCallContext context)
+    {
+        var user = await userService.GetUserWithRole(request.Id) ?? throw new RpcException(new Status(StatusCode.NotFound, "User not found"));
+
+        return new GetUserResponse { User = user };
+    }
+
     public override async Task GetAll(GetAllUsersRequest request, IServerStreamWriter<GetAllUsersResponse> responseStream, ServerCallContext context)
     {
         await foreach (var user in userService.GetUsersWithRole())
@@ -29,13 +36,6 @@ public class UserController(IUserService userService) : Users.UsersBase
                 User = user,
             });
         }
-    }
-
-    public override async Task<GetUserResponse> Get(GetUserRequest request, ServerCallContext context)
-    {
-        var user = await userService.GetUserWithRole(request.Id) ?? throw new RpcException(new Status(StatusCode.NotFound, "User not found"));
-
-        return new GetUserResponse { User = user };
     }
 
     [Authorize(Policy = "CanEditUsers")]

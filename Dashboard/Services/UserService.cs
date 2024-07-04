@@ -42,20 +42,6 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
         return await ToUserWithRole(user);
     }
 
-    private async Task<Grpc.UserWithRole> ToUserWithRole(ApplicationUser user)
-    {
-        var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault() ?? string.Empty;
-        var roleId = string.IsNullOrEmpty(role) ? string.Empty : ((await roleManager.FindByNameAsync(role))?.Id ?? string.Empty);
-
-        return new Grpc.UserWithRole
-        {
-            Id = user.Id,
-            Name = user.RealName,
-            Role = role,
-            RoleId = roleId,
-        };
-    }
-
     /// <inheritdoc/>
     public async Task<bool> SetUserRole(Grpc.UpdateUserRequest update)
     {
@@ -77,5 +63,19 @@ internal class UserService(UserManager<ApplicationUser> userManager, RoleManager
         await userManager.AddToRoleAsync(user, r.Name!);
 
         return true;
+    }
+
+    private async Task<Grpc.UserWithRole> ToUserWithRole(ApplicationUser user)
+    {
+        var role = (await userManager.GetRolesAsync(user))?.FirstOrDefault() ?? string.Empty;
+        var roleId = string.IsNullOrEmpty(role) ? string.Empty : ((await roleManager.FindByNameAsync(role))?.Id ?? string.Empty);
+
+        return new Grpc.UserWithRole
+        {
+            Id = user.Id,
+            Name = user.RealName,
+            Role = role,
+            RoleId = roleId,
+        };
     }
 }

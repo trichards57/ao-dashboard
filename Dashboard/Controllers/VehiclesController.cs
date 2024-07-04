@@ -20,6 +20,13 @@ public class VehiclesController(IVehicleService vehicleService) : Grpc.Vehicles.
 {
     private readonly IVehicleService vehicleService = vehicleService;
 
+    public override async Task<GetVehicleResponse> Get(GetVehicleRequest request, ServerCallContext context)
+    {
+        var vehicle = await vehicleService.GetSettingsAsync(Guid.Parse(request.Id)) ?? throw new RpcException(new Status(StatusCode.NotFound, "Vehicle not found"));
+
+        return new GetVehicleResponse { Vehicle = vehicle };
+    }
+
     public override async Task GetAll(GetAllVehiclesRequest request, IServerStreamWriter<GetAllVehiclesResponse> responseStream, ServerCallContext context)
     {
         await foreach (var vehicle in vehicleService.GetSettingsAsync(request.Place))
@@ -29,13 +36,6 @@ public class VehiclesController(IVehicleService vehicleService) : Grpc.Vehicles.
                 Vehicle = vehicle,
             });
         }
-    }
-
-    public override async Task<GetVehicleResponse> Get(GetVehicleRequest request, ServerCallContext context)
-    {
-        var vehicle = await vehicleService.GetSettingsAsync(Guid.Parse(request.Id)) ?? throw new RpcException(new Status(StatusCode.NotFound, "Vehicle not found"));
-
-        return new GetVehicleResponse { Vehicle = vehicle };
     }
 
     [Authorize(Policy = "CanEditVehicles")]

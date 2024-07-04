@@ -15,6 +15,23 @@ namespace Dashboard.Migrations;
 public partial class InitialModel : Migration
 {
     /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropTable(
+            name: "Incidents");
+
+        migrationBuilder.DropTable(
+            name: "KeyDates");
+
+        migrationBuilder.DropTable(
+            name: "Vehicles");
+
+        migrationBuilder.DropColumn(
+            name: "RealName",
+            table: "AspNetUsers");
+    }
+
+    /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<string>(
@@ -89,22 +106,5 @@ public partial class InitialModel : Migration
             name: "IX_Incidents_VehicleId",
             table: "Incidents",
             column: "VehicleId");
-    }
-
-    /// <inheritdoc />
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-        migrationBuilder.DropTable(
-            name: "Incidents");
-
-        migrationBuilder.DropTable(
-            name: "KeyDates");
-
-        migrationBuilder.DropTable(
-            name: "Vehicles");
-
-        migrationBuilder.DropColumn(
-            name: "RealName",
-            table: "AspNetUsers");
     }
 }

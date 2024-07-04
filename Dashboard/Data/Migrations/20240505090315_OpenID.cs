@@ -15,6 +15,22 @@ namespace Dashboard.Migrations
     public partial class OpenID : Migration
     {
         /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "OpenIddictScopes");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictTokens");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictAuthorizations");
+
+            migrationBuilder.DropTable(
+                name: "OpenIddictApplications");
+        }
+
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -161,22 +177,6 @@ namespace Dashboard.Migrations
                 column: "ReferenceId",
                 unique: true,
                 filter: "[ReferenceId] IS NOT NULL");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropTable(
-                name: "OpenIddictScopes");
-
-            migrationBuilder.DropTable(
-                name: "OpenIddictTokens");
-
-            migrationBuilder.DropTable(
-                name: "OpenIddictAuthorizations");
-
-            migrationBuilder.DropTable(
-                name: "OpenIddictApplications");
         }
     }
 }

@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client.Model.Converters;
+namespace VorUploader;
 
 /// <summary>
 /// Converter for <see cref="DateOnly"/> to and from gRPC.
@@ -17,21 +17,21 @@ public static class DateOnlyConverter
     /// </summary>
     /// <param name="date">The date to convert.</param>
     /// <returns>The converted date.</returns>
-    public static DateOnly ToData(Grpc.DateOnly date) => new((int)date.Year, (int)date.Month, (int)date.Day);
+    public static DateOnly ToData(Dashboard.Grpc.DateOnly date) => new((int)date.Year, (int)date.Month, (int)date.Day);
 
     /// <summary>
     /// Converts a <see cref="DateOnly"/> to a gRPC <see cref="Grpc.DateOnly"/>.
     /// </summary>
     /// <param name="date">The date to convert.</param>
     /// <returns>The converted date.</returns>
-    public static Grpc.DateOnly? ToGrpc(DateOnly? date)
+    public static Dashboard.Grpc.DateOnly? ToGrpc(DateOnly? date)
     {
         if (date == null)
         {
             return null;
         }
 
-        return new Grpc.DateOnly
+        return new Dashboard.Grpc.DateOnly
         {
             Year = (uint)date.Value.Year,
             Month = (uint)date.Value.Month,
@@ -44,7 +44,7 @@ public static class DateOnlyConverter
     /// </summary>
     /// <param name="date">The date to convert.</param>
     /// <returns>The converted date.</returns>
-    public static Grpc.DateOnly ToGrpc(DateOnly date) => new()
+    public static Dashboard.Grpc.DateOnly ToGrpc(DateOnly date) => new()
     {
         Year = (uint)date.Year,
         Month = (uint)date.Month,

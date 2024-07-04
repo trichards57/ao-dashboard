@@ -14,8 +14,8 @@ namespace Dashboard.Services;
 
 public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorkerSettings> options) : IHostedService
 {
-    private readonly IServiceProvider serviceProvider = serviceProvider;
     private readonly OpenIdWorkerSettings options = options.Value;
+    private readonly IServiceProvider serviceProvider = serviceProvider;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

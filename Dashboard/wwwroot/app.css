@@ -479,9 +479,9 @@ a:not(.simple).delete, button.delete {
         color: black;
     }
 
-    a.simple {
-        color: var(--primary);
-    }
+a.simple {
+    color: var(--primary);
+}
 
 @media(min-width: 768px) {
     .container.expands {

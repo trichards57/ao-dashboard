@@ -15,6 +15,54 @@ namespace Dashboard.Migrations
     public partial class DataInitialisation : Migration
     {
         /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropIndex(
+                name: "IX_Vehicles_Registration",
+                table: "Vehicles");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "872C8D27-13EE-4805-9604-FBA55BD26477");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUserRoles",
+                keyColumns: new[] { "RoleId", "UserId" },
+                keyValues: new object[] { "91D78E3D-3170-4057-A6ED-6A78E84B2E73", "55BFD5CA-BFD4-4833-8790-4177D5C895A4" });
+
+            migrationBuilder.DeleteData(
+                table: "KeyDates",
+                keyColumn: "Id",
+                keyValue: 1);
+
+            migrationBuilder.DeleteData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "91D78E3D-3170-4057-A6ED-6A78E84B2E73");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUsers",
+                keyColumn: "Id",
+                keyValue: "55BFD5CA-BFD4-4833-8790-4177D5C895A4");
+
+            migrationBuilder.InsertData(
+                table: "Log",
+                columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
+                values: [Guid.NewGuid(), "Reverted DataInitialisation migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
+        }
+
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -70,54 +118,6 @@ namespace Dashboard.Migrations
                 table: "Log",
                 columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
                 values: [Guid.NewGuid(), "Applied DataInitialisation migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropIndex(
-                name: "IX_Vehicles_Registration",
-                table: "Vehicles");
-
-            migrationBuilder.DeleteData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "10E21EC1-EC61-4CF9-A61C-8DEE0D47F3AB");
-
-            migrationBuilder.DeleteData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "872C8D27-13EE-4805-9604-FBA55BD26477");
-
-            migrationBuilder.DeleteData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "AE832A97-CDDE-4C7D-AAD3-16943FEB7E67");
-
-            migrationBuilder.DeleteData(
-                table: "AspNetUserRoles",
-                keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { "91D78E3D-3170-4057-A6ED-6A78E84B2E73", "55BFD5CA-BFD4-4833-8790-4177D5C895A4" });
-
-            migrationBuilder.DeleteData(
-                table: "KeyDates",
-                keyColumn: "Id",
-                keyValue: 1);
-
-            migrationBuilder.DeleteData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "91D78E3D-3170-4057-A6ED-6A78E84B2E73");
-
-            migrationBuilder.DeleteData(
-                table: "AspNetUsers",
-                keyColumn: "Id",
-                keyValue: "55BFD5CA-BFD4-4833-8790-4177D5C895A4");
-
-            migrationBuilder.InsertData(
-                table: "Log",
-                columns: ["Id", "Action", "Reason", "TimeStamp", "UserId"],
-                values: [Guid.NewGuid(), "Reverted DataInitialisation migration.", "Data Schema changed.", DateTimeOffset.UtcNow, "EF Core Migrations"]);
         }
     }
 }

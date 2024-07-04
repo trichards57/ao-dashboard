@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Syncfusion.XlsIO;
+using System.ComponentModel;
 
 namespace VorUploader;
 
@@ -20,7 +21,7 @@ internal static class FileParser
     /// <param name="file">The file to parse.</param>
     /// <param name="fileDate">The date of the file.</param>
     /// <returns>The parsed vor incidents.</returns>
-    public static IEnumerable<VorIncident> ParseFile(string file, DateOnly fileDate)
+    public static IEnumerable<Dashboard.Grpc.VorIncident> ParseFile(string file, DateOnly fileDate)
     {
         using var excelEngine = new ExcelEngine();
         using var fileItem = File.OpenRead(file);
@@ -75,7 +76,7 @@ internal static class FileParser
                 estimatedReturn = estimatedReturnDateTime == DateTime.MinValue ? null : DateOnly.FromDateTime(estimatedReturnDateTime);
             }
 
-            var incident = new VorIncident
+            var incident = new Dashboard.Grpc.VorIncident
             {
                 CallSign = fleetNum,
                 Registration = reg,
@@ -84,9 +85,9 @@ internal static class FileParser
                 Model = model,
                 Comments = comments,
                 Description = description,
-                EstimatedRepairDate = estimatedReturn,
-                StartDate = startDate,
-                UpdateDate = fileDate,
+                EstimatedRepairDate = DateOnlyConverter.ToGrpc(estimatedReturn),
+                StartDate = DateOnlyConverter.ToGrpc(startDate),
+                UpdateDate = DateOnlyConverter.ToGrpc(fileDate),
             };
 
             yield return incident;
