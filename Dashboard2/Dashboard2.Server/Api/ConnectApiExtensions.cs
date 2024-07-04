@@ -18,8 +18,18 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Dashboard2.Server.Api;
 
+/// <summary>
+/// Extension methods for the OpenID Connect API.
+/// </summary>
 internal static class ConnectApiExtensions
 {
+    /// <summary>
+    /// Maps the OpenID Connect API endpoints.
+    /// </summary>
+    /// <param name="app">The application to map to.</param>
+    /// <returns>
+    /// <paramref name="app"/> with the OpenID Connect API endpoints mapped.
+    /// </returns>
     internal static WebApplication MapConnect(this WebApplication app)
     {
         var group = app.MapGroup("/connect");
@@ -48,7 +58,7 @@ internal static class ConnectApiExtensions
             }
 
             throw new InvalidOperationException("The specified grant is invalid.");
-        });
+        }).ExcludeFromDescription();
 
         return app;
     }

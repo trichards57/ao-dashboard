@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client.Services;
 using Dashboard.Data;
 using Dashboard.Services;
 using Dashboard2.Server.Api;
@@ -90,6 +91,12 @@ builder.Services.AddAuthentication(LocalScheme)
         };
     });
 
+builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IPlaceService, PlaceService>();
+builder.Services.AddTransient<IVehicleService, VehicleService>();
+builder.Services.AddTransient<IVorService, VorService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -101,26 +108,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapConnect();
-
-/*
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast(
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-*/
+app.MapConnect()
+   .MapPlaces();
 
 app.Run();
