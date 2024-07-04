@@ -22,6 +22,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dashboard.Client", "Dashboa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dashboard", "Dashboard\Dashboard.csproj", "{D705F03E-0301-4FCF-B64C-89318C7518EC}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "dashboard2.client", "Dashboard2\dashboard2.client\dashboard2.client.esproj", "{169B08D7-B22C-45CE-BFD9-147A41337FEC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dashboard2.Server", "Dashboard2\Dashboard2.Server\Dashboard2.Server.csproj", "{369093EC-A6EB-454F-ABED-6C0F8796629E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +44,16 @@ Global
 		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D705F03E-0301-4FCF-B64C-89318C7518EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{169B08D7-B22C-45CE-BFD9-147A41337FEC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{369093EC-A6EB-454F-ABED-6C0F8796629E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{369093EC-A6EB-454F-ABED-6C0F8796629E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{369093EC-A6EB-454F-ABED-6C0F8796629E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{369093EC-A6EB-454F-ABED-6C0F8796629E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
