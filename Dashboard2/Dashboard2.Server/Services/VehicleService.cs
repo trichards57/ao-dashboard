@@ -14,7 +14,7 @@ using System.Text;
 
 namespace Dashboard.Services;
 
-internal class VehicleService(ApplicationDbContext context) : IVehicleService, Dashboard.Client.Services.IVehicleService
+internal class VehicleService(ApplicationDbContext context) : IVehicleService
 {
     private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];

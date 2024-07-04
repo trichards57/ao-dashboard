@@ -7,6 +7,7 @@
 
 using Dashboard.Data;
 using Dashboard.Services;
+using Dashboard2.Server.Api;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -99,6 +100,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapConnect();
 
 /*
 var summaries = new[]
