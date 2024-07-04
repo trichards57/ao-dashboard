@@ -8,8 +8,6 @@
 using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
 
 namespace Dashboard2.Server.Api;
 
@@ -77,12 +75,15 @@ internal static class PlaceApiExtensions
                     Type = "https://httpstatuses.com/404",
                 });
             }
-
-            await context.Response.WriteAsJsonAsync(items);
+            else
+            {
+                await context.Response.WriteAsJsonAsync(items);
+            }
         })
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .Produces<IEnumerable<string>>(StatusCodes.Status200OK)
+            .WithName("GetHubs")
             .WithSummary("Gets all of the hubs in a district.");
 
         return app;

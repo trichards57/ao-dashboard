@@ -109,6 +109,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapConnect()
+   .MapRoles()
    .MapPlaces();
 
 app.Run();

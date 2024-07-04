@@ -74,9 +74,20 @@ internal class RoleService(RoleManager<IdentityRole> roleManager) : IRoleService
 
         var claims = await roleManager.GetClaimsAsync(role);
 
-        await UpdateClaim(role, claims, UserClaims.VehicleConfiguration, permissions.VehicleConfiguration);
-        await UpdateClaim(role, claims, UserClaims.VorData, permissions.VorData);
-        await UpdateClaim(role, claims, UserClaims.Permissions, permissions.Permissions);
+        if (permissions.VehicleConfiguration != null)
+        {
+            await UpdateClaim(role, claims, UserClaims.VehicleConfiguration, permissions.VehicleConfiguration.Value);
+        }
+
+        if (permissions.VorData != null)
+        {
+            await UpdateClaim(role, claims, UserClaims.VorData, permissions.VorData.Value);
+        }
+
+        if (permissions.Permissions != null)
+        {
+            await UpdateClaim(role, claims, UserClaims.Permissions, permissions.Permissions.Value);
+        }
 
         return true;
     }

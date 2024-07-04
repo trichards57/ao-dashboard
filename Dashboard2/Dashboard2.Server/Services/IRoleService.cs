@@ -96,15 +96,15 @@ public sealed class RolePermissionsUpdate
     /// <summary>
     /// Gets or sets the new Permissions permission for the role.
     /// </summary>
-    public ReadWrite Permissions { get; set; }
+    public ReadWrite? Permissions { get; set; }
 
     /// <summary>
     /// Gets or sets the new Vehicle Configuration permission for the role.
     /// </summary>
-    public ReadWrite VehicleConfiguration { get; set; }
+    public ReadWrite? VehicleConfiguration { get; set; }
 
     /// <summary>
     /// Gets or sets the new VOR Data permission for the role.
     /// </summary>
-    public ReadWrite VorData { get; set; }
+    public ReadWrite? VorData { get; set; }
 }
