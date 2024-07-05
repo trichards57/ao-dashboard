@@ -1,6 +1,7 @@
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { userMeOptions } from "./queries/user-queries";
 import { RouterProvider } from "@tanstack/react-router";
+import { RootContext } from "./routes/__root";
 
 export const InnerApp = ({
   queryClient,
@@ -11,11 +12,31 @@ export const InnerApp = ({
   router: any;
 }) => {
   const meQuery = useSuspenseQuery(userMeOptions);
+  const me = meQuery.data;
 
-  const context = {
+  const canEditRoles = me?.role == "Administrator";
+  const canEditVehicles = me?.otherClaims["VehicleConfiguration"] == "Edit";
+  const canViewVor =
+    me?.otherClaims["VORData"] == "Read" ||
+    me?.otherClaims["VORData"] == "Edit";
+  const canViewUsers =
+    me?.otherClaims["Permissions"] == "Read" ||
+    me?.otherClaims["Permissions"] == "Edit";
+
+  const context: RootContext = {
     queryClient,
-    ...meQuery.data,
+    realName: me?.realName ?? "",
+    userId: me?.realName ?? "",
+    email: me?.email ?? "",
+    role: me?.role ?? "",
+    amrUsed: me?.amrUsed ?? "",
+    lastAuthenticated: me?.lastAuthenticated ?? "",
+    otherClaims: me?.otherClaims ?? {},
     loggedIn: meQuery.data !== null,
+    canEditRoles,
+    canEditVehicles,
+    canViewVor,
+    canViewUsers,
   };
 
   return <RouterProvider router={router} context={context} />;
