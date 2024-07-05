@@ -111,6 +111,8 @@ app.UseHttpsRedirection();
 app.MapConnect()
    .MapRoles()
    .MapUsers()
-   .MapPlaces();
+   .MapPlaces()
+   .MapVehicles()
+   .MapVor();
 
 app.Run();
