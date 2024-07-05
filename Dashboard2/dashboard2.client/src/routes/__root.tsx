@@ -1,5 +1,9 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  useRouteContext,
+} from "@tanstack/react-router";
 import React from "react";
 import Navbar from "../components/navbar";
 import { UserInfo, userMeOptions } from "../queries/user-queries";
@@ -17,15 +21,8 @@ const TanStackRouterDevtools =
 const Root = () => {
   const meQuery = useSuspenseQuery(userMeOptions);
   const me = meQuery.data;
-
-  const canEditRoles = me?.role == "Administrator";
-  const canEditVehicles = me?.otherClaims["VehicleConfiguration"] == "Edit";
-  const canViewVor =
-    me?.otherClaims["VORData"] == "Read" ||
-    me?.otherClaims["VORData"] == "Edit";
-  const canViewUsers =
-    me?.otherClaims["Permissions"] == "Read" ||
-    me?.otherClaims["Permissions"] == "Edit";
+  const { canEditRoles, canEditVehicles, canViewUsers, canViewVor } =
+    useRouteContext({ strict: false });
 
   return (
     <>
@@ -49,6 +46,10 @@ const Root = () => {
 export interface RootContext extends UserInfo {
   queryClient: QueryClient;
   loggedIn: boolean;
+  canEditRoles: boolean;
+  canEditVehicles: boolean;
+  canViewUsers: boolean;
+  canViewVor: boolean;
 }
 
 export const Route = createRootRouteWithContext<RootContext>()({

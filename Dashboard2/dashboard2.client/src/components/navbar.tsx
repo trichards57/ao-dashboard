@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 
 interface NavbarProps {
@@ -19,6 +19,7 @@ export default function Navbar({
   name = undefined,
 }: NavbarProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const search = useSearch({ strict: false });
 
   const burgerClass = showMenu ? "navbar-burger is-active" : "navbar-burger";
   const menuClass = showMenu ? "navbar-menu is-active" : "navbar-menu";
@@ -45,7 +46,11 @@ export default function Navbar({
       <div className={menuClass}>
         <div className="navbar-start">
           {loggedIn ? (
-            <Link to="/home" className="navbar-item">
+            <Link
+              to="/home"
+              search={{ region: "", hub: "", district: "", ...search }}
+              className="navbar-item"
+            >
               Home
             </Link>
           ) : (
@@ -54,7 +59,11 @@ export default function Navbar({
             </Link>
           )}
           {canViewVor && (
-            <Link className="navbar-item" to="/vehicles/status">
+            <Link
+              className="navbar-item"
+              to="/vehicles/status"
+              search={{ region: "", hub: "", district: "", ...search }}
+            >
               Vehicle Status
             </Link>
           )}

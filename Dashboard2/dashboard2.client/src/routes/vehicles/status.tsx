@@ -80,10 +80,16 @@ const VehicleStatus = () => {
 };
 
 export const Route = createFileRoute("/vehicles/status")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, search }) => {
     if (!context.loggedIn) {
       throw redirect({
         to: "/",
+      });
+    }
+    if (!context.canViewVor) {
+      throw redirect({
+        to: "/home",
+        search: search,
       });
     }
   },
