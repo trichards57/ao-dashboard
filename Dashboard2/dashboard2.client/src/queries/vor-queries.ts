@@ -18,9 +18,9 @@ export interface VorStatus {
 }
 
 export const statisticsOptions = (
-  region: string,
-  district: string,
-  hub: string,
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
 ) => ({
   queryKey: ["statistics", region ?? "All", district ?? "All", hub ?? "All"],
   queryFn: async () => {
@@ -43,9 +43,9 @@ export const statisticsOptions = (
 });
 
 export const statusOptions = (
-  region: string,
-  district: string,
-  hub: string,
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
 ) => ({
   queryKey: ["status", region ?? "All", district ?? "All", hub ?? "All"],
   queryFn: async () => {

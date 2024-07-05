@@ -4,6 +4,7 @@ import { statusOptions } from "../../queries/vor-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import PagePicker from "../../components/page-picker";
+import validatePlace from "../../support/validate-place";
 
 const PageSize = 10;
 
@@ -93,15 +94,7 @@ export const Route = createFileRoute("/vehicles/status")({
       });
     }
   },
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { region: string; district: string; hub: string } => {
-    return {
-      region: search.region as string,
-      district: search.district as string,
-      hub: search.hub as string,
-    };
-  },
+  validateSearch: validatePlace,
   loaderDeps: ({ search: { region, district, hub } }) => ({
     region,
     district,

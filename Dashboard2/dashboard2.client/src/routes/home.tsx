@@ -4,6 +4,7 @@ import { statisticsOptions } from "../queries/vor-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Line, Pie } from "react-chartjs-2";
 import "chart.js/auto";
+import validatePlace from "../support/validate-place";
 
 function dateLabel(d: string) {
   const date = new Date(d);
@@ -116,15 +117,7 @@ export const Route = createFileRoute("/home")({
       });
     }
   },
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { region: string; district: string; hub: string } => {
-    return {
-      region: search.region as string,
-      district: search.district as string,
-      hub: search.hub as string,
-    };
-  },
+  validateSearch: validatePlace,
   loaderDeps: ({ search: { region, district, hub } }) => ({
     region,
     district,
