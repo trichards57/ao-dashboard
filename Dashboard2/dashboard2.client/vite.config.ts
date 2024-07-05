@@ -54,6 +54,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      "^/signin-microsoft": {
+        target,
+        secure: false,
+      },
       "^/Identity/Account": {
         target,
         secure: false,

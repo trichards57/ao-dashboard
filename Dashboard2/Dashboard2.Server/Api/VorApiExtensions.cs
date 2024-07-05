@@ -28,8 +28,8 @@ namespace Dashboard2.Server.Api
             {
                 var statistics = await vorService.GetVorStatisticsAsync(place);
 
-                await context.Response.WriteAsJsonAsync(statistics);
                 context.Response.StatusCode = StatusCodes.Status200OK;
+                await context.Response.WriteAsJsonAsync(statistics);
             })
                 .Produces<VorStatistics>(StatusCodes.Status200OK)
                 .WithName("GetVorStatistics")
@@ -39,8 +39,8 @@ namespace Dashboard2.Server.Api
             {
                 var statuses = vorService.GetVorStatusesAsync(place);
 
-                await context.Response.WriteAsJsonAsync(statuses);
                 context.Response.StatusCode = StatusCodes.Status200OK;
+                await context.Response.WriteAsJsonAsync(statuses);
             })
                 .Produces<IEnumerable<VorStatus>>(StatusCodes.Status200OK)
                 .WithName("GetVorStatus")

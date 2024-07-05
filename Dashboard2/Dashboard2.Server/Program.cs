@@ -7,6 +7,7 @@
 
 using Dashboard.Client;
 using Dashboard.Client.Services;
+using Dashboard.Components.Account;
 using Dashboard.Data;
 using Dashboard.Services;
 using Dashboard2.Server.Api;
@@ -110,6 +111,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPlaceService, PlaceService>();
 builder.Services.AddTransient<IVehicleService, VehicleService>();
 builder.Services.AddTransient<IVorService, VorService>();
+builder.Services.AddTransient<IEmailSender<ApplicationUser>, IdentityEmailSender>();
 
 builder.Services.AddOpenIddict()
     .AddCore(o =>

@@ -1,1 +1,20 @@
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css";
+
+.vehicle-availability-container {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media(min-width: 768px) {
+    .historic-availability-container {
+        max-width: 480px;
+    }
+}
+
+@media(min-width: 1024px) {
+    .historic-availability-container {
+        width: 700px;
+        max-width: unset;
+    }
+}
