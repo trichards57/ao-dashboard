@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-
 export interface UserInfo {
   realName: string;
   userId: string;
@@ -27,7 +25,3 @@ export const userMeOptions = {
     return response.json() as Promise<UserInfo>;
   },
 };
-
-export function useUserMe() {
-  return useQuery(userMeOptions);
-}
