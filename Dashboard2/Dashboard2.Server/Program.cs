@@ -110,6 +110,7 @@ app.UseHttpsRedirection();
 
 app.MapConnect()
    .MapRoles()
+   .MapUsers()
    .MapPlaces();
 
 app.Run();
