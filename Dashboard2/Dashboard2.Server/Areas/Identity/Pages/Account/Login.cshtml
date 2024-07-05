@@ -1,0 +1,53 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1 class="title">@ViewData["Title"]</h1>
+
+<section class="block">
+    <h2 class="subtitle">Use your SJA Account</h2>
+
+    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div class="is-flex is-justify-content-center">
+            <button type="submit" class="button ms-login" name="provider" value="Microsoft" title="Sign in with Microsoft" />
+        </div>
+    </form>
+</section>
+
+<section class="block">
+    <h2 class="subtitle">Use a Local Account</h2>
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" class="notification is-danger" role="alert"></div>
+        <div class="field">
+            <label asp-for="Input.Email" class="label">Email</label>
+            <input asp-for="Input.Email" class="input" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+            <span asp-validation-for="Input.Email" class="help is-danger"></span>
+        </div>
+        <div class="field">
+            <label asp-for="Input.Password" class="label">Password</label>
+            <input asp-for="Input.Password" class="input" autocomplete="current-password" aria-required="true" placeholder="password" />
+            <span asp-validation-for="Input.Password" class="help is-danger"></span>
+        </div>
+        <div class="field">
+            <div class="control">
+                <label asp-for="Input.RememberMe" class="checkbox">
+                    <input class="form-check-input" asp-for="Input.RememberMe" />
+                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                </label>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="button is-primary is-fullwidth" type="submit">Sign In</button>
+            <a class="button is-link is-fullwidth" asp-page="./ForgotPassword">Forgot your password?</a>
+            <a class="button is-link is-fullwidth" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+            <a class="button is-link is-fullwidth" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

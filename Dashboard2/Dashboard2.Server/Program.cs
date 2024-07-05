@@ -42,6 +42,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString);
     options.UseOpenIddict();
 });
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
@@ -60,6 +61,8 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.Cookie.Name = "Dashboard-Auth";
     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
+builder.Services.AddRazorPages();
 
 const string LocalScheme = "LocalScheme";
 
@@ -107,6 +110,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.MapConnect()
    .MapRoles()
@@ -114,5 +118,7 @@ app.MapConnect()
    .MapPlaces()
    .MapVehicles()
    .MapVor();
+
+app.MapRazorPages();
 
 app.Run();
