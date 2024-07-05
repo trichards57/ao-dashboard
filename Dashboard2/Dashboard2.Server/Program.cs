@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Data;
 using Dashboard.Services;
@@ -56,10 +57,20 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders()
     .AddClaimsPrincipalFactory<AccountUserClaimsPrincipalFactory>();
 
+builder.Services.AddAuthorization(a =>
+{
+    a.AddPolicies();
+});
+
 builder.Services.ConfigureApplicationCookie(o =>
 {
     o.Cookie.Name = "Dashboard-Auth";
     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Events.OnRedirectToLogin = c =>
+    {
+        c.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddRazorPages();
@@ -99,6 +110,28 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPlaceService, PlaceService>();
 builder.Services.AddTransient<IVehicleService, VehicleService>();
 builder.Services.AddTransient<IVorService, VorService>();
+
+builder.Services.AddOpenIddict()
+    .AddCore(o =>
+    {
+        o.UseEntityFrameworkCore().UseDbContext<ApplicationDbContext>();
+        o.UseQuartz();
+    })
+    .AddServer(o =>
+    {
+        o.SetTokenEndpointUris("/connect/token");
+        o.SetRevocationEndpointUris("/connect/revoke");
+        o.SetUserinfoEndpointUris("/connect/user");
+        o.AllowClientCredentialsFlow();
+        o.AddEphemeralEncryptionKey();
+        o.AddEphemeralSigningKey();
+        o.UseAspNetCore().EnableTokenEndpointPassthrough();
+    })
+    .AddValidation(o =>
+    {
+        o.UseLocalServer();
+        o.UseAspNetCore();
+    });
 
 var app = builder.Build();
 

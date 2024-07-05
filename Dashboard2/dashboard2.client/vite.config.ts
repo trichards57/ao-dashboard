@@ -66,6 +66,22 @@ export default defineConfig({
         target,
         secure: false,
       },
+      "^/.well-known": {
+        target,
+        secure: false,
+      },
+      "^/connect": {
+        target,
+        secure: false,
+      },
+      "^/swagger": {
+        target,
+        secure: false,
+      },
+      "^/api": {
+        target,
+        secure: false,
+      },
     },
     port: 5173,
     https: {

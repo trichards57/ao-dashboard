@@ -2,21 +2,21 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 interface NavbarProps {
-  loggedIn: boolean;
-  canViewVor: boolean;
-  canEditVehicles: boolean;
-  canViewUsers: boolean;
-  canEditRoles: boolean;
-  name: string;
+  loggedIn?: boolean;
+  canViewVor?: boolean;
+  canEditVehicles?: boolean;
+  canViewUsers?: boolean;
+  canEditRoles?: boolean;
+  name?: string;
 }
 
 export default function Navbar({
-  loggedIn,
-  canViewVor,
-  canEditRoles,
-  canEditVehicles,
-  canViewUsers,
-  name,
+  loggedIn = false,
+  canViewVor = false,
+  canEditRoles = false,
+  canEditVehicles = false,
+  canViewUsers = false,
+  name = undefined,
 }: NavbarProps) {
   const [showMenu, setShowMenu] = useState(false);
 

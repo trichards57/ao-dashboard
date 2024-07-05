@@ -5,10 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Client;
 using Dashboard.Client.Services;
 using Dashboard.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace Dashboard2.Server.Api
 {
@@ -54,6 +58,41 @@ namespace Dashboard2.Server.Api
                 .Produces(StatusCodes.Status404NotFound)
                 .WithName("GetUser")
                 .WithSummary("Gets the user with their role.");
+
+            group.MapGet("me", async ([FromServices] UserManager<ApplicationUser> userManager, IOptions<IdentityOptions> optionsAccessor, HttpContext context) =>
+            {
+                var options = optionsAccessor.Value;
+
+                var userId = context.User.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
+                var name = context.User.FindFirst(ClaimTypes.Name)?.Value;
+                var email = context.User.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+                var role = context.User.FindFirst(options.ClaimsIdentity.RoleClaimType)?.Value;
+                var amrUsed = context.User.FindFirst(ClaimTypes.AuthenticationMethod)?.Value;
+                var lastAuthenticated = context.User.FindFirst("auth_time")?.Value;
+
+                await context.Response.WriteAsJsonAsync(new UserInfo
+                {
+                    UserId = userId!,
+                    Email = email!,
+                    Role = role ?? "None",
+                    RealName = name ?? email!,
+                    AmrUsed = amrUsed ?? "Unknown",
+                    LastAuthenticated = lastAuthenticated != null ? DateTimeOffset.Parse(lastAuthenticated, CultureInfo.InvariantCulture) : null,
+                    OtherClaims = context.User.Claims
+                            .Where(c =>
+                                c.Type != options.ClaimsIdentity.UserIdClaimType &&
+                                c.Type != ClaimTypes.Name &&
+                                c.Type != options.ClaimsIdentity.EmailClaimType &&
+                                c.Type != options.ClaimsIdentity.RoleClaimType &&
+                                c.Type != ClaimTypes.AuthenticationMethod &&
+                                c.Type != "auth_time")
+                            .ToDictionary(c => c.Type, c => c.Value),
+                });
+            })
+                .RequireAuthorization()
+                .Produces<UserInfo>(StatusCodes.Status200OK)
+                .WithName("GetMe")
+                .WithSummary("Gets information about the current user.");
 
             group.MapPost("{id}", async ([FromServices] IUserService userService, [FromServices] UserManager<ApplicationUser> userManager, [FromRoute] string id, [FromBody] UserRoleUpdate role, HttpContext context) =>
             {
