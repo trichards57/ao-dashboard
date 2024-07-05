@@ -1,18 +1,6 @@
-import {
-  Navigate,
-  createLazyFileRoute,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 const Index = () => {
-  const context = useRouteContext({ from: "/" });
-
-  console.log(context);
-
-  if (context.loggedIn) {
-    return <Navigate to="/home" />;
-  }
-
   return (
     <section className="hero">
       <div className="hero-body">
@@ -31,6 +19,13 @@ const Index = () => {
   );
 };
 
-export const Route = createLazyFileRoute("/")({
+export const Route = createFileRoute("/")({
+  beforeLoad: ({ context }) => {
+    if (context.loggedIn) {
+      throw redirect({
+        to: "/home",
+      });
+    }
+  },
   component: Index,
 });
