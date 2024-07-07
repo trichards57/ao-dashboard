@@ -1,9 +1,30 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import validatePlace from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
 import { settingsOptions } from "../../queries/vehicle-queries";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import PagePicker from "../../components/page-picker";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
+import { regionToString } from "../../components/region-converter";
+
+const PageSize = 10;
 
 const VehicleConfig = () => {
+  const { region, district, hub } = useSearch({ from: "/vehicles/config" }) as {
+    region: string;
+    district: string;
+    hub: string;
+  };
+  const { data } = useSuspenseQuery(settingsOptions(region, district, hub));
+  const [page, setPage] = useState(0);
+
+  const itemsToDisplay = (data ?? [])
+    .sort((a, b) => a.callSign.localeCompare(b.callSign))
+    .slice(page * PageSize, (page + 1) * PageSize);
+  const showPagination = data.length > PageSize;
+
   return (
     <>
       <h1 className="title">Vehicle Setup</h1>
@@ -21,43 +42,39 @@ const VehicleConfig = () => {
             </tr>
           </thead>
           <tbody>
-            {/* if (StatusesToDisplay.Any())
-              { */}
-            {/* foreach (var s in StatusesToDisplay.Skip(page * PageSize).Take(PageSize))
-                  { */}
-            <tr>
-              <td className="edit-col">
-                <a href="/vehicles/config/@s.Id">
-                  <img className="fa-img" src="/img/fa/pen.svg" />
-                </a>
-              </td>
-              <td className="call-sign-col">@s.CallSign</td>
-              <td className="reg-col">@s.Registration</td>
-              <td className="place-col">
-                @RegionConverter.ToDisplayString(s.Region)
-              </td>
-              <td className="place-col">@s.District</td>
-              <td className="place-col">@s.Hub</td>
-            </tr>
-            {/* }
-              }
-              else
-              { */}
-            <tr>
-              <td colSpan={6} className="no-vehicles">
-                No Vehicles
-              </td>
-            </tr>
-            {/* } */}
+            {itemsToDisplay.length > 0 &&
+              itemsToDisplay.map((i) => (
+                <tr key={i.id}>
+                  <td className="edit-col">
+                    <a href={`/vehicles/config/${i.id}`}>
+                      <FontAwesomeIcon icon={faPen} />
+                    </a>
+                  </td>
+                  <td className="call-sign-col">{i.callSign}</td>
+                  <td className="reg-col">{i.registration}</td>
+                  <td className="place-col">{regionToString(i.region)}</td>
+                  <td className="place-col">{i.district}</td>
+                  <td className="place-col">{i.hub}</td>
+                </tr>
+              ))}
+
+            {itemsToDisplay.length === 0 && (
+              <tr>
+                <td colSpan={5} className="no-vehicles subtitle is-6">
+                  No Vehicles
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
-      {/* @if (ShowPagination)
-  {
-      <PagePicker Page="@(page)"
-                  Pages="@((int)Math.Ceiling((float)StatusesToDisplay.Count()/PageSize))"
-                  ChangePage="p => page = p" />
-  }) */}
+      {showPagination && (
+        <PagePicker
+          page={page}
+          pages={Math.ceil(data.length / PageSize)}
+          setPage={setPage}
+        />
+      )}
     </>
   );
 };

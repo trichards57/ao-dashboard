@@ -14,7 +14,7 @@ export const settingsOptions = (
   district: string | undefined,
   hub: string | undefined,
 ) => ({
-  queryKey: ["status", region ?? "All", district ?? "All", hub ?? "All"],
+  queryKey: ["settings", region ?? "All", district ?? "All", hub ?? "All"],
   queryFn: async () => {
     const response = await fetch(
       `/api/vehicles?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,

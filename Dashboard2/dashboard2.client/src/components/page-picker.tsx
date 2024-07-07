@@ -70,7 +70,7 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
         {pagesToDisplay
           .filter((p) => p > 0 && p < pages - 1)
           .map((p) => (
-            <li>
+            <li key={p}>
               <button
                 onClick={() => setPage(p)}
                 className={
