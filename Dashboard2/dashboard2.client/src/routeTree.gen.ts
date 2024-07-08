@@ -13,9 +13,11 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as HomeImport } from './routes/home'
 import { Route as IndexImport } from './routes/index'
+import { Route as UsersIndexImport } from './routes/users/index'
 import { Route as VehiclesStatusImport } from './routes/vehicles/status'
 import { Route as VehiclesConfigImport } from './routes/vehicles/config'
 import { Route as VehiclesEditIdImport } from './routes/vehicles/edit.$id'
+import { Route as UsersEditIdImport } from './routes/users/edit.$id'
 
 // Create/Update Routes
 
@@ -26,6 +28,11 @@ const HomeRoute = HomeImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UsersIndexRoute = UsersIndexImport.update({
+  path: '/users/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -41,6 +48,11 @@ const VehiclesConfigRoute = VehiclesConfigImport.update({
 
 const VehiclesEditIdRoute = VehiclesEditIdImport.update({
   path: '/vehicles/edit/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const UsersEditIdRoute = UsersEditIdImport.update({
+  path: '/users/edit/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -76,6 +88,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VehiclesStatusImport
       parentRoute: typeof rootRoute
     }
+    '/users/': {
+      id: '/users/'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/users/edit/$id': {
+      id: '/users/edit/$id'
+      path: '/users/edit/$id'
+      fullPath: '/users/edit/$id'
+      preLoaderRoute: typeof UsersEditIdImport
+      parentRoute: typeof rootRoute
+    }
     '/vehicles/edit/$id': {
       id: '/vehicles/edit/$id'
       path: '/vehicles/edit/$id'
@@ -93,6 +119,8 @@ export const routeTree = rootRoute.addChildren({
   HomeRoute,
   VehiclesConfigRoute,
   VehiclesStatusRoute,
+  UsersIndexRoute,
+  UsersEditIdRoute,
   VehiclesEditIdRoute,
 })
 
@@ -108,6 +136,8 @@ export const routeTree = rootRoute.addChildren({
         "/home",
         "/vehicles/config",
         "/vehicles/status",
+        "/users/",
+        "/users/edit/$id",
         "/vehicles/edit/$id"
       ]
     },
@@ -122,6 +152,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/vehicles/status": {
       "filePath": "vehicles/status.tsx"
+    },
+    "/users/": {
+      "filePath": "users/index.tsx"
+    },
+    "/users/edit/$id": {
+      "filePath": "users/edit.$id.tsx"
     },
     "/vehicles/edit/$id": {
       "filePath": "vehicles/edit.$id.tsx"

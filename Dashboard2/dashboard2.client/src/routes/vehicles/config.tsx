@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
 import validatePlace from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
 import { settingsOptions } from "../../queries/vehicle-queries";
@@ -92,4 +92,16 @@ export const Route = createFileRoute("/vehicles/config")({
     );
   },
   component: VehicleConfig,
+  beforeLoad: ({ context }) => {
+    if (!context.loggedIn) {
+      throw redirect({
+        to: "/",
+      });
+    }
+    if (!context.canEditVehicles) {
+      throw redirect({
+        to: "/home",
+      });
+    }
+  },
 });

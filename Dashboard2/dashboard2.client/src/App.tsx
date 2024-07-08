@@ -26,7 +26,7 @@ export const InnerApp = ({
   const context: RootContext = {
     queryClient,
     realName: me?.realName ?? "",
-    userId: me?.realName ?? "",
+    userId: me?.userId ?? "",
     email: me?.email ?? "",
     role: me?.role ?? "",
     amrUsed: me?.amrUsed ?? "",

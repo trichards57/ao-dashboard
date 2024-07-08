@@ -1,5 +1,6 @@
 import {
   createFileRoute,
+  redirect,
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
@@ -228,5 +229,17 @@ export const Route = createFileRoute("/vehicles/edit/$id")({
   component: EditVehicle,
   loader: ({ params, context }) => {
     return context.queryClient.ensureQueryData(vehicleSettings(params.id));
+  },
+  beforeLoad: ({ context }) => {
+    if (!context.loggedIn) {
+      throw redirect({
+        to: "/",
+      });
+    }
+    if (!context.canEditVehicles) {
+      throw redirect({
+        to: "/home",
+      });
+    }
   },
 });
