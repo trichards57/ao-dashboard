@@ -33,7 +33,7 @@ const EditUser = () => {
 
   return (
     <>
-      <h1 className="title">Update @userName</h1>
+      <h1 className="title">Update {data.name}</h1>
       <form
         onSubmit={(e) => {
           e.stopPropagation();
