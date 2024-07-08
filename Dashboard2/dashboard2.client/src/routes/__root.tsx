@@ -50,6 +50,8 @@ export interface RootContext extends UserInfo {
   canEditVehicles: boolean;
   canViewUsers: boolean;
   canViewVor: boolean;
+  canEditUsers: boolean;
+  isAdmin: boolean;
 }
 
 export const Route = createRootRouteWithContext<RootContext>()({

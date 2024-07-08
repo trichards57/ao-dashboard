@@ -1,4 +1,8 @@
-import { UseSuspenseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  UseSuspenseQueryOptions,
+} from "@tanstack/react-query";
 
 export interface UserInfo {
   realName: string;
@@ -16,6 +20,53 @@ export interface UserWithRole {
   roleId: string;
   role: string;
 }
+
+export interface UserRoleUpdate {
+  roleId: string;
+}
+
+export const useUpdateUser = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (user: UserRoleUpdate) => {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user.");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+};
+
+export const userSettings: (
+  id: string,
+) => UseSuspenseQueryOptions<UserWithRole> = (id: string) => ({
+  queryKey: ["user", id],
+  queryFn: async () => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user settings.");
+    }
+
+    return response.json() as Promise<UserWithRole>;
+  },
+});
 
 export const allUserOptions: UseSuspenseQueryOptions<UserWithRole[]> = {
   queryKey: ["user"],

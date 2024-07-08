@@ -45,15 +45,16 @@ export default function Navbar({
       </div>
       <div className={menuClass}>
         <div className="navbar-start">
-          {loggedIn ? (
-            <Link to="/home" search={search} className="navbar-item">
-              Home
-            </Link>
-          ) : (
-            <Link to="/" className="navbar-item">
-              Home
-            </Link>
-          )}
+          {canViewVor &&
+            (loggedIn ? (
+              <Link to="/home" search={search} className="navbar-item">
+                Home
+              </Link>
+            ) : (
+              <Link to="/" className="navbar-item">
+                Home
+              </Link>
+            ))}
           {canViewVor && (
             <Link className="navbar-item" to="/vehicles/status" search={search}>
               Vehicle Status

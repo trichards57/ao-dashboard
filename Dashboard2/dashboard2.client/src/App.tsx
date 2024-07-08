@@ -14,6 +14,7 @@ export const InnerApp = ({
   const meQuery = useSuspenseQuery(userMeOptions);
   const me = meQuery.data;
 
+  const isAdmin = me?.role == "Administrator";
   const canEditRoles = me?.role == "Administrator";
   const canEditVehicles = me?.otherClaims["VehicleConfiguration"] == "Edit";
   const canViewVor =
@@ -22,6 +23,7 @@ export const InnerApp = ({
   const canViewUsers =
     me?.otherClaims["Permissions"] == "Read" ||
     me?.otherClaims["Permissions"] == "Edit";
+  const canEditUsers = me?.otherClaims["Permissions"] == "Edit";
 
   const context: RootContext = {
     queryClient,
@@ -37,6 +39,8 @@ export const InnerApp = ({
     canEditVehicles,
     canViewVor,
     canViewUsers,
+    canEditUsers,
+    isAdmin,
   };
 
   return <RouterProvider router={router} context={context} />;

@@ -14,7 +14,7 @@ namespace Dashboard2.Server.Api
     {
         public static WebApplication MapRoles(this WebApplication app)
         {
-            var group = app.MapGroup("/api/roles").RequireAuthorization("CanEditRoles").WithTags("Roles");
+            var group = app.MapGroup("/api/roles").WithTags("Roles");
 
             group.MapGet("", async ([FromServices] IRoleService roleService, HttpContext context) =>
             {
@@ -24,7 +24,8 @@ namespace Dashboard2.Server.Api
             })
                 .Produces<IEnumerable<RolePermissions>>(StatusCodes.Status200OK)
                 .WithName("GetRoles")
-                .WithSummary("Gets all of the roles.");
+                .WithSummary("Gets all of the roles.")
+                .RequireAuthorization("CanViewUsers");
 
             group.MapGet("{id}", async ([FromServices] IRoleService roleService, [FromRoute] string id, HttpContext context) =>
             {
@@ -51,7 +52,8 @@ namespace Dashboard2.Server.Api
                 .Produces<RolePermissions>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status404NotFound)
                 .WithName("GetRole")
-                .WithSummary("Gets the permissions for a role.");
+                .WithSummary("Gets the permissions for a role.")
+                .RequireAuthorization("CanViewUsers");
 
             group.MapPost("{id}", async ([FromServices] IRoleService roleService, [FromRoute] string id, [FromBody] RolePermissionsUpdate permissions, HttpContext context) =>
             {
@@ -69,7 +71,8 @@ namespace Dashboard2.Server.Api
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status404NotFound)
                 .WithName("SetRolePermissions")
-                .WithSummary("Sets the permissions for a role.");
+                .WithSummary("Sets the permissions for a role.")
+                .RequireAuthorization("CanEditRoles");
 
             return app;
         }

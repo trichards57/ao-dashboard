@@ -9,9 +9,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 const Users = () => {
   const { data } = useSuspenseQuery(allUserOptions);
-  const { userId } = useRouteContext({ from: "/users/" });
+  const { isAdmin, userId } = useRouteContext({ from: "/users/" });
 
-  const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = [...data]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((r) => r.role !== "Administrator" || isAdmin);
 
   return (
     <>
@@ -32,7 +34,7 @@ const Users = () => {
               <td>{r.role ?? "None"}</td>
               <td className="edit">
                 {r.id.toUpperCase() !== userId.toUpperCase() && (
-                  <Link to={`/users/${r.id}/edit`}>Edit</Link>
+                  <Link to={`/users/edit/${r.id}`}>Edit</Link>
                 )}
               </td>
             </tr>

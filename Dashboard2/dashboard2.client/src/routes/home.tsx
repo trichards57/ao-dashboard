@@ -116,6 +116,11 @@ export const Route = createFileRoute("/home")({
         to: "/",
       });
     }
+    if (context.isAdmin) {
+      throw redirect({
+        to: "/users",
+      });
+    }
   },
   validateSearch: validatePlace,
   loaderDeps: ({ search: { region, district, hub } }) => ({
