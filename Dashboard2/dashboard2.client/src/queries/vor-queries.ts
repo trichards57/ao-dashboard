@@ -45,6 +45,7 @@ export const statisticsOptions = (
 
     return response.json() as Promise<VorStatistics>;
   },
+  staleTime: 10 * 60 * 1000,
 });
 
 export const statusOptions = (
@@ -73,4 +74,5 @@ export const statusOptions = (
 
     return response.json() as Promise<VorStatus[]>;
   },
+  staleTime: 10 * 60 * 1000,
 });

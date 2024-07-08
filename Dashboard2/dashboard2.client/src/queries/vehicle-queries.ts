@@ -44,6 +44,10 @@ export const useUpdateVehicle = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicle"] });
+      queryClient.invalidateQueries({ queryKey: ["districts"] });
+      queryClient.invalidateQueries({ queryKey: ["hubs"] });
+      queryClient.invalidateQueries({ queryKey: ["status"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
     },
   });
 };
@@ -67,6 +71,7 @@ export const vehicleSettings = (id: string) => ({
 
     return response.json() as Promise<VehicleSettings>;
   },
+  staleTime: 10 * 60 * 1000,
 });
 
 export const settingsOptions = (
@@ -95,4 +100,5 @@ export const settingsOptions = (
 
     return response.json() as Promise<VehicleSettings[]>;
   },
+  staleTime: 10 * 60 * 1000,
 });

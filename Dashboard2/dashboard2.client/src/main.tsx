@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
 import { InnerApp } from "./App";
+import { Loading } from "./components/loading";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const router = createRouter({
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
+  defaultPendingComponent: Loading,
 });
 
 // Register the router instance for type safety

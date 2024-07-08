@@ -66,6 +66,7 @@ export const roleOptions: (
 
     return response.json() as Promise<RolePermissions>;
   },
+  staleTime: 10 * 60 * 1000,
 });
 
 export const allRoleOptions: UseSuspenseQueryOptions<RolePermissions[]> = {
@@ -87,4 +88,5 @@ export const allRoleOptions: UseSuspenseQueryOptions<RolePermissions[]> = {
 
     return response.json() as Promise<RolePermissions[]>;
   },
+  staleTime: 10 * 60 * 1000,
 };

@@ -25,6 +25,7 @@ export function useDistricts(region: string) {
 
       return response.json() as Promise<string[]>;
     },
+    staleTime: 10 * 60 * 1000
   });
 }
 
@@ -57,5 +58,6 @@ export function useHubs(region: string, district: string) {
 
       return response.json() as Promise<string[]>;
     },
+    staleTime: 10 * 60 * 1000
   });
 }

@@ -73,6 +73,7 @@ export const userSettings: (
 
     return response.json() as Promise<UserWithRole>;
   },
+  staleTime: 10 * 60 * 1000
 });
 
 export const allUserOptions: UseSuspenseQueryOptions<UserWithRole[]> = {
@@ -91,6 +92,7 @@ export const allUserOptions: UseSuspenseQueryOptions<UserWithRole[]> = {
 
     return response.json() as Promise<UserWithRole[]>;
   },
+  staleTime: 10 * 60 * 1000
 };
 
 export const userMeOptions: UseSuspenseQueryOptions<UserInfo | null> = {
