@@ -88,6 +88,7 @@ const EditVehicle = () => {
                 setCallSignDirty(true);
               }}
               aria-invalid={!callSignValid}
+              required
             />
             {!callSignValid && callSignDirty && (
               <p className="help is-danger">Call Sign is required</p>
@@ -118,6 +119,7 @@ const EditVehicle = () => {
               id="vehicle-type"
               value={vehicleType}
               onChange={(e) => setVehicleType(e.target.value)}
+              required
             >
               <option value="Other">Other</option>
               <option value="FrontLineAmbulance">Front-Line Ambulance</option>
@@ -136,6 +138,7 @@ const EditVehicle = () => {
               id="region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
+              required
             >
               <option value="Unknown">Unknown</option>
               <option value="EastOfEngland">East of England</option>
@@ -165,6 +168,7 @@ const EditVehicle = () => {
                 setDistrictDirty(true);
               }}
               aria-invalid={!districtValid}
+              required
             />
             {!districtValid && districtDirty && (
               <p className="help is-danger">District is required</p>
@@ -187,6 +191,7 @@ const EditVehicle = () => {
                 setHubDirty(true);
               }}
               aria-invalid={!hubValid}
+              required
             />
             {!hubValid && hubDirty && (
               <p className="help is-danger">Hub is required</p>
