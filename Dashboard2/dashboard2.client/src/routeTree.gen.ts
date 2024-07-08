@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as HomeImport } from './routes/home'
 import { Route as IndexImport } from './routes/index'
 import { Route as UsersIndexImport } from './routes/users/index'
+import { Route as RolesIndexImport } from './routes/roles/index'
 import { Route as VehiclesStatusImport } from './routes/vehicles/status'
 import { Route as VehiclesConfigImport } from './routes/vehicles/config'
 import { Route as VehiclesEditIdImport } from './routes/vehicles/edit.$id'
@@ -33,6 +34,11 @@ const IndexRoute = IndexImport.update({
 
 const UsersIndexRoute = UsersIndexImport.update({
   path: '/users/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RolesIndexRoute = RolesIndexImport.update({
+  path: '/roles/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VehiclesStatusImport
       parentRoute: typeof rootRoute
     }
+    '/roles/': {
+      id: '/roles/'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof RolesIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/users/': {
       id: '/users/'
       path: '/users'
@@ -119,6 +132,7 @@ export const routeTree = rootRoute.addChildren({
   HomeRoute,
   VehiclesConfigRoute,
   VehiclesStatusRoute,
+  RolesIndexRoute,
   UsersIndexRoute,
   UsersEditIdRoute,
   VehiclesEditIdRoute,
@@ -136,6 +150,7 @@ export const routeTree = rootRoute.addChildren({
         "/home",
         "/vehicles/config",
         "/vehicles/status",
+        "/roles/",
         "/users/",
         "/users/edit/$id",
         "/vehicles/edit/$id"
@@ -152,6 +167,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/vehicles/status": {
       "filePath": "vehicles/status.tsx"
+    },
+    "/roles/": {
+      "filePath": "roles/index.tsx"
     },
     "/users/": {
       "filePath": "users/index.tsx"
