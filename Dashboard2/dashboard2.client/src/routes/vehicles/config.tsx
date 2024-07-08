@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useSearch,
+} from "@tanstack/react-router";
 import validatePlace from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
 import { settingsOptions } from "../../queries/vehicle-queries";
@@ -46,9 +51,9 @@ const VehicleConfig = () => {
               itemsToDisplay.map((i) => (
                 <tr key={i.id}>
                   <td className="edit-col">
-                    <a href={`/vehicles/edit/${i.id}`}>
+                    <Link to={`/vehicles/edit/${i.id}`}>
                       <FontAwesomeIcon icon={faPen} />
-                    </a>
+                    </Link>
                   </td>
                   <td className="call-sign-col">{i.callSign}</td>
                   <td className="reg-col">{i.registration}</td>

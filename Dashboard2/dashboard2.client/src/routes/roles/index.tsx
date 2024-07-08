@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { allRoleOptions } from "../../queries/role-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -32,7 +32,7 @@ const Roles = () => {
               <td>{r.name == "Administrator" ? "Write" : "Deny"}</td>
               <td className="edit">
                 {r.name != "Administrator" && (
-                  <a href={`/roles/edit/${r.id}`}>Edit</a>
+                  <Link to={`/roles/edit/${r.id}`}>Edit</Link>
                 )}
               </td>
             </tr>

@@ -24,6 +24,8 @@ const router = createRouter({
     lastAuthenticated: "",
     otherClaims: {} as Record<string, string>,
   },
+  defaultPreload: "intent",
+  defaultPreloadStaleTime: 0,
 });
 
 // Register the router instance for type safety
