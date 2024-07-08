@@ -1,3 +1,5 @@
+import { notFound } from "@tanstack/react-router";
+
 export interface VorStatistics {
   totalVehicles: number;
   availableVehicles: number;
@@ -35,6 +37,9 @@ export const statisticsOptions = (
     );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw notFound();
+      }
       throw new Error("Failed to fetch hubs.");
     }
 
@@ -60,6 +65,9 @@ export const statusOptions = (
     );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw notFound();
+      }
       throw new Error("Failed to fetch hubs.");
     }
 

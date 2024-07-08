@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { notFound } from "@tanstack/react-router";
 
 export function useDistricts(region: string) {
   return useQuery({
@@ -16,6 +17,9 @@ export function useDistricts(region: string) {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw notFound();
+        }
         throw new Error("Failed to fetch districts.");
       }
 
@@ -45,6 +49,9 @@ export function useHubs(region: string, district: string) {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw notFound();
+        }
         throw new Error("Failed to fetch hubs.");
       }
 

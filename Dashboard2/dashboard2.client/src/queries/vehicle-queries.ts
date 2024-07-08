@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { notFound } from "@tanstack/react-router";
 
 export interface VehicleSettings {
   id: string;
@@ -35,6 +36,9 @@ export const useUpdateVehicle = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw notFound();
+        }
         throw new Error("Failed to update vehicle.");
       }
     },
@@ -55,6 +59,9 @@ export const vehicleSettings = (id: string) => ({
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw notFound();
+      }
       throw new Error("Failed to fetch vehicle settings.");
     }
 
@@ -80,6 +87,9 @@ export const settingsOptions = (
     );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw notFound();
+      }
       throw new Error("Failed to fetch vehicle settings.");
     }
 

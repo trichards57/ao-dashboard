@@ -3,6 +3,7 @@ import {
   useQueryClient,
   UseSuspenseQueryOptions,
 } from "@tanstack/react-query";
+import { notFound } from "@tanstack/react-router";
 
 export interface UserInfo {
   realName: string;
@@ -39,6 +40,9 @@ export const useUpdateUser = (id: string) => {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw notFound();
+        }
         throw new Error("Failed to update user.");
       }
     },
@@ -61,6 +65,9 @@ export const userSettings: (
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw notFound();
+      }
       throw new Error("Failed to fetch user settings.");
     }
 
