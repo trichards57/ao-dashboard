@@ -46,7 +46,7 @@ const VehicleConfig = () => {
               itemsToDisplay.map((i) => (
                 <tr key={i.id}>
                   <td className="edit-col">
-                    <a href={`/vehicles/config/${i.id}`}>
+                    <a href={`/vehicles/edit/${i.id}`}>
                       <FontAwesomeIcon icon={faPen} />
                     </a>
                   </td>
