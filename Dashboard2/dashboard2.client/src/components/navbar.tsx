@@ -82,12 +82,12 @@ export default function Navbar({
             <div className="navbar-item has-dropdown is-hoverable">
               <a className="navbar-link">{name}</a>
               <div className="navbar-dropdown">
-                <a className="navbar-item" href="/Account/Manage">
+                <a className="navbar-item" href="/Identity/Account/Manage">
                   Manage Profile
                 </a>
                 <hr className="navbar-divider" />
                 <div className="navbar-item">
-                  <form method="post" action="Account/Logout">
+                  <form method="post" action="/Identity/Account/Logout">
                     <input type="hidden" name="returnUrl" value="" />
                     <button type="submit">Log Out</button>
                   </form>

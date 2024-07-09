@@ -1,28 +1,80 @@
 ﻿@{
-    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout !=  null)
-    {
-        Layout = parentLayout.ToString();
-    }
-    else
-    {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
-    }
+    Layout = "/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>Manage your account</h1>
-
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
+<nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/home">
+            AO Dashboard
+        </a>
+        <a class="navbar-burger" role="button" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            @* {canViewVor &&
+            (loggedIn ? (
+            <Link to="/home" search={search} class="navbar-item">
+            Home
+            </Link>
+            ) : (
+            <Link to="/" class="navbar-item">
+            Home
+            </Link>
+            ))}
+            {canViewVor && (
+            <Link class="navbar-item" to="/vehicles/status" search={search}>
+            Vehicle Status
+            </Link>
+            )}
+            {canEditVehicles && (
+            <Link class="navbar-item" to="/vehicles/config" search={search}>
+            Vehicle Setup
+            </Link>
+            )}
+            {canViewUsers && (
+            <Link class="navbar-item" to="/users">
+            User Settings
+            </Link>
+            )}
+            {canEditRoles && (
+            <Link class="navbar-item" to="/roles">
+            Role Settings
+            </Link>
+            )} *@
         </div>
-        <div class="col-md-9">
-            @RenderBody()
+
+        <div class="navbar-end">
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">{name}</a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/Identity/Account/Manage">
+                        Manage Profile
+                    </a>
+                    <hr class="navbar-divider" />
+                    <div class="navbar-item">
+                        <form method="post" action="/Identity/Account/Logout">
+                            <input type="hidden" name="returnUrl" value="" />
+                            <button type="submit">Log Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</nav>
+<main class="container is-fluid">
+    <h1 class="title">Manage your profile</h1>
+    <h2 class="subtitle">Change your account settings</h2>
+    <partial name="_ManageNav" />
+
+    @RenderBody()
+</main>
+
 
 @section Scripts {
     @RenderSection("Scripts", required: false)

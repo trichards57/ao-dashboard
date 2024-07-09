@@ -1,15 +1,65 @@
-﻿@inject SignInManager<ApplicationUser> SignInManager
+﻿@inject UserManager<ApplicationUser> UserManager
+
 @{
-    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
-}
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
-    @if (hasExternalLogins)
+    var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("Could not get user.");
+    var logins = await UserManager.GetLoginsAsync(user);
+    var isMicrosoftAccount = logins.Any(l => l.ProviderDisplayName == "Microsoft");
+
+    var path = Context.Request.Path;
+
+    var isProfileActive = false;
+    var isEmailActive = false;
+    var isChangePasswordActive = false;
+    var isTwoFactorActive = false;
+    var isPersonalDataActive = false;
+
+    switch (path.ToString())
     {
-        <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li>
+        case "/Identity/Account/Manage":
+            isProfileActive = true;
+            break;
+        case "/Identity/Account/Manage/Email":
+            isEmailActive = true;
+            break;
+        case "/Identity/Account/Manage/ChangePassword":
+            isChangePasswordActive = true;
+            break;
+        case "/Identity/Account/Manage/TwoFactorAuthentication":
+        case "/Identity/Account/Manage/Disable2fa":
+        case "/Identity/Account/Manage/EnableAuthenticator":
+        case "/Identity/Account/Manage/GenerateRecoveryCodes":
+        case "/Identity/Account/Manage/ResetAuthenticator":
+            isTwoFactorActive = true;
+            break;
+        case "/Identity/Account/Manage/PersonalData":
+        case "/Identity/Account/Manage/DeletePersonalData":
+            isPersonalDataActive = true;
+            break;
     }
-    <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li>
-</ul>
+}
+
+<div class="tabs">
+    <ul class="nav nav-pills flex-column">
+        <li class="@(isProfileActive ? "is-active" : "")">
+            <a href="/Identity/Account/Manage">Profile</a>
+        </li>
+        @if (!isMicrosoftAccount)
+        {
+            <li class="@(isEmailActive ? "is-active" : "")">
+                <a href="/Identity/Account/Manage/Email">Email</a>
+            </li>
+            <li class="@(isChangePasswordActive ? "is-active" : "")">
+                <a href="/Identity/Account/Manage/ChangePassword">Password</a>
+            </li>
+            <li class="@(isTwoFactorActive ? "is-active" : "")">
+                <a href="/Identity/Account/Manage/TwoFactorAuthentication">Two-Factor Authentication</a>
+            </li>
+        }
+        <li class="@(isPersonalDataActive ? "is-active" : "")">
+            <a class="nav-link" href="/Identity/Account/Manage/PersonalData">Personal data</a>
+        </li>
+    </ul>
+</div>
+
+
+
