@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Line, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import validatePlace from "../support/validate-place";
+import { useTitle } from "../components/useTitle";
 
 function dateLabel(d: string) {
   const date = new Date(d);
@@ -36,6 +37,8 @@ const Home = () => {
     hub: string;
   };
   const { data } = useSuspenseQuery(statisticsOptions(region, district, hub));
+
+  useTitle("Home");
 
   const availabilityData = {
     labels: ["Available", "VOR"],

@@ -7,6 +7,7 @@ import {
 import { roleOptions, useUpdateRole } from "../../queries/role-queries";
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTitle } from "../../components/useTitle";
 
 const EditRole = () => {
   const { id } = useParams({ from: "/roles/edit/$id" });
@@ -21,6 +22,8 @@ const EditRole = () => {
   const [permissions, setPermissions] = useState(data.permissions);
 
   const [running, setRunning] = useState(false);
+
+  useTitle(`Update ${data.name}`);
 
   async function updateRole() {
     setRunning(true);

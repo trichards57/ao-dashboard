@@ -10,6 +10,7 @@ import {
 } from "../../queries/vehicle-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTitle } from "../../components/useTitle";
 
 const EditVehicle = () => {
   const { id } = useParams({ from: "/vehicles/edit/$id" });
@@ -29,6 +30,8 @@ const EditVehicle = () => {
   const [hubDirty, setHubDirty] = useState(false);
 
   const [running, setRunning] = useState(false);
+
+  useTitle(`Edit ${data.registration}`);
 
   const callSignValid = callSign.length > 0;
   const districtValid = district.length > 0;

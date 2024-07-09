@@ -13,6 +13,7 @@ import PagePicker from "../../components/page-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { regionToString } from "../../components/region-converter";
+import { useTitle } from "../../components/useTitle";
 
 const PageSize = 10;
 
@@ -24,6 +25,8 @@ const VehicleConfig = () => {
   };
   const { data } = useSuspenseQuery(settingsOptions(region, district, hub));
   const [page, setPage] = useState(0);
+
+  useTitle("Vehicle Setup");
 
   const itemsToDisplay = (data ?? [])
     .sort((a, b) => a.callSign.localeCompare(b.callSign))

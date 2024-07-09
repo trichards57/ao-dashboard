@@ -1,9 +1,11 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { allRoleOptions } from "../../queries/role-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTitle } from "../../components/useTitle";
 
 const Roles = () => {
   const { data } = useSuspenseQuery(allRoleOptions);
+  useTitle("User Roles");
 
   const roles = [...data].sort((a, b) => a.name.localeCompare(b.name));
 

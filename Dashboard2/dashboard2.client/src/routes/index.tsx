@@ -1,6 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useTitle } from "../components/useTitle";
 
 const Index = () => {
+  useTitle();
+
   return (
     <section className="hero">
       <div className="hero-body">

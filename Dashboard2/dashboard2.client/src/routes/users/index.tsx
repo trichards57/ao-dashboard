@@ -6,10 +6,13 @@ import {
 } from "@tanstack/react-router";
 import { allUserOptions } from "../../queries/user-queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTitle } from "../../components/useTitle";
 
 const Users = () => {
   const { data } = useSuspenseQuery(allUserOptions);
   const { isAdmin, userId } = useRouteContext({ from: "/users/" });
+  
+  useTitle("User Settings");
 
   const sorted = [...data]
     .sort((a, b) => a.name.localeCompare(b.name))

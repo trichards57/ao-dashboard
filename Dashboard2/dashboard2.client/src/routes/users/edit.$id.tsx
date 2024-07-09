@@ -9,6 +9,7 @@ import { userSettings, useUpdateUser } from "../../queries/user-queries";
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { allRoleOptions } from "../../queries/role-queries";
+import { useTitle } from "../../components/useTitle";
 
 const EditUser = () => {
   const { isAdmin } = useRouteContext({ from: "/users/edit/$id" });
@@ -21,6 +22,8 @@ const EditUser = () => {
   const [role, setRole] = useState(data.roleId);
 
   const [running, setRunning] = useState(false);
+
+  useTitle(`Update ${data.name}`);
 
   async function updateUser() {
     setRunning(true);

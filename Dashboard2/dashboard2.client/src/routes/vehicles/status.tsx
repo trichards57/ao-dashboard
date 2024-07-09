@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import PagePicker from "../../components/page-picker";
 import validatePlace from "../../support/validate-place";
+import { useTitle } from "../../components/useTitle";
 
 const PageSize = 10;
 
@@ -16,6 +17,8 @@ const VehicleStatus = () => {
   };
   const { data } = useSuspenseQuery(statusOptions(region, district, hub));
   const [page, setPage] = useState(0);
+
+  useTitle("Vehicle Status");
 
   const itemsToDisplay = (data ?? [])
     .sort((a, b) => a.callSign.localeCompare(b.callSign))
