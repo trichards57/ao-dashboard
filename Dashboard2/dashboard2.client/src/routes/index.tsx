@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useTitle } from "../components/useTitle";
 
-const Index = () => {
+function Index() {
   useTitle();
 
   return (
@@ -20,7 +20,7 @@ const Index = () => {
       </div>
     </section>
   );
-};
+}
 
 export const Route = createFileRoute("/")({
   beforeLoad: ({ context }) => {

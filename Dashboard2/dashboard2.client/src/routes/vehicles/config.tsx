@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useSearch,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import validatePlace from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
 import {
@@ -20,12 +15,15 @@ import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
 
 const PageSize = 10;
 
-const VehicleConfig = () => {
-  const { region, district, hub } = useSearch({ from: "/vehicles/config" }) as {
-    region: string;
-    district: string;
-    hub: string;
-  };
+function VehicleConfig({
+  region,
+  district,
+  hub,
+}: {
+  region: string | undefined;
+  district: string | undefined;
+  hub: string | undefined;
+}) {
   const { data } = useAllVehicleSettings(region, district, hub);
   const [page, setPage] = useState(0);
 
@@ -88,7 +86,7 @@ const VehicleConfig = () => {
       )}
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/vehicles/config")({
   validateSearch: validatePlace,
@@ -112,7 +110,15 @@ export const Route = createFileRoute("/vehicles/config")({
         deps.district ?? "All",
       ),
     ]),
-  component: VehicleConfig,
+  component: function Component() {
+    return (
+      <VehicleConfig
+        region={Route.useSearch().region}
+        district={Route.useSearch().district}
+        hub={Route.useSearch().hub}
+      />
+    );
+  },
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
       throw redirect({

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import PlacePicker from "../../components/place-picker";
 import { preloadStatus, useStatus } from "../../queries/vor-queries";
 import { useState } from "react";
@@ -9,12 +9,15 @@ import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
 
 const PageSize = 10;
 
-const VehicleStatus = () => {
-  const { region, district, hub } = useSearch({ from: "/vehicles/status" }) as {
-    region: string;
-    district: string;
-    hub: string;
-  };
+function VehicleStatus({
+  region,
+  district,
+  hub,
+}: {
+  region: string | undefined;
+  district: string | undefined;
+  hub: string | undefined;
+}) {
   const { data } = useStatus(region, district, hub);
   const [page, setPage] = useState(0);
 
@@ -81,7 +84,7 @@ const VehicleStatus = () => {
       )}
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/vehicles/status")({
   beforeLoad: ({ context, search }) => {
@@ -113,5 +116,13 @@ export const Route = createFileRoute("/vehicles/status")({
         deps.district ?? "All",
       ),
     ]),
-  component: VehicleStatus,
+  component: function Component() {
+    return (
+      <VehicleStatus
+        region={Route.useSearch().region}
+        district={Route.useSearch().district}
+        hub={Route.useSearch().hub}
+      />
+    );
+  },
 });

@@ -1,9 +1,5 @@
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-  createRootRouteWithContext,
-  Outlet,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import React from "react";
 import Navbar from "../components/navbar";
 import { preloadMe, useMe, UserInfo } from "../queries/user-queries";
@@ -18,10 +14,18 @@ const TanStackRouterDevtools =
         })),
       );
 
-const Root = () => {
+function Root({
+  canEditRoles,
+  canEditVehicles,
+  canViewUsers,
+  canViewVor,
+}: {
+  canEditRoles: boolean;
+  canEditVehicles: boolean;
+  canViewUsers: boolean;
+  canViewVor: boolean;
+}) {
   const { data: me } = useMe();
-  const { canEditRoles, canEditVehicles, canViewUsers, canViewVor } =
-    useRouteContext({ strict: false });
 
   return (
     <>
@@ -40,7 +44,7 @@ const Root = () => {
       <ReactQueryDevtools />
     </>
   );
-};
+}
 
 export interface RootContext extends UserInfo {
   queryClient: QueryClient;
@@ -55,5 +59,14 @@ export interface RootContext extends UserInfo {
 
 export const Route = createRootRouteWithContext<RootContext>()({
   loader: ({ context }) => preloadMe(context.queryClient),
-  component: Root,
+  component: function Component() {
+    return (
+      <Root
+        canEditRoles={Route.useRouteContext().canEditRoles}
+        canEditVehicles={Route.useRouteContext().canEditVehicles}
+        canViewUsers={Route.useRouteContext().canViewUsers}
+        canViewVor={Route.useRouteContext().canViewVor}
+      />
+    );
+  },
 });

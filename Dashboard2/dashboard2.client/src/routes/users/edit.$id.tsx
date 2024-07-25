@@ -1,10 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-  useParams,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   preloadUser,
   useUpdateUser,
@@ -14,9 +8,7 @@ import { useState } from "react";
 import { preloadRoles, useRoles } from "../../queries/role-queries";
 import { useTitle } from "../../components/useTitle";
 
-const EditUser = () => {
-  const { isAdmin } = useRouteContext({ from: "/users/edit/$id" });
-  const { id } = useParams({ from: "/users/edit/$id" });
+const EditUser = ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
   const { data } = useUser(id);
   const { data: roles } = useRoles();
   const { mutateAsync } = useUpdateUser(id);
@@ -84,7 +76,14 @@ const EditUser = () => {
 };
 
 export const Route = createFileRoute("/users/edit/$id")({
-  component: EditUser,
+  component: function Component() {
+    return (
+      <EditUser
+        id={Route.useParams().id}
+        isAdmin={Route.useRouteContext().isAdmin}
+      />
+    );
+  },
   loader: ({ params, context }) => {
     return Promise.all([
       preloadUser(context.queryClient, params.id),

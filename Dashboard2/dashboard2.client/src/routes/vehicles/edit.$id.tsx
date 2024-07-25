@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-  useParams,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   preloadVehicleSettings,
   useUpdateVehicle,
@@ -12,8 +7,7 @@ import {
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
 
-const EditVehicle = () => {
-  const { id } = useParams({ from: "/vehicles/edit/$id" });
+function EditVehicle({ id }: { id: string }) {
   const { data } = useVehicleSettings(id);
   const { mutateAsync } = useUpdateVehicle();
   const navigate = useNavigate();
@@ -226,10 +220,12 @@ const EditVehicle = () => {
       </form>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/vehicles/edit/$id")({
-  component: EditVehicle,
+  component: function Component() {
+    return <EditVehicle id={Route.useParams().id} />;
+  },
   loader: ({ params, context }) =>
     preloadVehicleSettings(context.queryClient, params.id),
   beforeLoad: ({ context }) => {

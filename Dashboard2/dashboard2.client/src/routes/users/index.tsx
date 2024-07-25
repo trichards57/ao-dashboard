@@ -1,15 +1,9 @@
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { preloadUsers, useUsers } from "../../queries/user-queries";
 import { useTitle } from "../../components/useTitle";
 
-const Users = () => {
+function Users({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const { data } = useUsers();
-  const { isAdmin, userId } = useRouteContext({ from: "/users/" });
 
   useTitle("User Settings");
 
@@ -45,10 +39,17 @@ const Users = () => {
       </table>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/users/")({
-  component: Users,
+  component: function Component() {
+    return (
+      <Users
+        userId={Route.useRouteContext().userId}
+        isAdmin={Route.useRouteContext().isAdmin}
+      />
+    );
+  },
   loader: ({ context }) => preloadUsers(context.queryClient),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import PlacePicker from "../components/place-picker";
 import { preloadStatistics, useStatistics } from "../queries/vor-queries";
 import { Line, Pie } from "react-chartjs-2";
@@ -30,12 +30,15 @@ function dateLabel(d: string) {
   return `${month} ${year}`;
 }
 
-const Home = () => {
-  const { region, district, hub } = useSearch({ from: "/home" }) as {
-    region: string;
-    district: string;
-    hub: string;
-  };
+function Home({
+  region,
+  district,
+  hub,
+}: {
+  region: string | undefined;
+  district: string | undefined;
+  hub: string | undefined;
+}) {
   const { data } = useStatistics(region, district, hub);
 
   useTitle("Home");
@@ -110,7 +113,7 @@ const Home = () => {
       </div>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/home")({
   beforeLoad: ({ context }) => {
@@ -146,5 +149,13 @@ export const Route = createFileRoute("/home")({
         deps.district ?? "All",
       ),
     ]),
-  component: Home,
+  component: function Component() {
+    return (
+      <Home
+        region={Route.useSearch().region}
+        district={Route.useSearch().district}
+        hub={Route.useSearch().hub}
+      />
+    );
+  },
 });

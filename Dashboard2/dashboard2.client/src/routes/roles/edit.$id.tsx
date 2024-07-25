@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-  useParams,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   preloadRole,
   useRole,
@@ -12,8 +7,7 @@ import {
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
 
-const EditRole = () => {
-  const { id } = useParams({ from: "/roles/edit/$id" });
+function EditRole({ id }: { id: string }) {
   const { data } = useRole(id);
   const { mutateAsync } = useUpdateRole(id);
   const navigate = useNavigate();
@@ -114,10 +108,12 @@ const EditRole = () => {
       </form>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/roles/edit/$id")({
-  component: EditRole,
+  component: function Component() {
+    return <EditRole id={Route.useParams().id} />;
+  },
   loader: ({ params, context }) => preloadRole(context.queryClient, params.id),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
