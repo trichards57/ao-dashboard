@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useTitle } from "../components/useTitle";
 
-function Index() {
+export function Index() {
   useTitle();
 
   return (

@@ -97,4 +97,10 @@ export default defineConfig({
       cert: fs.readFileSync(certFilePath),
     },
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/tests/setup.ts"],
+    testMatch: ["./src/tests/**/*.test.tsx"],
+    globals: true,
+  },
 });
