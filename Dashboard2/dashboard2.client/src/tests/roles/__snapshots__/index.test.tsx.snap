@@ -1,0 +1,103 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Roles Component > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    User Roles
+  </h1>
+  <table
+    class="table is-striped is-fullwidth"
+  >
+    <thead>
+      <tr>
+        <th>
+          Role
+        </th>
+        <th>
+          Vehicle Configuration
+        </th>
+        <th>
+          VOR Data
+        </th>
+        <th>
+          User Role
+        </th>
+        <th>
+          Role Permissions
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          Administrator
+        </td>
+        <td>
+          Deny
+        </td>
+        <td>
+          Deny
+        </td>
+        <td>
+          Edit
+        </td>
+        <td>
+          Write
+        </td>
+        <td
+          class="edit"
+        />
+      </tr>
+      <tr>
+        <td>
+          Administrator
+        </td>
+        <td>
+          Edit
+        </td>
+        <td>
+          Edit
+        </td>
+        <td>
+          Read
+        </td>
+        <td>
+          Write
+        </td>
+        <td
+          class="edit"
+        />
+      </tr>
+      <tr>
+        <td>
+          Role 1
+        </td>
+        <td>
+          Read
+        </td>
+        <td>
+          Read
+        </td>
+        <td>
+          Deny
+        </td>
+        <td>
+          Deny
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            to="/roles/edit/b"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;

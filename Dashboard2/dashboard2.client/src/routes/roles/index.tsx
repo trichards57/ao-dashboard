@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { preloadRoles, useRoles } from "../../queries/role-queries";
 import { useTitle } from "../../components/useTitle";
 
-const Roles = () => {
+export function Roles() {
   const { data } = useRoles();
   useTitle("User Roles");
 
@@ -42,7 +42,7 @@ const Roles = () => {
       </table>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/roles/")({
   component: Roles,
@@ -56,6 +56,7 @@ export const Route = createFileRoute("/roles/")({
     if (!context.canEditRoles) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
   },
