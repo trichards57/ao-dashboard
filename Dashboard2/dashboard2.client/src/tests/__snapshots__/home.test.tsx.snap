@@ -1,0 +1,215 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Home Component > renders correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="columns is-desktop"
+  >
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="region"
+        >
+          Region
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="EastOfEngland"
+            >
+              East of England
+            </option>
+            <option
+              value="EastMidlands"
+            >
+              East Midlands
+            </option>
+            <option
+              value="London"
+            >
+              London
+            </option>
+            <option
+              value="NorthEast"
+            >
+              North East
+            </option>
+            <option
+              value="NorthWest"
+            >
+              North West
+            </option>
+            <option
+              value="SouthEast"
+            >
+              South East
+            </option>
+            <option
+              value="SouthWest"
+            >
+              South West
+            </option>
+            <option
+              value="WestMidlands"
+            >
+              West Midlands
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="district"
+        >
+          District
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="Avon"
+            >
+              Avon
+            </option>
+            <option
+              value="Bedfordshire"
+            >
+              Bedfordshire
+            </option>
+            <option
+              value="Berkshire"
+            >
+              Berkshire
+            </option>
+            <option
+              value="Buckinghamshire"
+            >
+              Buckinghamshire
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="hub"
+        >
+          Hub
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="hub"
+          >
+            <option
+              value="all"
+            >
+              All
+            </option>
+            <option
+              value="Bristol"
+            >
+              Bristol
+            </option>
+            <option
+              value="Bath"
+            >
+              Bath
+            </option>
+            <option
+              value="Weston-super-Mare"
+            >
+              Weston-super-Mare
+            </option>
+            <option
+              value="Yeovil"
+            >
+              Yeovil
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="columns"
+  >
+    <div
+      class="column"
+    >
+      <h2
+        class="subtitle is-5"
+      >
+        Vehicle Availability
+      </h2>
+      <div
+        class="vehicle-availability-container"
+      >
+        <canvas
+          height="0"
+          id="availability-chart"
+          role="img"
+          style="display: block; box-sizing: border-box; height: 0px; width: 0px;"
+          width="0"
+        />
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <h2
+        class="subtitle is-5"
+      >
+        Historic Availability
+      </h2>
+      <div
+        class="historic-availability-container"
+      >
+        <canvas
+          height="0"
+          id="historic-data-chart"
+          role="img"
+          style="display: block; box-sizing: border-box; height: 0px; width: 0px;"
+          width="0"
+        />
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

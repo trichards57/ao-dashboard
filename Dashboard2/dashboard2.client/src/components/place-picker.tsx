@@ -1,4 +1,4 @@
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useDistricts, useHubs } from "../queries/place-queries";
 
 function calculateSearch(region: string, district: string, hub: string) {
@@ -19,13 +19,16 @@ function calculateSearch(region: string, district: string, hub: string) {
   };
 }
 
-export default function PlacePicker() {
+export default function PlacePicker({
+  region,
+  district,
+  hub,
+}: {
+  region: string;
+  district: string;
+  hub: string;
+}) {
   const navigate = useNavigate();
-  const { region, district, hub } = useSearch({ strict: false }) as {
-    region: string;
-    district: string;
-    hub: string;
-  };
   const { data: districts } = useDistricts(region);
   const { data: hubs } = useHubs(region, district);
 

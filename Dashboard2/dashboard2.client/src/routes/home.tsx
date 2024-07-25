@@ -30,14 +30,14 @@ function dateLabel(d: string) {
   return `${month} ${year}`;
 }
 
-function Home({
+export function Home({
   region,
   district,
   hub,
 }: {
-  region: string | undefined;
-  district: string | undefined;
-  hub: string | undefined;
+  region: string;
+  district: string;
+  hub: string;
 }) {
   const { data } = useStatistics(region, district, hub);
 
@@ -88,7 +88,7 @@ function Home({
 
   return (
     <>
-      <PlacePicker />
+      <PlacePicker region={region} district={district} hub={hub} />
       <div className="columns">
         <div className="column">
           <h2 className="subtitle is-5">Vehicle Availability</h2>
@@ -152,9 +152,9 @@ export const Route = createFileRoute("/home")({
   component: function Component() {
     return (
       <Home
-        region={Route.useSearch().region}
-        district={Route.useSearch().district}
-        hub={Route.useSearch().hub}
+        region={Route.useSearch().region ?? "All"}
+        district={Route.useSearch().district ?? "All"}
+        hub={Route.useSearch().hub ?? "All"}
       />
     );
   },

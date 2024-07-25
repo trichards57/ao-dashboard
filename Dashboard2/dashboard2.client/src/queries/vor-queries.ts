@@ -21,29 +21,25 @@ export interface VorStatus {
 }
 
 export function statisticsOptions(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
+  region: string,
+  district: string,
+  hub: string,
 ) {
   return getOptions<VorStatistics>(
-    `/api/vor/statistics?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-    ["statistics", region ?? "All", district ?? "All", hub ?? "All"],
+    `/api/vor/statistics?region=${region}&district=${district}&hub=${hub}`,
+    ["statistics", region, district, hub],
   );
 }
 
-export function useStatistics(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
-) {
+export function useStatistics(region: string, district: string, hub: string) {
   return useSuspenseQuery(statisticsOptions(region, district, hub));
 }
 
 export function preloadStatistics(
   queryClient: QueryClient,
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
+  region: string,
+  district: string,
+  hub: string,
 ) {
   return queryClient.ensureQueryData(statisticsOptions(region, district, hub));
 }
