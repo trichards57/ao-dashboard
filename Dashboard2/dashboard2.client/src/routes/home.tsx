@@ -1,11 +1,11 @@
 import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
 import PlacePicker from "../components/place-picker";
-import { statisticsOptions } from "../queries/vor-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { preloadStatistics, useStatistics } from "../queries/vor-queries";
 import { Line, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import validatePlace from "../support/validate-place";
 import { useTitle } from "../components/useTitle";
+import { preloadDistricts, preloadHubs } from "../queries/place-queries";
 
 function dateLabel(d: string) {
   const date = new Date(d);
@@ -36,7 +36,7 @@ const Home = () => {
     district: string;
     hub: string;
   };
-  const { data } = useSuspenseQuery(statisticsOptions(region, district, hub));
+  const { data } = useStatistics(region, district, hub);
 
   useTitle("Home");
 
@@ -131,10 +131,20 @@ export const Route = createFileRoute("/home")({
     district,
     hub,
   }),
-  loader: ({ deps, context }) => {
-    return context.queryClient.ensureQueryData(
-      statisticsOptions(deps.region, deps.district, deps.hub),
-    );
-  },
+  loader: ({ deps, context }) =>
+    Promise.all([
+      preloadStatistics(
+        context.queryClient,
+        deps.region,
+        deps.district,
+        deps.hub,
+      ),
+      preloadDistricts(context.queryClient, deps.region ?? "All"),
+      preloadHubs(
+        context.queryClient,
+        deps.region ?? "All",
+        deps.district ?? "All",
+      ),
+    ]),
   component: Home,
 });

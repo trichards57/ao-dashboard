@@ -1,10 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { allRoleOptions } from "../../queries/role-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { preloadRoles, useRoles } from "../../queries/role-queries";
 import { useTitle } from "../../components/useTitle";
 
 const Roles = () => {
-  const { data } = useSuspenseQuery(allRoleOptions);
+  const { data } = useRoles();
   useTitle("User Roles");
 
   const roles = [...data].sort((a, b) => a.name.localeCompare(b.name));
@@ -47,9 +46,7 @@ const Roles = () => {
 
 export const Route = createFileRoute("/roles/")({
   component: Roles,
-  loader: ({ context }) => {
-    return context.queryClient.ensureQueryData(allRoleOptions);
-  },
+  loader: ({ context }) => preloadRoles(context.queryClient),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
       throw redirect({

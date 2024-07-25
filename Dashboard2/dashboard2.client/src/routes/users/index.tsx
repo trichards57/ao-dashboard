@@ -4,18 +4,17 @@ import {
   redirect,
   useRouteContext,
 } from "@tanstack/react-router";
-import { allUserOptions } from "../../queries/user-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { preloadUsers, useUsers } from "../../queries/user-queries";
 import { useTitle } from "../../components/useTitle";
 
 const Users = () => {
-  const { data } = useSuspenseQuery(allUserOptions);
+  const { data } = useUsers();
   const { isAdmin, userId } = useRouteContext({ from: "/users/" });
-  
+
   useTitle("User Settings");
 
-  const sorted = [...data]
-    .sort((a, b) => a.name.localeCompare(b.name))
+  const sorted = data
+    .toSorted((a, b) => a.name.localeCompare(b.name))
     .filter((r) => r.role !== "Administrator" || isAdmin);
 
   return (
@@ -50,9 +49,7 @@ const Users = () => {
 
 export const Route = createFileRoute("/users/")({
   component: Users,
-  loader: ({ context }) => {
-    return context.queryClient.ensureQueryData(allUserOptions);
-  },
+  loader: ({ context }) => preloadUsers(context.queryClient),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
       throw redirect({

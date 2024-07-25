@@ -1,5 +1,5 @@
-import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { userMeOptions } from "./queries/user-queries";
+import { QueryClient } from "@tanstack/react-query";
+import { useMe } from "./queries/user-queries";
 import { RouterProvider } from "@tanstack/react-router";
 import { RootContext } from "./routes/__root";
 
@@ -11,8 +11,7 @@ export const InnerApp = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   router: any;
 }) => {
-  const meQuery = useSuspenseQuery(userMeOptions);
-  const me = meQuery.data;
+  const { data: me } = useMe();
 
   const isAdmin = me?.role == "Administrator";
   const canEditRoles = me?.role == "Administrator";
@@ -34,7 +33,7 @@ export const InnerApp = ({
     amrUsed: me?.amrUsed ?? "",
     lastAuthenticated: me?.lastAuthenticated ?? "",
     otherClaims: me?.otherClaims ?? {},
-    loggedIn: meQuery.data !== null,
+    loggedIn: me !== null,
     canEditRoles,
     canEditVehicles,
     canViewVor,

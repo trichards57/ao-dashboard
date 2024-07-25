@@ -1,5 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
+import getOptions from "./get-options";
 
 export interface VehicleSettings {
   id: string;
@@ -52,53 +58,42 @@ export const useUpdateVehicle = () => {
   });
 };
 
-export const vehicleSettings = (id: string) => ({
-  queryKey: ["vehicle", id],
-  queryFn: async () => {
-    const response = await fetch(`/api/vehicles/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export function vehicleSettings(id: string) {
+  return getOptions<VehicleSettings>(`/api/vehicles/${id}`, ["vehicle", id]);
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch vehicle settings.");
-    }
+export function useVehicleSettings(id: string) {
+  return useSuspenseQuery(vehicleSettings(id));
+}
 
-    return response.json() as Promise<VehicleSettings>;
-  },
-  staleTime: 10 * 60 * 1000,
-});
+export function preloadVehicleSettings(queryClient: QueryClient, id: string) {
+  return queryClient.ensureQueryData(vehicleSettings(id));
+}
 
-export const settingsOptions = (
+export function settingsOptions(
   region: string | undefined,
   district: string | undefined,
   hub: string | undefined,
-) => ({
-  queryKey: ["settings", region ?? "All", district ?? "All", hub ?? "All"],
-  queryFn: async () => {
-    const response = await fetch(
-      `/api/vehicles?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+) {
+  return getOptions<VehicleSettings[]>(
+    `/api/vehicles?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
+    ["settings", region ?? "All", district ?? "All", hub ?? "All"],
+  );
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch vehicle settings.");
-    }
+export function useAllVehicleSettings(
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return useSuspenseQuery(settingsOptions(region, district, hub));
+}
 
-    return response.json() as Promise<VehicleSettings[]>;
-  },
-  staleTime: 10 * 60 * 1000,
-});
+export function preloadAllVehicleSettings(
+  queryClient: QueryClient,
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return queryClient.ensureQueryData(settingsOptions(region, district, hub));
+}

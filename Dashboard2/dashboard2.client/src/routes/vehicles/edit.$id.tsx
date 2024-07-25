@@ -5,16 +5,16 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import {
+  preloadVehicleSettings,
   useUpdateVehicle,
-  vehicleSettings,
+  useVehicleSettings,
 } from "../../queries/vehicle-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
 
 const EditVehicle = () => {
   const { id } = useParams({ from: "/vehicles/edit/$id" });
-  const { data } = useSuspenseQuery(vehicleSettings(id));
+  const { data } = useVehicleSettings(id);
   const { mutateAsync } = useUpdateVehicle();
   const navigate = useNavigate();
 
@@ -230,9 +230,8 @@ const EditVehicle = () => {
 
 export const Route = createFileRoute("/vehicles/edit/$id")({
   component: EditVehicle,
-  loader: ({ params, context }) => {
-    return context.queryClient.ensureQueryData(vehicleSettings(params.id));
-  },
+  loader: ({ params, context }) =>
+    preloadVehicleSettings(context.queryClient, params.id),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
       throw redirect({

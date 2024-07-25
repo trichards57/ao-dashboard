@@ -6,14 +6,17 @@ import {
 } from "@tanstack/react-router";
 import validatePlace from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
-import { settingsOptions } from "../../queries/vehicle-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  preloadAllVehicleSettings,
+  useAllVehicleSettings,
+} from "../../queries/vehicle-queries";
 import { useState } from "react";
 import PagePicker from "../../components/page-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { regionToString } from "../../components/region-converter";
 import { useTitle } from "../../components/useTitle";
+import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
 
 const PageSize = 10;
 
@@ -23,13 +26,13 @@ const VehicleConfig = () => {
     district: string;
     hub: string;
   };
-  const { data } = useSuspenseQuery(settingsOptions(region, district, hub));
+  const { data } = useAllVehicleSettings(region, district, hub);
   const [page, setPage] = useState(0);
 
   useTitle("Vehicle Setup");
 
   const itemsToDisplay = (data ?? [])
-    .sort((a, b) => a.callSign.localeCompare(b.callSign))
+    .toSorted((a, b) => a.callSign.localeCompare(b.callSign))
     .slice(page * PageSize, (page + 1) * PageSize);
   const showPagination = data.length > PageSize;
 
@@ -94,11 +97,21 @@ export const Route = createFileRoute("/vehicles/config")({
     district,
     hub,
   }),
-  loader: ({ deps, context }) => {
-    return context.queryClient.ensureQueryData(
-      settingsOptions(deps.region, deps.district, deps.hub),
-    );
-  },
+  loader: ({ deps, context }) =>
+    Promise.all([
+      preloadAllVehicleSettings(
+        context.queryClient,
+        deps.region,
+        deps.district,
+        deps.hub,
+      ),
+      preloadDistricts(context.queryClient, deps.region ?? "All"),
+      preloadHubs(
+        context.queryClient,
+        deps.region ?? "All",
+        deps.district ?? "All",
+      ),
+    ]),
   component: VehicleConfig,
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {

@@ -1,11 +1,11 @@
 import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
 import PlacePicker from "../../components/place-picker";
-import { statusOptions } from "../../queries/vor-queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { preloadStatus, useStatus } from "../../queries/vor-queries";
 import { useState } from "react";
 import PagePicker from "../../components/page-picker";
 import validatePlace from "../../support/validate-place";
 import { useTitle } from "../../components/useTitle";
+import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
 
 const PageSize = 10;
 
@@ -15,13 +15,13 @@ const VehicleStatus = () => {
     district: string;
     hub: string;
   };
-  const { data } = useSuspenseQuery(statusOptions(region, district, hub));
+  const { data } = useStatus(region, district, hub);
   const [page, setPage] = useState(0);
 
   useTitle("Vehicle Status");
 
   const itemsToDisplay = (data ?? [])
-    .sort((a, b) => a.callSign.localeCompare(b.callSign))
+    .toSorted((a, b) => a.callSign.localeCompare(b.callSign))
     .slice(page * PageSize, (page + 1) * PageSize);
   const showPagination = data.length > PageSize;
 
@@ -103,10 +103,15 @@ export const Route = createFileRoute("/vehicles/status")({
     district,
     hub,
   }),
-  loader: ({ deps, context }) => {
-    return context.queryClient.ensureQueryData(
-      statusOptions(deps.region, deps.district, deps.hub),
-    );
-  },
+  loader: ({ deps, context }) =>
+    Promise.all([
+      preloadStatus(context.queryClient, deps.region, deps.district, deps.hub),
+      preloadDistricts(context.queryClient, deps.region ?? "All"),
+      preloadHubs(
+        context.queryClient,
+        deps.region ?? "All",
+        deps.district ?? "All",
+      ),
+    ]),
   component: VehicleStatus,
 });

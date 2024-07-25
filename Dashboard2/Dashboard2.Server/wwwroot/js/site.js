@@ -6,9 +6,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementsByClassName("navbar-burger")[0]
     .addEventListener("click", function () {
-      const target = document.getElementsByClassName("navbar-menu")[0];
+      const target = document.getElementsByClassName("navbar-burger")[0];
       target.classList.toggle("is-active");
-      document.getElementsByClassName("navbar-menu")[0].classList.toggle("is-active");
       target.ariaExpanded = target.classList.contains("is-active");
+      document.getElementsByClassName("navbar-menu")[0].classList.toggle("is-active");
     });
 });

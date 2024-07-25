@@ -1,9 +1,6 @@
-import {
-  useMutation,
-  useQueryClient,
-  UseSuspenseQueryOptions,
-} from "@tanstack/react-query";
-import { notFound } from "@tanstack/react-router";
+import { useUpdate } from "./mutate-query";
+import getOptions from "./get-options";
+import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 export interface UserInfo {
   realName: string;
@@ -26,90 +23,38 @@ export interface UserRoleUpdate {
   roleId: string;
 }
 
-export const useUpdateUser = (id: string) => {
-  const queryClient = useQueryClient();
+export function useUpdateUser(id: string) {
+  return useUpdate("/api/users", ["user"])<UserRoleUpdate>(id);
+}
 
-  return useMutation({
-    mutationFn: async (user: UserRoleUpdate) => {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
+export function userSettings(id: string) {
+  return getOptions<UserWithRole>(`/api/users/${id}`, ["user", id]);
+}
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw notFound();
-        }
-        throw new Error("Failed to update user.");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-    },
-  });
-};
+export function useUser(id: string) {
+  return useSuspenseQuery(userSettings(id));
+}
 
-export const userSettings: (
-  id: string,
-) => UseSuspenseQueryOptions<UserWithRole> = (id: string) => ({
-  queryKey: ["user", id],
-  queryFn: async () => {
-    const response = await fetch(`/api/users/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export function preloadUser(queryClient: QueryClient, id: string) {
+  return queryClient.ensureQueryData(userSettings(id));
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch user settings.");
-    }
+export const usersOptions = getOptions<UserWithRole[]>("/api/users", ["user"]);
 
-    return response.json() as Promise<UserWithRole>;
-  },
-  staleTime: 10 * 60 * 1000
-});
+export function useUsers() {
+  return useSuspenseQuery(usersOptions);
+}
 
-export const allUserOptions: UseSuspenseQueryOptions<UserWithRole[]> = {
-  queryKey: ["user"],
-  queryFn: async () => {
-    const response = await fetch("/api/users", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export function preloadUsers(queryClient: QueryClient) {
+  return queryClient.ensureQueryData(usersOptions);
+}
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch users.");
-    }
+export const meOptions = getOptions<UserInfo>("/api/users/me", ["user", "me"]);
 
-    return response.json() as Promise<UserWithRole[]>;
-  },
-  staleTime: 10 * 60 * 1000
-};
+export function useMe() {
+  return useSuspenseQuery(meOptions);
+}
 
-export const userMeOptions: UseSuspenseQueryOptions<UserInfo | null> = {
-  queryKey: ["me"],
-  queryFn: async () => {
-    const response = await fetch("/api/users/me", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      return Promise.resolve(null);
-    }
-
-    return response.json() as Promise<UserInfo>;
-  },
-  staleTime: 1000 * 60 * 5,
-};
+export function preloadMe(queryClient: QueryClient) {
+  return queryClient.ensureQueryData(meOptions);
+}

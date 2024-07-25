@@ -66,6 +66,10 @@ export default defineConfig({
         target,
         secure: false,
       },
+      "^/js": {
+        target,
+        secure: false,
+      },
       "^/img": {
         target,
         secure: false,

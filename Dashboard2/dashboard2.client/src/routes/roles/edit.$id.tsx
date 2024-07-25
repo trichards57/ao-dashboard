@@ -4,14 +4,17 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { roleOptions, useUpdateRole } from "../../queries/role-queries";
+import {
+  preloadRole,
+  useRole,
+  useUpdateRole,
+} from "../../queries/role-queries";
 import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTitle } from "../../components/useTitle";
 
 const EditRole = () => {
   const { id } = useParams({ from: "/roles/edit/$id" });
-  const { data } = useSuspenseQuery(roleOptions(id));
+  const { data } = useRole(id);
   const { mutateAsync } = useUpdateRole(id);
   const navigate = useNavigate();
 
@@ -115,11 +118,7 @@ const EditRole = () => {
 
 export const Route = createFileRoute("/roles/edit/$id")({
   component: EditRole,
-  loader: ({ params, context }) => {
-    return Promise.all([
-      context.queryClient.ensureQueryData(roleOptions(params.id)),
-    ]);
-  },
+  loader: ({ params, context }) => preloadRole(context.queryClient, params.id),
   beforeLoad: ({ context }) => {
     if (!context.loggedIn) {
       throw redirect({

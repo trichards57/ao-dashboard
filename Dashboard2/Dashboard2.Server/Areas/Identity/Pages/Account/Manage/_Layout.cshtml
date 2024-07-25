@@ -1,5 +1,9 @@
-﻿@{
+﻿@inject UserManager<ApplicationUser> UserManager
+
+@{
     Layout = "/Pages/Shared/_Layout.cshtml";
+
+    var user = await UserManager.GetUserAsync(Context.User);
 }
 
 <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -50,7 +54,7 @@
 
         <div class="navbar-end">
             <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">{name}</a>
+                <a class="navbar-link">@(user?.RealName ?? "")</a>
                 <div class="navbar-dropdown">
                     <a class="navbar-item" href="/Identity/Account/Manage">
                         Manage Profile

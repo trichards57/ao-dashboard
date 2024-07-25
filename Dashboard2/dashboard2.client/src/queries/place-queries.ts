@@ -1,8 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  queryOptions,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 
-export function useDistricts(region: string) {
-  return useQuery({
+export function districtOptions(region: string) {
+  return queryOptions({
     queryKey: ["districts", region],
     queryFn: async () => {
       if (!region || region == "All") {
@@ -25,12 +29,12 @@ export function useDistricts(region: string) {
 
       return response.json() as Promise<string[]>;
     },
-    staleTime: 10 * 60 * 1000
+    staleTime: 10 * 60 * 1000,
   });
 }
 
-export function useHubs(region: string, district: string) {
-  return useQuery({
+export function hubOptions(region: string, district: string) {
+  return queryOptions({
     queryKey: ["hubs", region, district],
     queryFn: async () => {
       if (
@@ -58,6 +62,26 @@ export function useHubs(region: string, district: string) {
 
       return response.json() as Promise<string[]>;
     },
-    staleTime: 10 * 60 * 1000
+    staleTime: 10 * 60 * 1000,
   });
+}
+
+export function useDistricts(region: string) {
+  return useSuspenseQuery(districtOptions(region));
+}
+
+export function useHubs(region: string, district: string) {
+  return useSuspenseQuery(hubOptions(region, district));
+}
+
+export function preloadDistricts(queryClient: QueryClient, region: string) {
+  return queryClient.ensureQueryData(districtOptions(region));
+}
+
+export function preloadHubs(
+  queryClient: QueryClient,
+  region: string,
+  district: string,
+) {
+  return queryClient.ensureQueryData(hubOptions(region, district));
 }

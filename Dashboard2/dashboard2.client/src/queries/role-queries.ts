@@ -1,9 +1,6 @@
-import {
-  useMutation,
-  useQueryClient,
-  UseSuspenseQueryOptions,
-} from "@tanstack/react-query";
-import { notFound } from "@tanstack/react-router";
+import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import getOptions from "./get-options";
+import { useUpdate } from "./mutate-query";
 
 export interface RolePermissions {
   id: string;
@@ -19,74 +16,30 @@ export interface RolePermissionsUpdate {
   vorData: string;
 }
 
-export const useUpdateRole = (id: string) => {
-  const queryClient = useQueryClient();
+export function useUpdateRole(id: string) {
+  return useUpdate("/api/roles", ["role"])<RolePermissionsUpdate>(id);
+}
 
-  return useMutation({
-    mutationFn: async (role: RolePermissionsUpdate) => {
-      const response = await fetch(`/api/roles/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(role),
-      });
+export function roleOptions(id: string) {
+  return getOptions<RolePermissions>(`/api/roles/${id}`, ["role", id]);
+}
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw notFound();
-        }
-        throw new Error("Failed to update role.");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["role"] });
-    },
-  });
-};
+export const allRoleOptions = getOptions<RolePermissions[]>("/api/roles", [
+  "role",
+]);
 
-export const roleOptions: (
-  id: string,
-) => UseSuspenseQueryOptions<RolePermissions> = (id: string) => ({
-  queryKey: ["role", id],
-  queryFn: async () => {
-    const response = await fetch(`/api/roles/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export function useRole(id: string) {
+  return useSuspenseQuery(roleOptions(id));
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch role settings.");
-    }
+export function useRoles() {
+  return useSuspenseQuery(allRoleOptions);
+}
 
-    return response.json() as Promise<RolePermissions>;
-  },
-  staleTime: 10 * 60 * 1000,
-});
+export function preloadRole(queryClient: QueryClient, id: string) {
+  return queryClient.ensureQueryData(roleOptions(id));
+}
 
-export const allRoleOptions: UseSuspenseQueryOptions<RolePermissions[]> = {
-  queryKey: ["role"],
-  queryFn: async () => {
-    const response = await fetch("/api/roles", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch roles.");
-    }
-
-    return response.json() as Promise<RolePermissions[]>;
-  },
-  staleTime: 10 * 60 * 1000,
-};
+export function preloadRoles(queryClient: QueryClient) {
+  return queryClient.ensureQueryData(allRoleOptions);
+}

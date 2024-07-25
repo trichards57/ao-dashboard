@@ -1,4 +1,5 @@
-import { notFound } from "@tanstack/react-router";
+import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import getOptions from "./get-options";
 
 export interface VorStatistics {
   totalVehicles: number;
@@ -19,60 +20,58 @@ export interface VorStatus {
   dueBack: string;
 }
 
-export const statisticsOptions = (
+export function statisticsOptions(
   region: string | undefined,
   district: string | undefined,
   hub: string | undefined,
-) => ({
-  queryKey: ["statistics", region ?? "All", district ?? "All", hub ?? "All"],
-  queryFn: async () => {
-    const response = await fetch(
-      `/api/vor/statistics?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+) {
+  return getOptions<VorStatistics>(
+    `/api/vor/statistics?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
+    ["statistics", region ?? "All", district ?? "All", hub ?? "All"],
+  );
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch hubs.");
-    }
-
-    return response.json() as Promise<VorStatistics>;
-  },
-  staleTime: 10 * 60 * 1000,
-});
-
-export const statusOptions = (
+export function useStatistics(
   region: string | undefined,
   district: string | undefined,
   hub: string | undefined,
-) => ({
-  queryKey: ["status", region ?? "All", district ?? "All", hub ?? "All"],
-  queryFn: async () => {
-    const response = await fetch(
-      `/api/vor?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+) {
+  return useSuspenseQuery(statisticsOptions(region, district, hub));
+}
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw notFound();
-      }
-      throw new Error("Failed to fetch hubs.");
-    }
+export function preloadStatistics(
+  queryClient: QueryClient,
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return queryClient.ensureQueryData(statisticsOptions(region, district, hub));
+}
 
-    return response.json() as Promise<VorStatus[]>;
-  },
-  staleTime: 10 * 60 * 1000,
-});
+export function statusOptions(
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return getOptions<VorStatus[]>(
+    `/api/vor?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
+    ["status", region ?? "All", district ?? "All", hub ?? "All"],
+  );
+}
+
+export function useStatus(
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return useSuspenseQuery(statusOptions(region, district, hub));
+}
+
+export function preloadStatus(
+  queryClient: QueryClient,
+  region: string | undefined,
+  district: string | undefined,
+  hub: string | undefined,
+) {
+  return queryClient.ensureQueryData(statusOptions(region, district, hub));
+}
