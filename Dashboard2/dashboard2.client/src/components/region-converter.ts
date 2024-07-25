@@ -1,4 +1,6 @@
-export function regionToString(region: string): string {
+import { Region } from "../queries/place-queries";
+
+export function regionToString(region: Region): string {
   switch (region) {
     case "NorthEast":
       return "North East";

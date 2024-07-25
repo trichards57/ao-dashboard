@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
+  Permission,
   preloadRole,
   useRole,
   useUpdateRole,
@@ -53,7 +54,9 @@ function EditRole({ id }: { id: string }) {
               disabled={running}
               id="vehicle-configuration"
               value={vehicleConfiguration}
-              onChange={(e) => setVehicleConfiguration(e.target.value)}
+              onChange={(e) =>
+                setVehicleConfiguration(e.target.value as Permission)
+              }
               required
             >
               <option value="Deny">Deny</option>
@@ -71,7 +74,7 @@ function EditRole({ id }: { id: string }) {
               disabled={running}
               id="vor-data"
               value={vorData}
-              onChange={(e) => setVorData(e.target.value)}
+              onChange={(e) => setVorData(e.target.value as Permission)}
               required
             >
               <option value="Deny">Deny</option>
@@ -89,7 +92,7 @@ function EditRole({ id }: { id: string }) {
               disabled={running}
               id="user-role"
               value={permissions}
-              onChange={(e) => setPermissions(e.target.value)}
+              onChange={(e) => setPermissions(e.target.value as Permission)}
               required
             >
               <option value="Deny">Deny</option>
@@ -124,6 +127,7 @@ export const Route = createFileRoute("/roles/edit/$id")({
     if (!context.canEditRoles) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
   },

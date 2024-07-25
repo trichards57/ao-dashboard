@@ -60,6 +60,7 @@ export const Route = createFileRoute("/users/")({
     if (!context.canViewUsers) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
   },

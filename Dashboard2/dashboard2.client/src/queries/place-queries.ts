@@ -5,11 +5,22 @@ import {
 } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 
-export function districtOptions(region: string) {
+export type Region =
+  | "All"
+  | "EastOfEngland"
+  | "EastMidlands"
+  | "London"
+  | "NorthEast"
+  | "NorthWest"
+  | "SouthEast"
+  | "SouthWest"
+  | "WestMidlands";
+
+export function districtOptions(region: Region) {
   return queryOptions({
     queryKey: ["districts", region],
     queryFn: async () => {
-      if (!region || region == "All") {
+      if (region == "All") {
         return [];
       }
 
@@ -33,16 +44,11 @@ export function districtOptions(region: string) {
   });
 }
 
-export function hubOptions(region: string, district: string) {
+export function hubOptions(region: Region, district: string) {
   return queryOptions({
     queryKey: ["hubs", region, district],
     queryFn: async () => {
-      if (
-        !region ||
-        region.toUpperCase() == "ALL" ||
-        !district ||
-        district.toUpperCase() == "ALL"
-      ) {
+      if (region == "All" || district.toUpperCase() == "ALL") {
         return [];
       }
 
@@ -66,21 +72,21 @@ export function hubOptions(region: string, district: string) {
   });
 }
 
-export function useDistricts(region: string) {
+export function useDistricts(region: Region) {
   return useSuspenseQuery(districtOptions(region));
 }
 
-export function useHubs(region: string, district: string) {
+export function useHubs(region: Region, district: string) {
   return useSuspenseQuery(hubOptions(region, district));
 }
 
-export function preloadDistricts(queryClient: QueryClient, region: string) {
+export function preloadDistricts(queryClient: QueryClient, region: Region) {
   return queryClient.ensureQueryData(districtOptions(region));
 }
 
 export function preloadHubs(
   queryClient: QueryClient,
-  region: string,
+  region: Region,
   district: string,
 ) {
   return queryClient.ensureQueryData(hubOptions(region, district));

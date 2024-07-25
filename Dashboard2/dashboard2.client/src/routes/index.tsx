@@ -27,6 +27,7 @@ export const Route = createFileRoute("/")({
     if (context.loggedIn) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
   },

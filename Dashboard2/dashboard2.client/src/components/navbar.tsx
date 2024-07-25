@@ -1,5 +1,6 @@
 import { Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
+import { Region } from "../queries/place-queries";
 
 interface NavbarProps {
   loggedIn?: boolean;
@@ -19,7 +20,11 @@ export default function Navbar({
   name = undefined,
 }: NavbarProps) {
   const [showMenu, setShowMenu] = useState(false);
-  const search = useSearch({ strict: false });
+  const search = useSearch({ strict: false }) as {
+    region: Region;
+    district: string;
+    hub: string;
+  };
 
   const burgerClass = showMenu ? "navbar-burger is-active" : "navbar-burger";
   const menuClass = showMenu ? "navbar-menu is-active" : "navbar-menu";

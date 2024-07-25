@@ -42,7 +42,7 @@ exports[`Roles Component > renders correctly 1`] = `
           Deny
         </td>
         <td>
-          Edit
+          Write
         </td>
         <td>
           Write
@@ -56,10 +56,10 @@ exports[`Roles Component > renders correctly 1`] = `
           Administrator
         </td>
         <td>
-          Edit
+          Write
         </td>
         <td>
-          Edit
+          Write
         </td>
         <td>
           Read

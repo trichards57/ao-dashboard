@@ -6,6 +6,13 @@ import {
 } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 import getOptions from "./get-options";
+import { Region } from "./place-queries";
+
+export type VehicleType =
+  | "Other"
+  | "FrontLineAmbulance"
+  | "AllWheelDrive"
+  | "OffRoadAmbulance";
 
 export interface VehicleSettings {
   id: string;
@@ -13,8 +20,8 @@ export interface VehicleSettings {
   callSign: string;
   hub: string;
   district: string;
-  region: string;
-  vehicleType: string;
+  region: Region;
+  vehicleType: VehicleType;
   forDisposal: boolean;
 }
 
@@ -23,8 +30,8 @@ export interface UpdateVehicleSettings {
   hub: string;
   callSign: string;
   district: string;
-  region: string;
-  vehicleType: string;
+  region: Region;
+  vehicleType: VehicleType;
   forDisposal: boolean;
 }
 
@@ -70,30 +77,26 @@ export function preloadVehicleSettings(queryClient: QueryClient, id: string) {
   return queryClient.ensureQueryData(vehicleSettings(id));
 }
 
-export function settingsOptions(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
-) {
+export function settingsOptions(region: Region, district: string, hub: string) {
   return getOptions<VehicleSettings[]>(
-    `/api/vehicles?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-    ["settings", region ?? "All", district ?? "All", hub ?? "All"],
+    `/api/vehicles?region=${region}&district=${district}&hub=${hub}`,
+    ["settings", region, district, hub],
   );
 }
 
 export function useAllVehicleSettings(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
+  region: Region,
+  district: string,
+  hub: string,
 ) {
   return useSuspenseQuery(settingsOptions(region, district, hub));
 }
 
 export function preloadAllVehicleSettings(
   queryClient: QueryClient,
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
+  region: Region,
+  district: string,
+  hub: string,
 ) {
   return queryClient.ensureQueryData(settingsOptions(region, district, hub));
 }

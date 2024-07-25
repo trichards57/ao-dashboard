@@ -2,18 +2,20 @@ import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import getOptions from "./get-options";
 import { useUpdate } from "./mutate-query";
 
+export type Permission = "Deny" | "Read" | "Write";
+
 export interface RolePermissions {
   id: string;
   name: string;
-  permissions: string;
-  vehicleConfiguration: string;
-  vorData: string;
+  permissions: Permission;
+  vehicleConfiguration: Permission;
+  vorData: Permission;
 }
 
 export interface RolePermissionsUpdate {
-  permissions: string;
-  vehicleConfiguration: string;
-  vorData: string;
+  permissions: Permission;
+  vehicleConfiguration: Permission;
+  vorData: Permission;
 }
 
 export function useUpdateRole(id: string) {

@@ -5,7 +5,11 @@ import { Line, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import validatePlace from "../support/validate-place";
 import { useTitle } from "../components/useTitle";
-import { preloadDistricts, preloadHubs } from "../queries/place-queries";
+import {
+  preloadDistricts,
+  preloadHubs,
+  Region,
+} from "../queries/place-queries";
 
 function dateLabel(d: string) {
   const date = new Date(d);
@@ -35,7 +39,7 @@ export function Home({
   district,
   hub,
 }: {
-  region: string;
+  region: Region;
   district: string;
   hub: string;
 }) {
@@ -142,19 +146,15 @@ export const Route = createFileRoute("/home")({
         deps.district,
         deps.hub,
       ),
-      preloadDistricts(context.queryClient, deps.region ?? "All"),
-      preloadHubs(
-        context.queryClient,
-        deps.region ?? "All",
-        deps.district ?? "All",
-      ),
+      preloadDistricts(context.queryClient, deps.region),
+      preloadHubs(context.queryClient, deps.region, deps.district),
     ]),
   component: function Component() {
     return (
       <Home
-        region={Route.useSearch().region ?? "All"}
-        district={Route.useSearch().district ?? "All"}
-        hub={Route.useSearch().hub ?? "All"}
+        region={Route.useSearch().region}
+        district={Route.useSearch().district}
+        hub={Route.useSearch().hub}
       />
     );
   },

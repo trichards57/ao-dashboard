@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useDistricts, useHubs } from "../queries/place-queries";
+import { Region, useDistricts, useHubs } from "../queries/place-queries";
 
-function calculateSearch(region: string, district: string, hub: string) {
+function calculateSearch(region: Region, district: string, hub: string) {
   if (region?.toUpperCase() === "ALL") {
     return {};
   }
@@ -24,7 +24,7 @@ export default function PlacePicker({
   district,
   hub,
 }: {
-  region: string;
+  region: Region;
   district: string;
   hub: string;
 }) {
@@ -44,7 +44,11 @@ export default function PlacePicker({
               id="region"
               onChange={(e) => {
                 navigate({
-                  search: calculateSearch(e.target.value, district, hub),
+                  search: calculateSearch(
+                    e.target.value as Region,
+                    district,
+                    hub,
+                  ),
                 });
               }}
               value={region ?? "All"}

@@ -1,5 +1,6 @@
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import getOptions from "./get-options";
+import { Region } from "./place-queries";
 
 export interface VorStatistics {
   totalVehicles: number;
@@ -10,7 +11,7 @@ export interface VorStatistics {
 
 export interface VorStatus {
   id: string;
-  region: string;
+  region: Region;
   hub: string;
   district: string;
   registration: string;
@@ -21,7 +22,7 @@ export interface VorStatus {
 }
 
 export function statisticsOptions(
-  region: string,
+  region: Region,
   district: string,
   hub: string,
 ) {
@@ -31,43 +32,35 @@ export function statisticsOptions(
   );
 }
 
-export function useStatistics(region: string, district: string, hub: string) {
+export function useStatistics(region: Region, district: string, hub: string) {
   return useSuspenseQuery(statisticsOptions(region, district, hub));
 }
 
 export function preloadStatistics(
   queryClient: QueryClient,
-  region: string,
+  region: Region,
   district: string,
   hub: string,
 ) {
   return queryClient.ensureQueryData(statisticsOptions(region, district, hub));
 }
 
-export function statusOptions(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
-) {
+export function statusOptions(region: Region, district: string, hub: string) {
   return getOptions<VorStatus[]>(
-    `/api/vor?region=${region ?? "All"}&district=${district ?? "All"}&hub=${hub ?? "All"}`,
-    ["status", region ?? "All", district ?? "All", hub ?? "All"],
+    `/api/vor?region=${region}&district=${district}&hub=${hub}`,
+    ["status", region, district, hub],
   );
 }
 
-export function useStatus(
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
-) {
+export function useStatus(region: Region, district: string, hub: string) {
   return useSuspenseQuery(statusOptions(region, district, hub));
 }
 
 export function preloadStatus(
   queryClient: QueryClient,
-  region: string | undefined,
-  district: string | undefined,
-  hub: string | undefined,
+  region: Region,
+  district: string,
+  hub: string,
 ) {
   return queryClient.ensureQueryData(statusOptions(region, district, hub));
 }

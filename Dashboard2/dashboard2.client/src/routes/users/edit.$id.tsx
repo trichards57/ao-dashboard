@@ -99,6 +99,7 @@ export const Route = createFileRoute("/users/edit/$id")({
     if (!context.canViewUsers) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
     if (params.id.toUpperCase() === context.userId.toUpperCase()) {

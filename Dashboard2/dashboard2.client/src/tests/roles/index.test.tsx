@@ -10,7 +10,7 @@ const testRoles: RolePermissions[] = [
   {
     id: "a",
     name: "Administrator",
-    permissions: "Edit",
+    permissions: "Write",
     vehicleConfiguration: "Deny",
     vorData: "Deny",
   },
@@ -25,8 +25,8 @@ const testRoles: RolePermissions[] = [
     id: "c",
     name: "Administrator",
     permissions: "Read",
-    vehicleConfiguration: "Edit",
-    vorData: "Edit",
+    vehicleConfiguration: "Write",
+    vorData: "Write",
   },
 ];
 

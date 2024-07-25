@@ -5,7 +5,11 @@ import { useState } from "react";
 import PagePicker from "../../components/page-picker";
 import validatePlace from "../../support/validate-place";
 import { useTitle } from "../../components/useTitle";
-import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
+import {
+  preloadDistricts,
+  preloadHubs,
+  Region,
+} from "../../queries/place-queries";
 
 const PageSize = 10;
 
@@ -14,9 +18,9 @@ function VehicleStatus({
   district,
   hub,
 }: {
-  region: string | undefined;
-  district: string | undefined;
-  hub: string | undefined;
+  region: Region;
+  district: string;
+  hub: string;
 }) {
   const { data } = useStatus(region, district, hub);
   const [page, setPage] = useState(0);
@@ -31,7 +35,7 @@ function VehicleStatus({
   return (
     <>
       <h1 className="title">Vehicle Status</h1>
-      <PlacePicker />
+      <PlacePicker region={region} district={district} hub={hub} />
       <div className="table-container">
         <table className="table is-striped is-fullwidth">
           <thead>
@@ -109,12 +113,8 @@ export const Route = createFileRoute("/vehicles/status")({
   loader: ({ deps, context }) =>
     Promise.all([
       preloadStatus(context.queryClient, deps.region, deps.district, deps.hub),
-      preloadDistricts(context.queryClient, deps.region ?? "All"),
-      preloadHubs(
-        context.queryClient,
-        deps.region ?? "All",
-        deps.district ?? "All",
-      ),
+      preloadDistricts(context.queryClient, deps.region),
+      preloadHubs(context.queryClient, deps.region, deps.district),
     ]),
   component: function Component() {
     return (

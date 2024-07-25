@@ -3,9 +3,11 @@ import {
   preloadVehicleSettings,
   useUpdateVehicle,
   useVehicleSettings,
+  VehicleType,
 } from "../../queries/vehicle-queries";
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
+import { Region } from "../../queries/place-queries";
 
 function EditVehicle({ id }: { id: string }) {
   const { data } = useVehicleSettings(id);
@@ -55,7 +57,10 @@ function EditVehicle({ id }: { id: string }) {
       forDisposal,
     });
     setRunning(false);
-    navigate({ to: "/vehicles/config" });
+    navigate({
+      to: "/vehicles/config",
+      search: { region: "All", district: "All", hub: "All" },
+    });
   }
 
   return (
@@ -116,7 +121,7 @@ function EditVehicle({ id }: { id: string }) {
               disabled={running}
               id="vehicle-type"
               value={vehicleType}
-              onChange={(e) => setVehicleType(e.target.value)}
+              onChange={(e) => setVehicleType(e.target.value as VehicleType)}
               required
             >
               <option value="Other">Other</option>
@@ -135,7 +140,7 @@ function EditVehicle({ id }: { id: string }) {
               disabled={running}
               id="region"
               value={region}
-              onChange={(e) => setRegion(e.target.value)}
+              onChange={(e) => setRegion(e.target.value as Region)}
               required
             >
               <option value="Unknown">Unknown</option>
@@ -237,6 +242,7 @@ export const Route = createFileRoute("/vehicles/edit/$id")({
     if (!context.canEditVehicles) {
       throw redirect({
         to: "/home",
+        search: { region: "All", district: "All", hub: "All" },
       });
     }
   },

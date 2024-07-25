@@ -11,7 +11,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { regionToString } from "../../components/region-converter";
 import { useTitle } from "../../components/useTitle";
-import { preloadDistricts, preloadHubs } from "../../queries/place-queries";
+import {
+  preloadDistricts,
+  preloadHubs,
+  Region,
+} from "../../queries/place-queries";
 
 const PageSize = 10;
 
@@ -20,9 +24,9 @@ function VehicleConfig({
   district,
   hub,
 }: {
-  region: string | undefined;
-  district: string | undefined;
-  hub: string | undefined;
+  region: Region;
+  district: string;
+  hub: string;
 }) {
   const { data } = useAllVehicleSettings(region, district, hub);
   const [page, setPage] = useState(0);
@@ -37,7 +41,7 @@ function VehicleConfig({
   return (
     <>
       <h1 className="title">Vehicle Setup</h1>
-      <PlacePicker />
+      <PlacePicker region={region} district={district} hub={hub} />
       <div className="table-container">
         <table className="table is-striped is-fullwidth">
           <thead>
@@ -103,12 +107,8 @@ export const Route = createFileRoute("/vehicles/config")({
         deps.district,
         deps.hub,
       ),
-      preloadDistricts(context.queryClient, deps.region ?? "All"),
-      preloadHubs(
-        context.queryClient,
-        deps.region ?? "All",
-        deps.district ?? "All",
-      ),
+      preloadDistricts(context.queryClient, deps.region),
+      preloadHubs(context.queryClient, deps.region, deps.district),
     ]),
   component: function Component() {
     return (
@@ -119,7 +119,7 @@ export const Route = createFileRoute("/vehicles/config")({
       />
     );
   },
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, search }) => {
     if (!context.loggedIn) {
       throw redirect({
         to: "/",
@@ -128,6 +128,7 @@ export const Route = createFileRoute("/vehicles/config")({
     if (!context.canEditVehicles) {
       throw redirect({
         to: "/home",
+        search,
       });
     }
   },
