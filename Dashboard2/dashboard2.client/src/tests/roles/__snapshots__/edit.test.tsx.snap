@@ -1,0 +1,123 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Edit Role Page > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Edit Role 1
+  </h1>
+  <form
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="vehicle-configuration"
+      >
+        Vehicle Configuration
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="vehicle-configuration"
+          required=""
+        >
+          <option
+            value="Deny"
+          >
+            Deny
+          </option>
+          <option
+            value="Read"
+          >
+            Read
+          </option>
+          <option
+            value="Write"
+          >
+            Read/Write
+          </option>
+        </select>
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="vor-data"
+      >
+        VOR Data
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="vor-data"
+          required=""
+        >
+          <option
+            value="Deny"
+          >
+            Deny
+          </option>
+          <option
+            value="Read"
+          >
+            Read
+          </option>
+          <option
+            value="Write"
+          >
+            Read/Write
+          </option>
+        </select>
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="user-role"
+      >
+        Permissions
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="user-role"
+          required=""
+        >
+          <option
+            value="Deny"
+          >
+            Deny
+          </option>
+          <option
+            value="Read"
+          >
+            Read
+          </option>
+          <option
+            value="Write"
+          >
+            Read/Write
+          </option>
+        </select>
+      </div>
+    </div>
+    <button
+      class="button is-primary is-fullwidth"
+      type="submit"
+    >
+      Save
+    </button>
+  </form>
+</DocumentFragment>
+`;

@@ -12,7 +12,7 @@ import {
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
 
-function EditRole({ id }: { id: string }) {
+export function EditRole({ id }: { id: string }) {
   const { data } = useRole(id);
   const { mutateAsync } = useUpdateRole(id);
   const navigate = useNavigate();
