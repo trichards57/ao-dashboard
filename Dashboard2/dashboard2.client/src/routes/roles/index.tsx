@@ -1,6 +1,10 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { preloadRoles, useRoles } from "../../queries/role-queries";
 import { useTitle } from "../../components/useTitle";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 export function Roles() {
   const { data } = useRoles();
@@ -48,16 +52,7 @@ export const Route = createFileRoute("/roles/")({
   component: Roles,
   loader: ({ context }) => preloadRoles(context.queryClient),
   beforeLoad: ({ context }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canEditRoles) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canEditRoles);
   },
 });

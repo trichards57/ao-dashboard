@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useTitle } from "../components/useTitle";
+import { redirectIfLoggedIn } from "../support/check-logged-in";
 
 export function Index() {
   useTitle();
@@ -23,13 +24,6 @@ export function Index() {
 }
 
 export const Route = createFileRoute("/")({
-  beforeLoad: ({ context }) => {
-    if (context.loggedIn) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
-  },
+  beforeLoad: ({ context }) => redirectIfLoggedIn(context),
   component: Index,
 });

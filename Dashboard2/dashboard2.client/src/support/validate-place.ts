@@ -11,3 +11,15 @@ export default function validatePlace(search: Record<string, unknown>): {
     hub: (search.hub as string | undefined) ?? "All",
   };
 }
+
+export function getPlaceDeps({
+  search: { region, district, hub },
+}: {
+  search: { region: Region; district: string; hub: string };
+}) {
+  return {
+    region,
+    district,
+    hub,
+  };
+}

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Permission,
   preloadRole,
@@ -7,6 +7,10 @@ import {
 } from "../../queries/role-queries";
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 function EditRole({ id }: { id: string }) {
   const { data } = useRole(id);
@@ -119,16 +123,7 @@ export const Route = createFileRoute("/roles/edit/$id")({
   },
   loader: ({ params, context }) => preloadRole(context.queryClient, params.id),
   beforeLoad: ({ context }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canEditRoles) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canEditRoles);
   },
 });

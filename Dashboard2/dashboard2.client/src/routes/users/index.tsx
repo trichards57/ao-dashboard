@@ -1,6 +1,10 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { preloadUsers, useUsers } from "../../queries/user-queries";
 import { useTitle } from "../../components/useTitle";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 function Users({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const { data } = useUsers();
@@ -52,16 +56,7 @@ export const Route = createFileRoute("/users/")({
   },
   loader: ({ context }) => preloadUsers(context.queryClient),
   beforeLoad: ({ context }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canViewUsers) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canViewUsers);
   },
 });

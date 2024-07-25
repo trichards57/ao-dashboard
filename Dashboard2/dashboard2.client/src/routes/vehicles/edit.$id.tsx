@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   preloadVehicleSettings,
   useUpdateVehicle,
@@ -8,6 +8,10 @@ import {
 import { useState } from "react";
 import { useTitle } from "../../components/useTitle";
 import { Region } from "../../queries/place-queries";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 function EditVehicle({ id }: { id: string }) {
   const { data } = useVehicleSettings(id);
@@ -234,16 +238,7 @@ export const Route = createFileRoute("/vehicles/edit/$id")({
   loader: ({ params, context }) =>
     preloadVehicleSettings(context.queryClient, params.id),
   beforeLoad: ({ context }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canEditVehicles) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canEditVehicles);
   },
 });

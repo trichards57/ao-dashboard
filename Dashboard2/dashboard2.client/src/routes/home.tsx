@@ -1,15 +1,19 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import PlacePicker from "../components/place-picker";
 import { preloadStatistics, useStatistics } from "../queries/vor-queries";
 import { Line, Pie } from "react-chartjs-2";
 import "chart.js/auto";
-import validatePlace from "../support/validate-place";
+import validatePlace, { getPlaceDeps } from "../support/validate-place";
 import { useTitle } from "../components/useTitle";
 import {
   preloadDistricts,
   preloadHubs,
   Region,
 } from "../queries/place-queries";
+import {
+  redirectIfAdmin,
+  redirectIfLoggedOut,
+} from "../support/check-logged-in";
 
 function dateLabel(d: string) {
   const date = new Date(d);
@@ -121,23 +125,11 @@ export function Home({
 
 export const Route = createFileRoute("/home")({
   beforeLoad: ({ context }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (context.isAdmin) {
-      throw redirect({
-        to: "/users",
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfAdmin(context);
   },
   validateSearch: validatePlace,
-  loaderDeps: ({ search: { region, district, hub } }) => ({
-    region,
-    district,
-    hub,
-  }),
+  loaderDeps: getPlaceDeps,
   loader: ({ deps, context }) =>
     Promise.all([
       preloadStatistics(

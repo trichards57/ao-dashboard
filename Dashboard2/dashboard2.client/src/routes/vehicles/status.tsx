@@ -1,15 +1,19 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import PlacePicker from "../../components/place-picker";
 import { preloadStatus, useStatus } from "../../queries/vor-queries";
 import { useState } from "react";
 import PagePicker from "../../components/page-picker";
-import validatePlace from "../../support/validate-place";
+import validatePlace, { getPlaceDeps } from "../../support/validate-place";
 import { useTitle } from "../../components/useTitle";
 import {
   preloadDistricts,
   preloadHubs,
   Region,
 } from "../../queries/place-queries";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 const PageSize = 10;
 
@@ -92,24 +96,11 @@ function VehicleStatus({
 
 export const Route = createFileRoute("/vehicles/status")({
   beforeLoad: ({ context, search }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canViewVor) {
-      throw redirect({
-        to: "/home",
-        search: search,
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canViewVor, search);
   },
   validateSearch: validatePlace,
-  loaderDeps: ({ search: { region, district, hub } }) => ({
-    region,
-    district,
-    hub,
-  }),
+  loaderDeps: getPlaceDeps,
   loader: ({ deps, context }) =>
     Promise.all([
       preloadStatus(context.queryClient, deps.region, deps.district, deps.hub),

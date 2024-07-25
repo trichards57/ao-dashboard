@@ -7,6 +7,10 @@ import {
 import { useState } from "react";
 import { preloadRoles, useRoles } from "../../queries/role-queries";
 import { useTitle } from "../../components/useTitle";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 const EditUser = ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
   const { data } = useUser(id);
@@ -91,17 +95,8 @@ export const Route = createFileRoute("/users/edit/$id")({
     ]);
   },
   beforeLoad: ({ context, params }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canViewUsers) {
-      throw redirect({
-        to: "/home",
-        search: { region: "All", district: "All", hub: "All" },
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canEditUsers);
     if (params.id.toUpperCase() === context.userId.toUpperCase()) {
       throw redirect({
         to: "/users",

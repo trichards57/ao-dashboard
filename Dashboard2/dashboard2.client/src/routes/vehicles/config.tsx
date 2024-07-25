@@ -1,5 +1,5 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import validatePlace from "../../support/validate-place";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import validatePlace, { getPlaceDeps } from "../../support/validate-place";
 import PlacePicker from "../../components/place-picker";
 import {
   preloadAllVehicleSettings,
@@ -16,6 +16,10 @@ import {
   preloadHubs,
   Region,
 } from "../../queries/place-queries";
+import {
+  redirectIfLoggedOut,
+  redirectIfNoPermission,
+} from "../../support/check-logged-in";
 
 const PageSize = 10;
 
@@ -94,11 +98,7 @@ function VehicleConfig({
 
 export const Route = createFileRoute("/vehicles/config")({
   validateSearch: validatePlace,
-  loaderDeps: ({ search: { region, district, hub } }) => ({
-    region,
-    district,
-    hub,
-  }),
+  loaderDeps: getPlaceDeps,
   loader: ({ deps, context }) =>
     Promise.all([
       preloadAllVehicleSettings(
@@ -120,16 +120,7 @@ export const Route = createFileRoute("/vehicles/config")({
     );
   },
   beforeLoad: ({ context, search }) => {
-    if (!context.loggedIn) {
-      throw redirect({
-        to: "/",
-      });
-    }
-    if (!context.canEditVehicles) {
-      throw redirect({
-        to: "/home",
-        search,
-      });
-    }
+    redirectIfLoggedOut(context);
+    redirectIfNoPermission(context.canEditVehicles, search);
   },
 });
