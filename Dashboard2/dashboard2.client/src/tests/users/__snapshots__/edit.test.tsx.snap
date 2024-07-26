@@ -1,0 +1,163 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Edit User Page > renders admin correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Update User1
+  </h1>
+  <form
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="role"
+      >
+        Role
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="role"
+          required=""
+        >
+          <option
+            value="a"
+          >
+            Administrator
+          </option>
+          <option
+            value="b"
+          >
+            Role 1
+          </option>
+          <option
+            value="c"
+          >
+            Role 2
+          </option>
+        </select>
+      </div>
+    </div>
+    <button
+      class="button is-primary is-fullwidth"
+      type="submit"
+    >
+      Save
+    </button>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Edit User Page > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Update User1
+  </h1>
+  <form
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="role"
+      >
+        Role
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="role"
+          required=""
+        >
+          <option
+            value="b"
+          >
+            Role 1
+          </option>
+          <option
+            value="c"
+          >
+            Role 2
+          </option>
+        </select>
+      </div>
+    </div>
+    <button
+      class="button is-primary is-fullwidth"
+      type="submit"
+    >
+      Save
+    </button>
+  </form>
+</DocumentFragment>
+`;
+
+exports[`Edit User Page > renders none correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Update User1
+  </h1>
+  <form
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="role"
+      >
+        Role
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="role"
+          required=""
+        >
+          <option
+            value="None"
+          >
+            None
+          </option>
+          <option
+            value="a"
+          >
+            Administrator
+          </option>
+          <option
+            value="b"
+          >
+            Role 1
+          </option>
+          <option
+            value="c"
+          >
+            Role 2
+          </option>
+        </select>
+      </div>
+    </div>
+    <button
+      class="button is-primary is-fullwidth"
+      type="submit"
+    >
+      Save
+    </button>
+  </form>
+</DocumentFragment>
+`;

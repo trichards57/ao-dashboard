@@ -59,6 +59,7 @@ describe("Edit Role Page", () => {
     expect(screen.getByLabelText(/permissions/i)).toHaveValue(
       testItem.permissions,
     );
+    expect(useRole).toBeCalledWith(testItem.id);
   });
 
   it("submits details to update api", async () => {

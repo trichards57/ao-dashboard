@@ -12,7 +12,13 @@ import {
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
 
-const EditUser = ({ id, isAdmin }: { id: string; isAdmin: boolean }) => {
+export const EditUser = ({
+  id,
+  isAdmin,
+}: {
+  id: string;
+  isAdmin?: boolean;
+}) => {
   const { data } = useUser(id);
   const { data: roles } = useRoles();
   const { mutateAsync } = useUpdateUser(id);
