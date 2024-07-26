@@ -1,0 +1,203 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Users Component > renders admin correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    User Settings
+  </h1>
+  <table
+    class="table is-striped is-fullwidth"
+  >
+    <thead>
+      <tr>
+        <th>
+          User
+        </th>
+        <th>
+          Role
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          User 1
+        </td>
+        <td>
+          Role 1
+        </td>
+        <td
+          class="edit"
+        />
+      </tr>
+      <tr>
+        <td>
+          User 2
+        </td>
+        <td>
+          Role 1
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          User 3
+        </td>
+        <td>
+          Role 2
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          User 3
+        </td>
+        <td>
+          Administrator
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          User 4
+        </td>
+        <td>
+          None
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;
+
+exports[`Users Component > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    User Settings
+  </h1>
+  <table
+    class="table is-striped is-fullwidth"
+  >
+    <thead>
+      <tr>
+        <th>
+          User
+        </th>
+        <th>
+          Role
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          User 1
+        </td>
+        <td>
+          Role 1
+        </td>
+        <td
+          class="edit"
+        />
+      </tr>
+      <tr>
+        <td>
+          User 2
+        </td>
+        <td>
+          Role 1
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          User 3
+        </td>
+        <td>
+          Role 2
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          User 4
+        </td>
+        <td>
+          None
+        </td>
+        <td
+          class="edit"
+        >
+          <a
+            params="[object Object]"
+            to="/users/edit/$id"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;

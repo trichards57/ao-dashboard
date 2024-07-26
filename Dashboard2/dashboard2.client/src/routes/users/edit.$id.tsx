@@ -24,7 +24,7 @@ export const EditUser = ({
   const { mutateAsync } = useUpdateUser(id);
   const navigate = useNavigate();
 
-  const [role, setRole] = useState(data.roleId);
+  const [role, setRole] = useState(data.roleId ?? "None");
 
   const [running, setRunning] = useState(false);
 

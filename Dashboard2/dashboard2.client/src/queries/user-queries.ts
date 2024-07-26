@@ -15,8 +15,8 @@ export interface UserInfo {
 export interface UserWithRole {
   id: string;
   name: string;
-  roleId: string;
-  role: string;
+  roleId: string | undefined;
+  role: string | undefined;
 }
 
 export interface UserRoleUpdate {

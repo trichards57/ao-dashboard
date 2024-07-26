@@ -6,7 +6,13 @@ import {
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
 
-function Users({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
+export function Users({
+  userId,
+  isAdmin,
+}: {
+  userId: string;
+  isAdmin?: boolean;
+}) {
   const { data } = useUsers();
 
   useTitle("User Settings");
@@ -34,7 +40,9 @@ function Users({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
               <td>{r.role ?? "None"}</td>
               <td className="edit">
                 {r.id.toUpperCase() !== userId.toUpperCase() && (
-                  <Link to={`/users/edit/${r.id}`}>Edit</Link>
+                  <Link to="/users/edit/$id" params={{ id: r.id }}>
+                    Edit
+                  </Link>
                 )}
               </td>
             </tr>
