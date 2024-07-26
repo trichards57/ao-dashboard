@@ -63,7 +63,7 @@ function VehicleConfig({
               itemsToDisplay.map((i) => (
                 <tr key={i.id}>
                   <td className="edit-col">
-                    <Link to={`/vehicles/edit/${i.id}`}>
+                    <Link to="/vehicles/edit/$id" params={{ id: i.id }}>
                       <FontAwesomeIcon icon={faPen} />
                     </Link>
                   </td>

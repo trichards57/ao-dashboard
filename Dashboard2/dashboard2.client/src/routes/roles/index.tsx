@@ -37,7 +37,9 @@ export function Roles() {
               <td>{r.name == "Administrator" ? "Write" : "Deny"}</td>
               <td className="edit">
                 {r.name != "Administrator" && (
-                  <Link to={`/roles/edit/${r.id}`}>Edit</Link>
+                  <Link to="/roles/edit/$id" params={{ id: r.id }}>
+                    Edit
+                  </Link>
                 )}
               </td>
             </tr>

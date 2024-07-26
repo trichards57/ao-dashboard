@@ -91,7 +91,8 @@ exports[`Roles Component > renders correctly 1`] = `
           class="edit"
         >
           <a
-            to="/roles/edit/b"
+            params="[object Object]"
+            to="/roles/edit/$id"
           >
             Edit
           </a>
