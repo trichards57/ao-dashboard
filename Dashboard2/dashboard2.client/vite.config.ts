@@ -1,12 +1,12 @@
-import { fileURLToPath, URL } from "node:url";
-
-import { defineConfig } from "vite";
-import plugin from "@vitejs/plugin-react";
-import fs from "fs";
-import path from "path";
 import child_process from "child_process";
+import fs from "fs";
+import { URL, fileURLToPath } from "node:url";
+import path from "path";
 import { env } from "process";
+
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import plugin from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 const baseFolder =
   env.APPDATA !== undefined && env.APPDATA !== ""
@@ -19,7 +19,6 @@ const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
   if (
-    0 !==
     child_process.spawnSync(
       "dotnet",
       [
@@ -32,7 +31,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
         "--no-password",
       ],
       { stdio: "inherit" },
-    ).status
+    ).status !== 0
   ) {
     throw new Error("Could not create certificate.");
   }

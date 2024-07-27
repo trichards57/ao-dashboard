@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+import useTitle from "../../components/useTitle";
+import { Region } from "../../queries/place-queries";
 import {
+  VehicleType,
   preloadVehicleSettings,
   useUpdateVehicle,
   useVehicleSettings,
-  VehicleType,
 } from "../../queries/vehicle-queries";
-import { useState } from "react";
-import { useTitle } from "../../components/useTitle";
-import { Region } from "../../queries/place-queries";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,

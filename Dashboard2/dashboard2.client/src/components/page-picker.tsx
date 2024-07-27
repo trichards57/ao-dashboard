@@ -10,7 +10,7 @@ function onlyUnique(value: number, index: number, array: number[]) {
   return array.indexOf(value) === index;
 }
 
-const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
+function PagePicker({ page, pages, setPage }: PagePickerProps) {
   let pagesList: number[] = [page];
 
   if (page > 1) {
@@ -37,6 +37,7 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
         className="pagination-previous"
         onClick={() => setPage((p) => p - 1)}
         disabled={page === 0}
+        type="button"
       >
         Previous
       </button>
@@ -44,6 +45,7 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
         className="pagination-next"
         onClick={() => setPage((p) => p + 1)}
         disabled={page >= pages - 1}
+        type="button"
       >
         Next
       </button>
@@ -53,8 +55,9 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
             <button
               onClick={() => setPage(0)}
               className={
-                page == 0 ? "pagination-link is-current" : "pagination-link"
+                page === 0 ? "pagination-link is-current" : "pagination-link"
               }
+              type="button"
             >
               1
             </button>
@@ -74,8 +77,9 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
               <button
                 onClick={() => setPage(p)}
                 className={
-                  page == p ? "pagination-link is-current" : "pagination-link"
+                  page === p ? "pagination-link is-current" : "pagination-link"
                 }
+                type="button"
               >
                 {p + 1}
               </button>
@@ -92,10 +96,11 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
             <button
               onClick={() => setPage(() => pages - 1)}
               className={
-                page == pages - 1
+                page === pages - 1
                   ? "pagination-link is-current"
                   : "pagination-link"
               }
+              type="button"
             >
               {pages}
             </button>
@@ -104,6 +109,6 @@ const PagePicker = ({ page, pages, setPage }: PagePickerProps) => {
       </ul>
     </nav>
   );
-};
+}
 
 export default PagePicker;

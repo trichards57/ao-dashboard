@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import ReactDOM from "react-dom/client";
 import { act, render } from "@testing-library/react";
-import { Roles } from "../../routes/roles";
+import ReactDOM from "react-dom/client";
+import { Mock, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { RolePermissions, useRoles } from "../../queries/role-queries";
+import { Roles } from "../../routes/roles";
 
 vi.mock("../../queries/role-queries");
 

@@ -1,15 +1,16 @@
-import { describe, expect, it, Mock, vi, beforeEach } from "vitest";
+import { useNavigate } from "@tanstack/react-router";
+import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import ReactDOM from "react-dom/client";
+import { Mock, beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
   RolePermissions,
   RolePermissionsUpdate,
   useRole,
   useUpdateRole,
 } from "../../queries/role-queries";
-import { act, render, screen } from "@testing-library/react";
-import ReactDOM from "react-dom/client";
 import { EditRole } from "../../routes/roles/edit.$id";
-import userEvent from "@testing-library/user-event";
-import { useNavigate } from "@tanstack/react-router";
 
 vi.mock("../../queries/role-queries");
 

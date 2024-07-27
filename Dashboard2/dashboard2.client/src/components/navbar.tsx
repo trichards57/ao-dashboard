@@ -1,5 +1,6 @@
 import { Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
+
 import { Region } from "../queries/place-queries";
 
 interface NavbarProps {
@@ -35,18 +36,18 @@ export default function Navbar({
         <Link className="navbar-item" to={loggedIn ? "/home" : "/"}>
           AO Dashboard
         </Link>
-        <a
+        <button
           onClick={() => setShowMenu((s) => !s)}
           className={burgerClass}
-          role="button"
           aria-label="menu"
           aria-expanded="false"
+          type="button"
         >
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </button>
       </div>
       <div className={menuClass}>
         <div className="navbar-start">
@@ -85,7 +86,7 @@ export default function Navbar({
         <div className="navbar-end">
           {loggedIn && (
             <div className="navbar-item has-dropdown is-hoverable">
-              <a className="navbar-link">{name}</a>
+              <div className="navbar-link">{name}</div>
               <div className="navbar-dropdown">
                 <a className="navbar-item" href="/Identity/Account/Manage">
                   Manage Profile

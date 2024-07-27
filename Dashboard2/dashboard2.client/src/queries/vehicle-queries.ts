@@ -5,6 +5,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
+
 import getOptions from "./get-options";
 import { Region } from "./place-queries";
 
@@ -50,6 +51,7 @@ export const useUpdateVehicle = () => {
 
       if (!response.ok) {
         if (response.status === 404) {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
           throw notFound();
         }
         throw new Error("Failed to update vehicle.");

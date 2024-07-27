@@ -3,6 +3,7 @@ import { notFound } from "@tanstack/react-router";
 
 export default function getOptions<T>(uri: string, queryKey: string[]) {
   return queryOptions({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey,
     queryFn: async () => {
       const response = await fetch(uri, {
@@ -14,6 +15,7 @@ export default function getOptions<T>(uri: string, queryKey: string[]) {
 
       if (!response.ok) {
         if (response.status === 404) {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
           throw notFound();
         }
         throw new Error("Network error");

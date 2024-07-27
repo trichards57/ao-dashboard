@@ -1,5 +1,7 @@
-import { afterEach, vi } from "vitest";
+/* eslint-disable import/no-extraneous-dependencies */
+
 import { cleanup } from "@testing-library/react";
+import { afterEach, vi } from "vitest";
 import "vitest-canvas-mock";
 import "@testing-library/jest-dom/vitest";
 

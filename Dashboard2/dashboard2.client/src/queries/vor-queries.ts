@@ -1,4 +1,5 @@
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+
 import getOptions from "./get-options";
 import { Region } from "./place-queries";
 

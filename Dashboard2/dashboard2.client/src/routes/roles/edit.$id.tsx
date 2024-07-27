@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+import useTitle from "../../components/useTitle";
 import {
   Permission,
   preloadRole,
   useRole,
   useUpdateRole,
 } from "../../queries/role-queries";
-import { useState } from "react";
-import { useTitle } from "../../components/useTitle";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,

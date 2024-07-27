@@ -1,24 +1,25 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+import useTitle from "../../components/useTitle";
+import { preloadRoles, useRoles } from "../../queries/role-queries";
 import {
   preloadUser,
   useUpdateUser,
   useUser,
 } from "../../queries/user-queries";
-import { useState } from "react";
-import { preloadRoles, useRoles } from "../../queries/role-queries";
-import { useTitle } from "../../components/useTitle";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
 
-export const EditUser = ({
+export function EditUser({
   id,
-  isAdmin,
+  isAdmin = false,
 }: {
   id: string;
   isAdmin?: boolean;
-}) => {
+}) {
   const { data } = useUser(id);
   const { data: roles } = useRoles();
   const { mutateAsync } = useUpdateUser(id);
@@ -62,7 +63,7 @@ export const EditUser = ({
               onChange={(e) => setRole(e.target.value)}
               required
             >
-              {role == "None" && <option value="None">None</option>}
+              {role === "None" && <option value="None">None</option>}
               {roles
                 .filter((r) => r.name !== "Administrator" || isAdmin)
                 .map((r) => (
@@ -83,7 +84,7 @@ export const EditUser = ({
       </form>
     </>
   );
-};
+}
 
 export const Route = createFileRoute("/users/edit/$id")({
   component: function Component() {
@@ -104,6 +105,7 @@ export const Route = createFileRoute("/users/edit/$id")({
     redirectIfLoggedOut(context);
     redirectIfNoPermission(context.canEditUsers);
     if (params.id.toUpperCase() === context.userId.toUpperCase()) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw redirect({
         to: "/users",
       });

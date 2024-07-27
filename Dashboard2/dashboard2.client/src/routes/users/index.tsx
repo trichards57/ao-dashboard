@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+
+import useTitle from "../../components/useTitle";
 import { preloadUsers, useUsers } from "../../queries/user-queries";
-import { useTitle } from "../../components/useTitle";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,
@@ -8,7 +9,7 @@ import {
 
 export function Users({
   userId,
-  isAdmin,
+  isAdmin = false,
 }: {
   userId: string;
   isAdmin?: boolean;
@@ -30,7 +31,7 @@ export function Users({
           <tr>
             <th>User</th>
             <th>Role</th>
-            <th></th>
+            <th aria-label="Actions" />
           </tr>
         </thead>
         <tbody>

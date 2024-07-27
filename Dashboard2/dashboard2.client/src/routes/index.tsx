@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useTitle } from "../components/useTitle";
+
+import useTitle from "../components/useTitle";
 import { redirectIfLoggedIn } from "../support/check-logged-in";
 
 export function Index() {

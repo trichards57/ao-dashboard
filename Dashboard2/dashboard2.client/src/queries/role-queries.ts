@@ -1,6 +1,7 @@
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+
 import getOptions from "./get-options";
-import { useUpdate } from "./mutate-query";
+import useUpdate from "./mutate-query";
 
 export type Permission = "Deny" | "Read" | "Write";
 

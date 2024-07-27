@@ -20,7 +20,7 @@ export function districtOptions(region: Region) {
   return queryOptions({
     queryKey: ["districts", region],
     queryFn: async () => {
-      if (region == "All") {
+      if (region === "All") {
         return [];
       }
 
@@ -33,6 +33,7 @@ export function districtOptions(region: Region) {
 
       if (!response.ok) {
         if (response.status === 404) {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
           throw notFound();
         }
         throw new Error("Failed to fetch districts.");
@@ -48,7 +49,7 @@ export function hubOptions(region: Region, district: string) {
   return queryOptions({
     queryKey: ["hubs", region, district],
     queryFn: async () => {
-      if (region == "All" || district.toUpperCase() == "ALL") {
+      if (region === "All" || district.toUpperCase() === "ALL") {
         return [];
       }
 
@@ -61,6 +62,7 @@ export function hubOptions(region: Region, district: string) {
 
       if (!response.ok) {
         if (response.status === 404) {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
           throw notFound();
         }
         throw new Error("Failed to fetch hubs.");

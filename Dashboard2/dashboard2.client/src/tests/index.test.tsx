@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { Index } from "../routes";
-import ReactDOM from "react-dom/client";
 import { act, render } from "@testing-library/react";
+import ReactDOM from "react-dom/client";
+import { describe, expect, it } from "vitest";
+
+import { Index } from "../routes";
 
 describe("Index Component", () => {
   it("renders without error", () => {

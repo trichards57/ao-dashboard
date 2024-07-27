@@ -1,13 +1,14 @@
-import { describe, expect, it, Mock, vi, beforeEach } from "vitest";
-import ReactDOM from "react-dom/client";
-import { act } from "react";
 import { render } from "@testing-library/react";
-import { VehicleConfig } from "../../routes/vehicles/config";
-import {
-  useAllVehicleSettings,
-  VehicleSettings,
-} from "../../queries/vehicle-queries";
+import { act } from "react";
+import ReactDOM from "react-dom/client";
+import { Mock, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useDistricts, useHubs } from "../../queries/place-queries";
+import {
+  VehicleSettings,
+  useAllVehicleSettings,
+} from "../../queries/vehicle-queries";
+import { VehicleConfig } from "../../routes/vehicles/config";
 
 vi.mock("../../queries/vehicle-queries");
 vi.mock("../../queries/place-queries");

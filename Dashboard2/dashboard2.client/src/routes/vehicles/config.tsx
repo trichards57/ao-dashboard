@@ -1,25 +1,26 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import validatePlace, { getPlaceDeps } from "../../support/validate-place";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+
+import PagePicker from "../../components/page-picker";
 import PlacePicker from "../../components/place-picker";
+import regionToString from "../../components/region-converter";
+import useTitle from "../../components/useTitle";
+import {
+  Region,
+  preloadDistricts,
+  preloadHubs,
+} from "../../queries/place-queries";
 import {
   preloadAllVehicleSettings,
   useAllVehicleSettings,
 } from "../../queries/vehicle-queries";
-import { useState } from "react";
-import PagePicker from "../../components/page-picker";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen } from "@fortawesome/free-solid-svg-icons";
-import { regionToString } from "../../components/region-converter";
-import { useTitle } from "../../components/useTitle";
-import {
-  preloadDistricts,
-  preloadHubs,
-  Region,
-} from "../../queries/place-queries";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
+import validatePlace, { getPlaceDeps } from "../../support/validate-place";
 
 const PageSize = 10;
 
@@ -50,7 +51,7 @@ export function VehicleConfig({
         <table className="table is-striped is-fullwidth">
           <thead>
             <tr>
-              <th className="edit-col"></th>
+              <th className="edit-col" aria-label="Actions" />
               <th className="call-sign-col">Call Sign</th>
               <th className="reg-col">Registration</th>
               <th>Region</th>

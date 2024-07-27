@@ -1,6 +1,11 @@
-import { useUpdate } from "./mutate-query";
+import {
+  QueryClient,
+  queryOptions,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+
 import getOptions from "./get-options";
-import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import useUpdate from "./mutate-query";
 
 export interface UserInfo {
   realName: string;
@@ -49,7 +54,24 @@ export function preloadUsers(queryClient: QueryClient) {
   return queryClient.ensureQueryData(usersOptions);
 }
 
-export const meOptions = getOptions<UserInfo>("/api/users/me", ["user", "me"]);
+export const meOptions = queryOptions({
+  queryKey: ["me"],
+  queryFn: async () => {
+    const response = await fetch("/api/users/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return Promise.resolve(null);
+    }
+
+    return response.json() as Promise<UserInfo>;
+  },
+  staleTime: 1000 * 60 * 5,
+});
 
 export function useMe() {
   return useSuspenseQuery(meOptions);

@@ -1,10 +1,11 @@
-import { describe, expect, it, Mock, vi, beforeEach } from "vitest";
-import ReactDOM from "react-dom/client";
-import { Home } from "../routes/home";
-import { act } from "react";
 import { render } from "@testing-library/react";
-import { useStatistics, VorStatistics } from "../queries/vor-queries";
+import { act } from "react";
+import ReactDOM from "react-dom/client";
+import { Mock, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useDistricts, useHubs } from "../queries/place-queries";
+import { VorStatistics, useStatistics } from "../queries/vor-queries";
+import { Home } from "../routes/home";
 
 vi.mock("../queries/vor-queries");
 vi.mock("../queries/place-queries");

@@ -1,19 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlacePicker from "../components/place-picker";
-import { preloadStatistics, useStatistics } from "../queries/vor-queries";
 import { Line, Pie } from "react-chartjs-2";
+
 import "chart.js/auto";
-import validatePlace, { getPlaceDeps } from "../support/validate-place";
-import { useTitle } from "../components/useTitle";
+
+import PlacePicker from "../components/place-picker";
+import useTitle from "../components/useTitle";
 import {
+  Region,
   preloadDistricts,
   preloadHubs,
-  Region,
 } from "../queries/place-queries";
+import { preloadStatistics, useStatistics } from "../queries/vor-queries";
 import {
   redirectIfAdmin,
   redirectIfLoggedOut,
 } from "../support/check-logged-in";
+import validatePlace, { getPlaceDeps } from "../support/validate-place";
 
 function dateLabel(d: string) {
   const date = new Date(d);

@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+
 import { Region, useDistricts, useHubs } from "../queries/place-queries";
 
 function calculateSearch(region: Region, district: string, hub: string) {
@@ -73,7 +74,7 @@ export default function PlacePicker({
           </label>
           <div className="select is-fullwidth">
             <select
-              id="region"
+              id="district"
               value={district ?? "All"}
               disabled={(districts ?? []).length === 0}
               onChange={(e) => {

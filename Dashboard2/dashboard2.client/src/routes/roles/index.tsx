@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
+
+import useTitle from "../../components/useTitle";
 import { preloadRoles, useRoles } from "../../queries/role-queries";
-import { useTitle } from "../../components/useTitle";
 import {
   redirectIfLoggedOut,
   redirectIfNoPermission,
@@ -24,7 +25,7 @@ export function Roles() {
             <th>VOR Data</th>
             <th>User Role</th>
             <th>Role Permissions</th>
-            <th></th>
+            <th aria-label="actions" />
           </tr>
         </thead>
         <tbody>
@@ -34,9 +35,9 @@ export function Roles() {
               <td>{r.vehicleConfiguration}</td>
               <td>{r.vorData}</td>
               <td>{r.permissions}</td>
-              <td>{r.name == "Administrator" ? "Write" : "Deny"}</td>
+              <td>{r.name === "Administrator" ? "Write" : "Deny"}</td>
               <td className="edit">
-                {r.name != "Administrator" && (
+                {r.name !== "Administrator" && (
                   <Link to="/roles/edit/$id" params={{ id: r.id }}>
                     Edit
                   </Link>
