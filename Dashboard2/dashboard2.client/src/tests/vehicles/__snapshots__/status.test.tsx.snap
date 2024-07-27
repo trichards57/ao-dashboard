@@ -1,0 +1,526 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vehicle Status Component > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Vehicle Status
+  </h1>
+  <div
+    class="columns is-desktop"
+  >
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="region"
+        >
+          Region
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="EastOfEngland"
+            >
+              East of England
+            </option>
+            <option
+              value="EastMidlands"
+            >
+              East Midlands
+            </option>
+            <option
+              value="London"
+            >
+              London
+            </option>
+            <option
+              value="NorthEast"
+            >
+              North East
+            </option>
+            <option
+              value="NorthWest"
+            >
+              North West
+            </option>
+            <option
+              value="SouthEast"
+            >
+              South East
+            </option>
+            <option
+              value="SouthWest"
+            >
+              South West
+            </option>
+            <option
+              value="WestMidlands"
+            >
+              West Midlands
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="district"
+        >
+          District
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="Avon"
+            >
+              Avon
+            </option>
+            <option
+              value="Bedfordshire"
+            >
+              Bedfordshire
+            </option>
+            <option
+              value="Berkshire"
+            >
+              Berkshire
+            </option>
+            <option
+              value="Buckinghamshire"
+            >
+              Buckinghamshire
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="hub"
+        >
+          Hub
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="hub"
+          >
+            <option
+              value="all"
+            >
+              All
+            </option>
+            <option
+              value="Bristol"
+            >
+              Bristol
+            </option>
+            <option
+              value="Bath"
+            >
+              Bath
+            </option>
+            <option
+              value="Weston-super-Mare"
+            >
+              Weston-super-Mare
+            </option>
+            <option
+              value="Yeovil"
+            >
+              Yeovil
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="table-container"
+  >
+    <table
+      class="table is-striped is-fullwidth"
+    >
+      <thead>
+        <tr>
+          <th
+            class="call-sign-col"
+          >
+            Call Sign
+          </th>
+          <th
+            class="reg-col"
+          >
+            Registration
+          </th>
+          <th
+            class="vor-col"
+          >
+            Is VOR?
+          </th>
+          <th
+            class="due-back-col"
+          >
+            Expected Back
+          </th>
+          <th>
+            Summary
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            class="call-sign-col"
+            title="WR122"
+          >
+            WR122
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 CDE
+          </td>
+          <td
+            class="vor-col"
+          >
+            <span
+              class="tag is-danger"
+            >
+              Yes
+            </span>
+          </td>
+          <td
+            class="due-back-col"
+          >
+            2022-12-10
+          </td>
+          <td
+            class="summary"
+            title="Vehicle failed"
+          >
+            Vehicle failed
+          </td>
+        </tr>
+        <tr>
+          <td
+            class="call-sign-col"
+            title="WR123"
+          >
+            WR123
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 HTE
+          </td>
+          <td
+            class="vor-col"
+          >
+            <span
+              class="tag is-success"
+            >
+              No
+            </span>
+          </td>
+          <td
+            class="due-back-col"
+          />
+          <td
+            class="summary"
+            title=""
+          />
+        </tr>
+        <tr>
+          <td
+            class="call-sign-col"
+            title="WR124"
+          >
+            WR124
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 CFE
+          </td>
+          <td
+            class="vor-col"
+          >
+            <span
+              class="tag is-danger"
+            >
+              Yes
+            </span>
+          </td>
+          <td
+            class="due-back-col"
+          />
+          <td
+            class="summary"
+            title="Vehicle also failed"
+          >
+            Vehicle also failed
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Vehicle Status Component > renders nothing correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Vehicle Status
+  </h1>
+  <div
+    class="columns is-desktop"
+  >
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="region"
+        >
+          Region
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="EastOfEngland"
+            >
+              East of England
+            </option>
+            <option
+              value="EastMidlands"
+            >
+              East Midlands
+            </option>
+            <option
+              value="London"
+            >
+              London
+            </option>
+            <option
+              value="NorthEast"
+            >
+              North East
+            </option>
+            <option
+              value="NorthWest"
+            >
+              North West
+            </option>
+            <option
+              value="SouthEast"
+            >
+              South East
+            </option>
+            <option
+              value="SouthWest"
+            >
+              South West
+            </option>
+            <option
+              value="WestMidlands"
+            >
+              West Midlands
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="district"
+        >
+          District
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="Avon"
+            >
+              Avon
+            </option>
+            <option
+              value="Bedfordshire"
+            >
+              Bedfordshire
+            </option>
+            <option
+              value="Berkshire"
+            >
+              Berkshire
+            </option>
+            <option
+              value="Buckinghamshire"
+            >
+              Buckinghamshire
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="hub"
+        >
+          Hub
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="hub"
+          >
+            <option
+              value="all"
+            >
+              All
+            </option>
+            <option
+              value="Bristol"
+            >
+              Bristol
+            </option>
+            <option
+              value="Bath"
+            >
+              Bath
+            </option>
+            <option
+              value="Weston-super-Mare"
+            >
+              Weston-super-Mare
+            </option>
+            <option
+              value="Yeovil"
+            >
+              Yeovil
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="table-container"
+  >
+    <table
+      class="table is-striped is-fullwidth"
+    >
+      <thead>
+        <tr>
+          <th
+            class="call-sign-col"
+          >
+            Call Sign
+          </th>
+          <th
+            class="reg-col"
+          >
+            Registration
+          </th>
+          <th
+            class="vor-col"
+          >
+            Is VOR?
+          </th>
+          <th
+            class="due-back-col"
+          >
+            Expected Back
+          </th>
+          <th>
+            Summary
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            class="no-vehicles subtitle is-6"
+            colspan="5"
+          >
+            No Vehicles
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocumentFragment>
+`;

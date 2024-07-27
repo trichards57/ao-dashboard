@@ -17,7 +17,7 @@ import {
 
 const PageSize = 10;
 
-function VehicleStatus({
+export function VehicleStatus({
   region,
   district,
   hub,
