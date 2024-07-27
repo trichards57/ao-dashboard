@@ -63,6 +63,7 @@ export const useUpdateVehicle = () => {
       queryClient.invalidateQueries({ queryKey: ["hubs"] });
       queryClient.invalidateQueries({ queryKey: ["status"] });
       queryClient.invalidateQueries({ queryKey: ["statistics"] });
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
     },
   });
 };
