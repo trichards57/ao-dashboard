@@ -23,7 +23,7 @@ import {
 
 const PageSize = 10;
 
-function VehicleConfig({
+export function VehicleConfig({
   region,
   district,
   hub,
@@ -37,7 +37,7 @@ function VehicleConfig({
 
   useTitle("Vehicle Setup");
 
-  const itemsToDisplay = (data ?? [])
+  const itemsToDisplay = data
     .toSorted((a, b) => a.callSign.localeCompare(b.callSign))
     .slice(page * PageSize, (page + 1) * PageSize);
   const showPagination = data.length > PageSize;

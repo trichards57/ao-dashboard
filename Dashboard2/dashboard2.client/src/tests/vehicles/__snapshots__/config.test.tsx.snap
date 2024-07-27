@@ -1,0 +1,584 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vehicle Config Component > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Vehicle Setup
+  </h1>
+  <div
+    class="columns is-desktop"
+  >
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="region"
+        >
+          Region
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="EastOfEngland"
+            >
+              East of England
+            </option>
+            <option
+              value="EastMidlands"
+            >
+              East Midlands
+            </option>
+            <option
+              value="London"
+            >
+              London
+            </option>
+            <option
+              value="NorthEast"
+            >
+              North East
+            </option>
+            <option
+              value="NorthWest"
+            >
+              North West
+            </option>
+            <option
+              value="SouthEast"
+            >
+              South East
+            </option>
+            <option
+              value="SouthWest"
+            >
+              South West
+            </option>
+            <option
+              value="WestMidlands"
+            >
+              West Midlands
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="district"
+        >
+          District
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="Avon"
+            >
+              Avon
+            </option>
+            <option
+              value="Bedfordshire"
+            >
+              Bedfordshire
+            </option>
+            <option
+              value="Berkshire"
+            >
+              Berkshire
+            </option>
+            <option
+              value="Buckinghamshire"
+            >
+              Buckinghamshire
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="hub"
+        >
+          Hub
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="hub"
+          >
+            <option
+              value="all"
+            >
+              All
+            </option>
+            <option
+              value="Bristol"
+            >
+              Bristol
+            </option>
+            <option
+              value="Bath"
+            >
+              Bath
+            </option>
+            <option
+              value="Weston-super-Mare"
+            >
+              Weston-super-Mare
+            </option>
+            <option
+              value="Yeovil"
+            >
+              Yeovil
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="table-container"
+  >
+    <table
+      class="table is-striped is-fullwidth"
+    >
+      <thead>
+        <tr>
+          <th
+            class="edit-col"
+          />
+          <th
+            class="call-sign-col"
+          >
+            Call Sign
+          </th>
+          <th
+            class="reg-col"
+          >
+            Registration
+          </th>
+          <th>
+            Region
+          </th>
+          <th>
+            District
+          </th>
+          <th>
+            Hub
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            class="edit-col"
+          >
+            <a
+              params="[object Object]"
+              to="/vehicles/edit/$id"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-pen "
+                data-icon="pen"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </td>
+          <td
+            class="call-sign-col"
+          >
+            WR122
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 CDE
+          </td>
+          <td
+            class="place-col"
+          >
+            South West
+          </td>
+          <td
+            class="place-col"
+          >
+            Avon
+          </td>
+          <td
+            class="place-col"
+          >
+            Bristol
+          </td>
+        </tr>
+        <tr>
+          <td
+            class="edit-col"
+          >
+            <a
+              params="[object Object]"
+              to="/vehicles/edit/$id"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-pen "
+                data-icon="pen"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </td>
+          <td
+            class="call-sign-col"
+          >
+            WR123
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 HTE
+          </td>
+          <td
+            class="place-col"
+          >
+            South West
+          </td>
+          <td
+            class="place-col"
+          >
+            Avon
+          </td>
+          <td
+            class="place-col"
+          >
+            Bristol
+          </td>
+        </tr>
+        <tr>
+          <td
+            class="edit-col"
+          >
+            <a
+              params="[object Object]"
+              to="/vehicles/edit/$id"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-pen "
+                data-icon="pen"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </td>
+          <td
+            class="call-sign-col"
+          >
+            WR124
+          </td>
+          <td
+            class="reg-col"
+          >
+            AB12 CFE
+          </td>
+          <td
+            class="place-col"
+          >
+            South West
+          </td>
+          <td
+            class="place-col"
+          >
+            Avon
+          </td>
+          <td
+            class="place-col"
+          >
+            Bristol
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Vehicle Config Component > renders nothing correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Vehicle Setup
+  </h1>
+  <div
+    class="columns is-desktop"
+  >
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="region"
+        >
+          Region
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="EastOfEngland"
+            >
+              East of England
+            </option>
+            <option
+              value="EastMidlands"
+            >
+              East Midlands
+            </option>
+            <option
+              value="London"
+            >
+              London
+            </option>
+            <option
+              value="NorthEast"
+            >
+              North East
+            </option>
+            <option
+              value="NorthWest"
+            >
+              North West
+            </option>
+            <option
+              value="SouthEast"
+            >
+              South East
+            </option>
+            <option
+              value="SouthWest"
+            >
+              South West
+            </option>
+            <option
+              value="WestMidlands"
+            >
+              West Midlands
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="district"
+        >
+          District
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="region"
+          >
+            <option
+              value="All"
+            >
+              All
+            </option>
+            <option
+              value="Avon"
+            >
+              Avon
+            </option>
+            <option
+              value="Bedfordshire"
+            >
+              Bedfordshire
+            </option>
+            <option
+              value="Berkshire"
+            >
+              Berkshire
+            </option>
+            <option
+              value="Buckinghamshire"
+            >
+              Buckinghamshire
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div
+      class="column"
+    >
+      <div
+        class="field"
+      >
+        <label
+          class="label"
+          for="hub"
+        >
+          Hub
+        </label>
+        <div
+          class="select is-fullwidth"
+        >
+          <select
+            id="hub"
+          >
+            <option
+              value="all"
+            >
+              All
+            </option>
+            <option
+              value="Bristol"
+            >
+              Bristol
+            </option>
+            <option
+              value="Bath"
+            >
+              Bath
+            </option>
+            <option
+              value="Weston-super-Mare"
+            >
+              Weston-super-Mare
+            </option>
+            <option
+              value="Yeovil"
+            >
+              Yeovil
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="table-container"
+  >
+    <table
+      class="table is-striped is-fullwidth"
+    >
+      <thead>
+        <tr>
+          <th
+            class="edit-col"
+          />
+          <th
+            class="call-sign-col"
+          >
+            Call Sign
+          </th>
+          <th
+            class="reg-col"
+          >
+            Registration
+          </th>
+          <th>
+            Region
+          </th>
+          <th>
+            District
+          </th>
+          <th>
+            Hub
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            class="no-vehicles subtitle is-6"
+            colspan="5"
+          >
+            No Vehicles
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocumentFragment>
+`;
