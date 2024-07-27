@@ -1,0 +1,228 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Edit Vehicle Page > renders correctly 1`] = `
+<DocumentFragment>
+  <h1
+    class="title"
+  >
+    Edit AB12 HTE
+  </h1>
+  <form
+    novalidate=""
+  >
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="call-sign"
+      >
+        Call Sign
+      </label>
+      <div
+        class="control"
+      >
+        <input
+          aria-invalid="false"
+          class="input "
+          id="call-sign"
+          required=""
+          type="text"
+          value="WR123"
+        />
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="registration"
+      >
+        Registration
+      </label>
+      <div
+        class="control"
+      >
+        <input
+          class="input"
+          disabled=""
+          id="registration"
+          type="text"
+          value="AB12 HTE"
+        />
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="vehicle-type"
+      >
+        Vehicle Type
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="vehicle-type"
+          required=""
+        >
+          <option
+            value="Other"
+          >
+            Other
+          </option>
+          <option
+            value="FrontLineAmbulance"
+          >
+            Front-Line Ambulance
+          </option>
+          <option
+            value="AllWheelDrive"
+          >
+            All Wheel Drive
+          </option>
+          <option
+            value="OffRoadAmbulance"
+          >
+            Off-Road Ambulance
+          </option>
+        </select>
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="region"
+      >
+        Region
+      </label>
+      <div
+        class="select is-fullwidth"
+      >
+        <select
+          id="region"
+          required=""
+        >
+          <option
+            value="Unknown"
+          >
+            Unknown
+          </option>
+          <option
+            value="EastOfEngland"
+          >
+            East of England
+          </option>
+          <option
+            value="EastMidlands"
+          >
+            East Midlands
+          </option>
+          <option
+            value="London"
+          >
+            London
+          </option>
+          <option
+            value="NorthEast"
+          >
+            North East
+          </option>
+          <option
+            value="NorthWest"
+          >
+            North West
+          </option>
+          <option
+            value="SouthEast"
+          >
+            South East
+          </option>
+          <option
+            value="SouthWest"
+          >
+            South West
+          </option>
+          <option
+            value="WestMidlands"
+          >
+            West Midlands
+          </option>
+        </select>
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="district"
+      >
+        District
+      </label>
+      <div
+        class="control"
+      >
+        <input
+          aria-invalid="false"
+          class="input "
+          id="district"
+          required=""
+          type="text"
+          value="Avon"
+        />
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        class="label"
+        for="hub"
+      >
+        Hub
+      </label>
+      <div
+        class="control"
+      >
+        <input
+          aria-invalid="false"
+          class="input "
+          id="hub"
+          required=""
+          type="text"
+          value="Bristol"
+        />
+      </div>
+    </div>
+    <div
+      class="field"
+    >
+      <div
+        class="control"
+      >
+        <label
+          class="checkbox"
+        >
+          <input
+            id="for-disposal"
+            type="checkbox"
+          />
+           For Disposal
+        </label>
+      </div>
+    </div>
+    <button
+      class="button is-primary is-fullwidth"
+      type="submit"
+    >
+      Save
+    </button>
+  </form>
+</DocumentFragment>
+`;

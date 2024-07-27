@@ -13,7 +13,7 @@ import {
   redirectIfNoPermission,
 } from "../../support/check-logged-in";
 
-function EditVehicle({ id }: { id: string }) {
+export function EditVehicle({ id }: { id: string }) {
   const { data } = useVehicleSettings(id);
   const { mutateAsync } = useUpdateVehicle();
   const navigate = useNavigate();
