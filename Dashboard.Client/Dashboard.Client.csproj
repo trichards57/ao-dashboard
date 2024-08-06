@@ -27,11 +27,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BlazorApplicationInsights" Version="3.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.4" />
+		<PackageReference Include="BlazorApplicationInsights" Version="3.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.7" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
-		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.23.2.88755">
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.30.0.95878">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -39,6 +39,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
