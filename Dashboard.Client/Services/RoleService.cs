@@ -24,7 +24,8 @@ internal class RoleService(HttpClient httpClient, JsonSerializerOptions jsonOpti
     public Task<RolePermissions?> GetRolePermissions(string id) => httpClient.GetFromJsonAsync<RolePermissions>($"api/roles/{id}", jsonOptions);
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<RolePermissions?> GetRoles() => httpClient.GetFromJsonAsAsyncEnumerable<RolePermissions>($"api/roles", jsonOptions);
+    public IAsyncEnumerable<RolePermissions> GetRoles()
+        => httpClient.GetFromJsonAsAsyncEnumerable<RolePermissions>($"api/roles", jsonOptions).OfType<RolePermissions>();
 
     /// <inheritdoc/>
     public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)

@@ -21,7 +21,7 @@ public interface IVehicleService
     /// <returns>
     /// An <see cref="IAsyncEnumerable{T}"/> of <see cref="VehicleSettings"/>.
     /// </returns>
-    IAsyncEnumerable<VehicleSettings?> GetSettingsAsync(Place place);
+    IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place);
 
     /// <summary>
     /// Gets the settings for a specific vehicle.

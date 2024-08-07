@@ -18,7 +18,7 @@ public interface IUserService
     /// Gets all of the users with their roles.
     /// </summary>
     /// <returns>The users with their roles.</returns>
-    IAsyncEnumerable<UserWithRole?> GetUsersWithRole();
+    IAsyncEnumerable<UserWithRole> GetUsersWithRole();
 
     /// <summary>
     /// Gets a user with their role.

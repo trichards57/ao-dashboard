@@ -22,7 +22,8 @@ internal class VehicleService(HttpClient httpClient, JsonSerializerOptions jsonO
     private readonly JsonSerializerOptions jsonOptions = jsonOptions;
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<VehicleSettings?> GetSettingsAsync(Place place) => httpClient.GetFromJsonAsAsyncEnumerable<VehicleSettings>($"api/vehicles{place.CreateQuery()}", jsonOptions);
+    public IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place) 
+        => httpClient.GetFromJsonAsAsyncEnumerable<VehicleSettings>($"api/vehicles{place.CreateQuery()}", jsonOptions).OfType<VehicleSettings>();
 
     /// <inheritdoc/>
     public Task<VehicleSettings?> GetSettingsAsync(Guid id) => httpClient.GetFromJsonAsync<VehicleSettings>($"api/vehicles/{id}", jsonOptions);

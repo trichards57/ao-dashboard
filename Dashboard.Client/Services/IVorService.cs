@@ -30,5 +30,5 @@ public interface IVorService
     /// <returns>
     /// The VOR statuses for the vehicles in the place.
     /// </returns>
-    IAsyncEnumerable<VorStatus?> GetVorStatusesAsync(Place place);
+    IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place);
 }

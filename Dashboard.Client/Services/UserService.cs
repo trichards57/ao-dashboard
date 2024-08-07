@@ -25,7 +25,8 @@ internal class UserService(HttpClient httpClient, JsonSerializerOptions jsonOpti
     public Task<UserWithRole?> GetUserWithRole(string id) => httpClient.GetFromJsonAsync<UserWithRole?>($"api/users/{id}", jsonOptions);
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<UserWithRole?> GetUsersWithRole() => httpClient.GetFromJsonAsAsyncEnumerable<UserWithRole>($"api/users", jsonOptions);
+    public IAsyncEnumerable<UserWithRole> GetUsersWithRole()
+        => httpClient.GetFromJsonAsAsyncEnumerable<UserWithRole>($"api/users", jsonOptions).OfType<UserWithRole>();
 
     /// <inheritdoc/>
     public async Task<bool> SetUserRole(string id, UserRoleUpdate role)

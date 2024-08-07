@@ -25,7 +25,7 @@ public interface IRoleService
     /// Gets all of the roles.
     /// </summary>
     /// <returns>The roles.</returns>
-    IAsyncEnumerable<RolePermissions?> GetRoles();
+    IAsyncEnumerable<RolePermissions> GetRoles();
 
     /// <summary>
     /// Updates the permissions for a role.

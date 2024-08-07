@@ -24,5 +24,6 @@ internal class VorService(HttpClient httpClient, JsonSerializerOptions jsonOptio
     public Task<VorStatistics?> GetVorStatisticsAsync(Place place) => httpClient.GetFromJsonAsync<VorStatistics>($"api/vor/statistics{place.CreateQuery()}", jsonOptions);
 
     /// <inheritdoc/>
-    public IAsyncEnumerable<VorStatus?> GetVorStatusesAsync(Place place) => httpClient.GetFromJsonAsAsyncEnumerable<VorStatus>($"api/vor{place.CreateQuery()}", jsonOptions);
+    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+        => httpClient.GetFromJsonAsAsyncEnumerable<VorStatus>($"api/vor{place.CreateQuery()}", jsonOptions).OfType<VorStatus>();
 }
