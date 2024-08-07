@@ -21,9 +21,6 @@ public class OpenIdWorker(IServiceProvider serviceProvider, IOptions<OpenIdWorke
     {
         await using var scope = serviceProvider.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await context.Database.EnsureCreatedAsync(cancellationToken);
-
         var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
         if (await manager.FindByClientIdAsync(options.VorUploaderClientId, cancellationToken) == null)

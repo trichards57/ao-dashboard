@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Data;
 using Dashboard.Model;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,11 @@ using System.Text;
 
 namespace Dashboard.Services;
 
-internal class VehicleService(ApplicationDbContext context) : IVehicleService, Dashboard.Client.Services.IVehicleService
+/// <summary>
+/// Service for managing vehicles.
+/// </summary>
+/// <param name="context">The data context to manage.</param>
+internal class VehicleService(ApplicationDbContext context) : IVehicleService, Client.Services.IVehicleService
 {
     private readonly ApplicationDbContext context = context;
     private readonly string[] disposalMarkings = ["to be sold", "dispose", "disposal"];
@@ -24,7 +27,7 @@ internal class VehicleService(ApplicationDbContext context) : IVehicleService, D
     {
         using var scope = await context.Database.BeginTransactionAsync();
 
-        var lastUpdate = context.KeyDates.OrderBy(k => k.Id).First();
+        var lastUpdate = await context.KeyDates.OrderBy(k => k.Id).FirstAsync();
 
         var fileDate = vorIncident.Max(i => i.UpdateDate);
 
