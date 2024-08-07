@@ -3,9 +3,9 @@
 @attribute [Authorize(Policy = "CanEditVehicles")]
 @rendermode InteractiveAuto
 
-@using Dashboard.Client.Model
-@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
+@using Dashboard.Model
+@using Dashboard.Model.Converters
 @using Microsoft.AspNetCore.Authorization
 
 @inject NavigationManager navigationManager
@@ -99,7 +99,7 @@
     protected override async Task OnParametersSetAsync()
     {
         loading = true;
-        statuses = await vehicleService.GetSettingsAsync(Place).ToListAsync();
+        statuses = await vehicleService.GetSettingsAsync(Place).Where(r => r!= null).OfType<VehicleSettings>().ToListAsync();
         loading = false;
     }
 }

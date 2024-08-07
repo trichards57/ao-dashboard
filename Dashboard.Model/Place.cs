@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 /// <summary>
 /// Represents a place.
@@ -34,19 +34,13 @@ public class Place
     public string CreateQuery()
     {
         if (Region == Region.All)
-        {
             return string.Empty;
-        }
 
         if (District.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
             return $"?region={Region}";
-        }
 
         if (Hub.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
             return $"?region={Region}&district={District}";
-        }
 
         return $"?region={Region}&district={District}&hub={Hub}";
     }

@@ -1,5 +1,6 @@
 ﻿@page "/users"
 @using Dashboard.Client.Services
+@using Dashboard.Model
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @implements IDisposable
@@ -74,7 +75,14 @@
         var foundInState = PersistentComponentState.TryTakeFromJson<List<UserWithRole>>("users", out var state);
 
         loading = true;
-        users.AddRange((foundInState && state != null) ? state : await UserService.GetUsersWithRole().Where(r => r.Role != "Administrator" || isAdmin).ToListAsync());
+        if (foundInState && state != null)
+        {
+            users.AddRange(state);
+        }
+        else
+        {
+            users.AddRange(await UserService.GetUsersWithRole().Where(r => r != null && r.Role != "Administrator" || isAdmin).OfType<UserWithRole>().ToListAsync());
+        }
         loading = false;
     }
 

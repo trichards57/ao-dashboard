@@ -7,11 +7,10 @@
 
 using Dashboard.Client.Services;
 using Dashboard.Data;
+using Dashboard.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
 namespace Dashboard.Controllers;
@@ -32,7 +31,7 @@ public class UserController(IUserService userService, UserManager<ApplicationUse
     /// </summary>
     /// <returns>The users with their roles.</returns>
     [HttpGet]
-    public IAsyncEnumerable<UserWithRole> Get() => userService.GetUsersWithRole();
+    public IAsyncEnumerable<UserWithRole?> Get() => userService.GetUsersWithRole();
 
     /// <summary>
     /// Gets the specific user with their role.

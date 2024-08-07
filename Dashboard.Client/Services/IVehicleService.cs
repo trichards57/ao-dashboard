@@ -5,10 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Model;
 
 namespace Dashboard.Client.Services;
 
+/// <summary>
+/// Represents a service for getting and updating vehicle settings.
+/// </summary>
 public interface IVehicleService
 {
     /// <summary>
@@ -18,7 +21,7 @@ public interface IVehicleService
     /// <returns>
     /// An <see cref="IAsyncEnumerable{T}"/> of <see cref="VehicleSettings"/>.
     /// </returns>
-    IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place);
+    IAsyncEnumerable<VehicleSettings?> GetSettingsAsync(Place place);
 
     /// <summary>
     /// Gets the settings for a specific vehicle.

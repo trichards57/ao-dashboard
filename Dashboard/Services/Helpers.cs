@@ -5,8 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Data;
+using Dashboard.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;

@@ -1,5 +1,6 @@
 ﻿@page "/users/{id}/edit"
 @using Dashboard.Client.Services
+@using Dashboard.Model
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 
@@ -67,7 +68,7 @@
 
         Logger.LogInformation($"User is Admin : {isAdmin}");
 
-        Roles = await RoleService.GetRoles().ToListAsync();
+        Roles = await RoleService.GetRoles().Where(r => r!= null).OfType<RolePermissions>().ToListAsync();
         var input = await UserService.GetUserWithRole(Id);
 
         if (input == null)

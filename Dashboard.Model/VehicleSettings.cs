@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 /// <summary>
 /// Represents the settings for a vehicle.
@@ -15,40 +15,40 @@ public class VehicleSettings
     /// <summary>
     /// Gets the internal ID for the vehicle.
     /// </summary>
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Gets the registration of the vehicle.
     /// </summary>
-    public string Registration { get; init; } = "";
+    public string Registration { get; set; } = "";
 
     /// <summary>
     /// Gets the radio call sign for the vehicle.
     /// </summary>
-    public string CallSign { get; init; } = "";
+    public string CallSign { get; set; } = "";
 
     /// <summary>
     /// Gets the owning hub.
     /// </summary>
-    public string Hub { get; init; } = "";
+    public string Hub { get; set; } = "";
 
     /// <summary>
     /// Gets the owning district.
     /// </summary>
-    public string District { get; init; } = "";
+    public string District { get; set; } = "";
 
     /// <summary>
     /// Gets the owning region.
     /// </summary>
-    public Region Region { get; init; }
+    public Region Region { get; set; }
 
     /// <summary>
     /// Gets the vehicle type.
     /// </summary>
-    public VehicleType VehicleType { get; init; }
+    public VehicleType VehicleType { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether the vehicle is marked for disposal.
     /// </summary>
-    public bool ForDisposal { get; init; }
+    public bool ForDisposal { get; set; }
 }

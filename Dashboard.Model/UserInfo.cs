@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client;
+namespace Dashboard.Model;
 
 /// <summary>
 /// The user information shared between the client and server.

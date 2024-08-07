@@ -1,6 +1,6 @@
-﻿@using Dashboard.Client.Model
-@using Dashboard.Client.Model.Converters
-@using Dashboard.Client.Services
+﻿@using Dashboard.Client.Services
+@using Dashboard.Model
+@using Dashboard.Model.Converters
 
 @inject IJSRuntime JsRuntime
 @inject IVorService VorService
@@ -46,7 +46,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        statistics = await VorService.GetVorStatisticsAsync(Place);
+        statistics = await VorService.GetVorStatisticsAsync(Place) ?? new();
         module?.InvokeVoidAsync("loadGraphs", statistics);
     }
 }

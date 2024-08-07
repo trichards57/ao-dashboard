@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 public class VorStatistics
 {

@@ -5,9 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-
-namespace Dashboard.Client.Model.Converters;
+namespace Dashboard.Model.Converters;
 
 /// <summary>
 /// Converts a <see cref="Region"/> to a string and back.

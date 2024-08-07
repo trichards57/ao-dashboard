@@ -5,10 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Data;
-using Microsoft.AspNetCore.SignalR;
+using Dashboard.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;
@@ -22,7 +21,7 @@ internal class VorService(IDbContextFactory<ApplicationDbContext> contextFactory
     private readonly IDbContextFactory<ApplicationDbContext> contextFactory = contextFactory;
 
     /// <inheritdoc/>
-    public async Task<VorStatistics> GetVorStatisticsAsync(Place place)
+    public async Task<VorStatistics?> GetVorStatisticsAsync(Place place)
     {
         if (!Enum.IsDefined(place.Region))
         {

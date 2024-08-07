@@ -5,7 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Model;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Dashboard.Client.Services;
 
@@ -14,46 +16,21 @@ namespace Dashboard.Client.Services;
 /// </summary>
 /// <param name="httpClient">The HTTP client to use.</param>
 /// <param name="logger">The logger to use.</param>
-internal class UserService(HttpClient httpClient) : IUserService
+internal class UserService(HttpClient httpClient, JsonSerializerOptions jsonOptions) : IUserService
 {
     private readonly HttpClient httpClient = httpClient;
+    private readonly JsonSerializerOptions jsonOptions = jsonOptions;
 
     /// <inheritdoc/>
-    public async Task<UserWithRole?> GetUserWithRole(string id)
-    {
-        var response = await httpClient.GetAsync($"api/users/{id}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<UserWithRole>();
-        }
-
-        return null;
-    }
+    public Task<UserWithRole?> GetUserWithRole(string id) => httpClient.GetFromJsonAsync<UserWithRole?>($"api/users/{id}", jsonOptions);
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<UserWithRole> GetUsersWithRole()
-    {
-        var response = await httpClient.GetAsync($"api/users");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var users = await response.Content.ReadFromJsonAsync<List<UserWithRole>>();
-
-            if (users != null)
-            {
-                foreach (var user in users)
-                {
-                    yield return user;
-                }
-            }
-        }
-    }
+    public IAsyncEnumerable<UserWithRole?> GetUsersWithRole() => httpClient.GetFromJsonAsAsyncEnumerable<UserWithRole>($"api/users", jsonOptions);
 
     /// <inheritdoc/>
     public async Task<bool> SetUserRole(string id, UserRoleUpdate role)
     {
-        var response = await httpClient.PostAsJsonAsync($"api/users/{id}", role);
+        var response = await httpClient.PostAsJsonAsync($"api/users/{id}", role, jsonOptions);
 
         return response.IsSuccessStatusCode;
     }

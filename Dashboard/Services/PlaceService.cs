@@ -5,9 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Data;
+using Dashboard.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dashboard.Services;

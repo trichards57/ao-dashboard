@@ -5,10 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
-
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 /// <summary>
 /// Represents the region the vehicle 'belongs' to.

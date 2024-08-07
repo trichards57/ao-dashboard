@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
 using Dashboard.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -45,8 +44,13 @@ public class VorController(Services.IVehicleService vehicleService, IVorService 
     /// <param name="place">The place to search.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.  Resolves to the outcome of the action.</returns>
     [HttpGet("statistics")]
-    public Task<VorStatistics> GetStatistics([FromQuery] Place place) => vorService.GetVorStatisticsAsync(place);
+    public Task<VorStatistics?> GetStatistics([FromQuery] Place place) => vorService.GetVorStatisticsAsync(place);
 
+    /// <summary>
+    /// Gets the VOR statuses for a place.
+    /// </summary>
+    /// <param name="place">The place to search.</param>
+    /// <returns>The list of statuses for the given place.</returns>
     [HttpGet]
-    public IAsyncEnumerable<VorStatus> Get([FromQuery] Place place) => vorService.GetVorStatusesAsync(place);
+    public IAsyncEnumerable<VorStatus?> Get([FromQuery] Place place) => vorService.GetVorStatusesAsync(place);
 }

@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Model;
+
 namespace Dashboard.Client.Services;
 
 /// <summary>
@@ -16,7 +18,7 @@ public interface IUserService
     /// Gets all of the users with their roles.
     /// </summary>
     /// <returns>The users with their roles.</returns>
-    IAsyncEnumerable<UserWithRole> GetUsersWithRole();
+    IAsyncEnumerable<UserWithRole?> GetUsersWithRole();
 
     /// <summary>
     /// Gets a user with their role.
@@ -34,41 +36,4 @@ public interface IUserService
     /// <see langword="true"/> if the role was updated; otherwise, <see langword="false"/>.
     /// </returns>
     Task<bool> SetUserRole(string id, UserRoleUpdate role);
-}
-
-/// <summary>
-/// Represents a user with their role.
-/// </summary>
-public sealed class UserWithRole
-{
-    /// <summary>
-    /// Gets or sets the ID of the user.
-    /// </summary>
-    public string Id { get; set; } = "";
-
-    /// <summary>
-    /// Gets or sets the name of the user.
-    /// </summary>
-    public string Name { get; set; } = "";
-
-    /// <summary>
-    /// Gets or sets their role's ID.
-    /// </summary>
-    public string? RoleId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of their role.
-    /// </summary>
-    public string? Role { get; set; }
-}
-
-/// <summary>
-/// Represents an update to a user's role.
-/// </summary>
-public sealed class UserRoleUpdate
-{
-    /// <summary>
-    /// Gets or sets the ID of the new role.
-    /// </summary>
-    public string RoleId { get; set; } = "";
 }

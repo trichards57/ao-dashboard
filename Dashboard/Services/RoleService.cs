@@ -7,6 +7,7 @@
 
 using Dashboard.Client;
 using Dashboard.Client.Services;
+using Dashboard.Model;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
