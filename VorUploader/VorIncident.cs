@@ -15,27 +15,27 @@ public class VorIncident
     /// <summary>
     /// Gets the vehicle's call-sign.
     /// </summary>
-    public string CallSign { get; init; }
+    public string CallSign { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the vehicle's registration.
     /// </summary>
-    public string Registration { get; init; }
+    public string Registration { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the body type of the vehicle.
     /// </summary>
-    public string BodyType { get; init; }
+    public string BodyType { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the make of the vehicle.
     /// </summary>
-    public string Make { get; init; }
+    public string Make { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the model of the vehicle.
     /// </summary>
-    public string Model { get; init; }
+    public string Model { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the start date of the incident.
@@ -45,7 +45,7 @@ public class VorIncident
     /// <summary>
     /// Gets the description of the incident.
     /// </summary>
-    public string Description { get; init; }
+    public string Description { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the last update of the incident.
@@ -55,7 +55,7 @@ public class VorIncident
     /// <summary>
     /// Gets the comments associated with the incident.
     /// </summary>
-    public string Comments { get; init; }
+    public string Comments { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets the estimated date the vehicle will return to service.

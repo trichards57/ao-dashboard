@@ -5,8 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
 using Dashboard.Client.Services;
+using Dashboard.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard.Controllers;
@@ -26,7 +26,7 @@ public class VehiclesController(IVehicleService vehicleService) : ControllerBase
     /// <param name="place">The place to search.</param>
     /// <returns>The vehicle settings.</returns>
     [HttpGet]
-    public IAsyncEnumerable<VehicleSettings> GetVehiclesAsync([FromQuery] Place place) => vehicleService.GetSettingsAsync(place);
+    public IAsyncEnumerable<VehicleSettings?> GetVehiclesAsync([FromQuery] Place place) => vehicleService.GetSettingsAsync(place);
 
     /// <summary>
     /// Gets the vehicle settings for a given vehicle.

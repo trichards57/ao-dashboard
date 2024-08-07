@@ -7,7 +7,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 public class UpdateVehicleSettings
 {

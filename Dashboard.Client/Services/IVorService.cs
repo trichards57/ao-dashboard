@@ -5,10 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Model;
 
 namespace Dashboard.Client.Services;
 
+/// <summary>
+/// Represents a service for getting VOR statuses and statistics.
+/// </summary>
 public interface IVorService
 {
     /// <summary>
@@ -18,7 +21,7 @@ public interface IVorService
     /// <returns>
     /// The VOR statistics for the place.
     /// </returns>
-    Task<VorStatistics> GetVorStatisticsAsync(Place place);
+    Task<VorStatistics?> GetVorStatisticsAsync(Place place);
 
     /// <summary>
     /// Gets the VOR statuses for the vehicles in a place.

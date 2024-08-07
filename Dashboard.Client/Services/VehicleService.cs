@@ -5,45 +5,29 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
-using System.Net.Http;
+using Dashboard.Model;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Dashboard.Client.Services;
 
-internal class VehicleService(HttpClient httpClient) : IVehicleService
+/// <summary>
+/// Service for retrieving and updating vehicle settings from the client side.
+/// </summary>
+/// <param name="httpClient">HTTP Client used to access the server.</param>
+/// <param name="jsonOptions">Options for JSON serialization.</param>
+internal class VehicleService(HttpClient httpClient, JsonSerializerOptions jsonOptions) : IVehicleService
 {
     private readonly HttpClient httpClient = httpClient;
+    private readonly JsonSerializerOptions jsonOptions = jsonOptions;
 
-    public async IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place)
-    {
-        var response = await httpClient.GetAsync($"api/vehicles{place.CreateQuery()}");
+    /// <inheritdoc/>
+    public IAsyncEnumerable<VehicleSettings> GetSettingsAsync(Place place) 
+        => httpClient.GetFromJsonAsAsyncEnumerable<VehicleSettings>($"api/vehicles{place.CreateQuery()}", jsonOptions).OfType<VehicleSettings>();
 
-        if (response.IsSuccessStatusCode)
-        {
-            var statuses = await response.Content.ReadFromJsonAsync<List<VehicleSettings>>();
+    /// <inheritdoc/>
+    public Task<VehicleSettings?> GetSettingsAsync(Guid id) => httpClient.GetFromJsonAsync<VehicleSettings>($"api/vehicles/{id}", jsonOptions);
 
-            if (statuses != null)
-            {
-                foreach (var status in statuses)
-                {
-                    yield return status;
-                }
-            }
-        }
-    }
-
-    public async Task<VehicleSettings?> GetSettingsAsync(Guid id)
-    {
-        var response = await httpClient.GetAsync($"api/vehicles/{id}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<VehicleSettings>();
-        }
-
-        return null;
-    }
-
-    public Task PutSettingsAsync(UpdateVehicleSettings settings) => httpClient.PostAsJsonAsync("api/vehicles", settings);
+    /// <inheritdoc/>
+    public Task PutSettingsAsync(UpdateVehicleSettings settings) => httpClient.PostAsJsonAsync("api/vehicles", settings, jsonOptions);
 }

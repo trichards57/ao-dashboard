@@ -1,7 +1,7 @@
 ﻿@page "/vehicles/config/{Id:guid}"
 @using System.ComponentModel.DataAnnotations
-@using Dashboard.Client.Model
 @using Dashboard.Client.Services
+@using Dashboard.Model
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [Authorize(Policy = "CanEditVehicles")]

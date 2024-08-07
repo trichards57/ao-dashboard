@@ -93,7 +93,7 @@
     private string? Name { get; set; }
     private bool showMenu { get; set; }
     private bool showAccountDropdown { get; set; }
-    private ClaimsPrincipal user;
+    private ClaimsPrincipal user = default!;
 
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;

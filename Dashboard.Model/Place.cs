@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Client.Model;
+namespace Dashboard.Model;
 
 /// <summary>
 /// Represents a place.
@@ -23,9 +23,9 @@ public class Place
     public string Hub { get; set; } = "";
 
     /// <summary>
-    /// Gets or sets the name of the regin the place is in.
+    /// Gets or sets the name of the region the place is in.
     /// </summary>
-    public Region Region { get; set; }
+    public Region Region { get; set; } = Region.All;
 
     /// <summary>
     /// Converts the place to a query string.
@@ -34,19 +34,13 @@ public class Place
     public string CreateQuery()
     {
         if (Region == Region.All)
-        {
             return string.Empty;
-        }
 
         if (District.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
             return $"?region={Region}";
-        }
 
         if (Hub.Equals("all", StringComparison.OrdinalIgnoreCase))
-        {
             return $"?region={Region}&district={District}";
-        }
 
         return $"?region={Region}&district={District}&hub={Hub}";
     }

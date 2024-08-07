@@ -5,8 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Model;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Dashboard.Client.Services;
 
@@ -14,39 +15,15 @@ namespace Dashboard.Client.Services;
 /// Service for interacting with the VOR API.
 /// </summary>
 /// <param name="httpClient">The HTTP Client to use.</param>
-internal class VorService(HttpClient httpClient) : IVorService
+internal class VorService(HttpClient httpClient, JsonSerializerOptions jsonOptions) : IVorService
 {
     private readonly HttpClient httpClient = httpClient;
+    private readonly JsonSerializerOptions jsonOptions = jsonOptions;
 
     /// <inheritdoc/>
-    public async Task<VorStatistics> GetVorStatisticsAsync(Place place)
-    {
-        var response = await httpClient.GetAsync($"api/vor/statistics{place.CreateQuery()}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<VorStatistics>() ?? new();
-        }
-
-        return new();
-    }
+    public Task<VorStatistics?> GetVorStatisticsAsync(Place place) => httpClient.GetFromJsonAsync<VorStatistics>($"api/vor/statistics{place.CreateQuery()}", jsonOptions);
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
-    {
-        var response = await httpClient.GetAsync($"api/vor{place.CreateQuery()}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var statuses = await response.Content.ReadFromJsonAsync<List<VorStatus>>();
-
-            if (statuses != null)
-            {
-                foreach (var status in statuses)
-                {
-                    yield return status;
-                }
-            }
-        }
-    }
+    public IAsyncEnumerable<VorStatus> GetVorStatusesAsync(Place place)
+        => httpClient.GetFromJsonAsAsyncEnumerable<VorStatus>($"api/vor{place.CreateQuery()}", jsonOptions).OfType<VorStatus>();
 }

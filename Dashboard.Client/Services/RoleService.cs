@@ -5,7 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Dashboard.Model;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Dashboard.Client.Services;
 
@@ -13,46 +15,22 @@ namespace Dashboard.Client.Services;
 /// Service for managing roles.
 /// </summary>
 /// <param name="httpClient">The HTTP Client to use.</param>
-internal class RoleService(HttpClient httpClient) : IRoleService
+internal class RoleService(HttpClient httpClient, JsonSerializerOptions jsonOptions) : IRoleService
 {
     private readonly HttpClient httpClient = httpClient;
+    private readonly JsonSerializerOptions jsonOptions = jsonOptions;
 
     /// <inheritdoc/>
-    public async Task<RolePermissions?> GetRolePermissions(string id)
-    {
-        var response = await httpClient.GetAsync($"api/roles/{id}");
-
-        if (response.IsSuccessStatusCode)
-        {
-            return await response.Content.ReadFromJsonAsync<RolePermissions>();
-        }
-
-        return null;
-    }
+    public Task<RolePermissions?> GetRolePermissions(string id) => httpClient.GetFromJsonAsync<RolePermissions>($"api/roles/{id}", jsonOptions);
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<RolePermissions> GetRoles()
-    {
-        var response = await httpClient.GetAsync($"api/roles");
-
-        if (response.IsSuccessStatusCode)
-        {
-            var roles = await response.Content.ReadFromJsonAsync<List<RolePermissions>>();
-
-            if (roles != null)
-            {
-                foreach (var role in roles)
-                {
-                    yield return role;
-                }
-            }
-        }
-    }
+    public IAsyncEnumerable<RolePermissions> GetRoles()
+        => httpClient.GetFromJsonAsAsyncEnumerable<RolePermissions>($"api/roles", jsonOptions).OfType<RolePermissions>();
 
     /// <inheritdoc/>
     public async Task<bool> SetRolePermissions(string id, RolePermissionsUpdate permissions)
     {
-        var response = await httpClient.PostAsJsonAsync($"api/roles/{id}", permissions);
+        var response = await httpClient.PostAsJsonAsync($"api/roles/{id}", permissions, jsonOptions);
 
         return response.IsSuccessStatusCode;
     }

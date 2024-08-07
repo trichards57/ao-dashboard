@@ -3,10 +3,10 @@
 @attribute [Authorize(Policy = "CanViewVOR")]
 @rendermode InteractiveAuto
 
-@using Dashboard.Client.Model
-@using Dashboard.Client.Model.Converters
 @using Dashboard.Client.Services
 @using Microsoft.AspNetCore.Authorization
+@using Dashboard.Model
+@using Dashboard.Model.Converters
 
 @inject IVorService VorService
 
@@ -94,7 +94,7 @@
     protected override async Task OnParametersSetAsync()
     {
         loading = true;
-        statuses = await VorService.GetVorStatusesAsync(Place).ToListAsync();
+        statuses = await VorService.GetVorStatusesAsync(Place).Where(r => r!= null).OfType<VorStatus>().ToListAsync();
         loading = false;
     }
 }

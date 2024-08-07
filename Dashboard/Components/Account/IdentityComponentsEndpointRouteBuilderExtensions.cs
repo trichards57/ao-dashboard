@@ -6,9 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Dashboard.Components.Account.Pages;
-using Dashboard.Components.Account.Pages.Manage;
 using Dashboard.Data;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;

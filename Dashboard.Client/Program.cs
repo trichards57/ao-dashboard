@@ -9,8 +9,10 @@ using BlazorApplicationInsights;
 using BlazorApplicationInsights.Models;
 using Dashboard.Client;
 using Dashboard.Client.Services;
+using Dashboard.Model.Json;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -34,6 +36,11 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IPlaceService, PlaceService>();
 builder.Services.AddTransient<IVorService, VorService>();
 builder.Services.AddTransient<IVehicleService, VehicleService>();
+builder.Services.AddSingleton(new JsonSerializerOptions
+{
+    TypeInfoResolver = SerializerContext.Default,
+    PropertyNameCaseInsensitive = true,
+});
 
 builder.Services.AddScoped(sp =>
     new HttpClient

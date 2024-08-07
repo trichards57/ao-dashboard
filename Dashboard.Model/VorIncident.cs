@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Dashboard.Model;
 
 /// <summary>
@@ -40,6 +42,7 @@ public readonly record struct VorIncident
     /// <summary>
     /// Gets the start date of the incident.
     /// </summary>
+    [Required]
     public DateOnly StartDate { get; init; }
 
     /// <summary>
@@ -50,6 +53,7 @@ public readonly record struct VorIncident
     /// <summary>
     /// Gets the last update of the incident.
     /// </summary>
+    [Required]
     public DateOnly UpdateDate { get; init; }
 
     /// <summary>

@@ -1,24 +1,29 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="OpenIdWorkerSettings.cs" company="Tony Richards">
+// <copyright file="IRoleService.cs" company="Tony Richards">
 // Copyright (c) Tony Richards. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Dashboard.Services;
+namespace Dashboard.Model;
 
 /// <summary>
-/// The settings for the Open ID worker.
+/// Represents the permission levels for a role's permissions.
 /// </summary>
-public class OpenIdWorkerSettings
+public enum ReadWrite
 {
     /// <summary>
-    /// Gets or sets the VOR Uploader's client ID.
+    /// The role may read this data.
     /// </summary>
-    public required string VorUploaderClientId { get; set; }
+    Read,
 
     /// <summary>
-    /// Gets or sets the VOR Uploader's secret.
+    /// The role may read and update this data.
     /// </summary>
-    public required string VorUploaderClientSecret { get; set; }
+    Write,
+
+    /// <summary>
+    /// The role may not see this data.
+    /// </summary>
+    Deny,
 }

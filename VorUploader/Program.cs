@@ -11,10 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using OpenIddict.Client;
-using System.Globalization;
 using System.Net.Http.Json;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace VorUploader;
 

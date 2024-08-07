@@ -5,10 +5,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Dashboard.Client.Model;
+using Dashboard.Model;
 
 namespace Dashboard.Client.Services;
 
+/// <summary>
+/// Represents a service for getting and updating vehicle settings.
+/// </summary>
 public interface IVehicleService
 {
     /// <summary>

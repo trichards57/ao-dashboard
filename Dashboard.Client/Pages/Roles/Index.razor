@@ -1,5 +1,6 @@
 ﻿@page "/roles"
 @using Dashboard.Client.Services
+@using Dashboard.Model
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @implements IDisposable
@@ -70,7 +71,14 @@
         var foundInState = PersistentComponentState.TryTakeFromJson<List<RolePermissions>>("roles", out var state);
 
         loading = true;
-        roles.AddRange((foundInState && state != null) ? state : await RoleService.GetRoles().ToListAsync());
+        if (foundInState && state != null)
+        {
+            roles.AddRange(state);
+        }
+        else
+        {
+            roles.AddRange(await RoleService.GetRoles().Where(r => r != null).OfType<RolePermissions>().ToListAsync());
+        }
         loading = false;
     }
 

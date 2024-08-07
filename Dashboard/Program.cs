@@ -21,12 +21,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using Quartz;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(j =>
+{
+    j.JsonSerializerOptions.TypeInfoResolver = Dashboard.Model.Json.SerializerContext.Default;
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -184,7 +186,8 @@ builder.Services.AddBlazorApplicationInsights(
     {
         var t = new TelemetryItem()
         {
-            Tags = new Dictionary<string, object?> {
+            Tags = new Dictionary<string, object?>
+            {
                 { "ai.cloud.role", "AO-Dashboard-Client" },
                 { "ai.cloud.roleInstance", "Server-" + (builder.Environment.IsDevelopment() ? "Development" : "Production") },
             },
@@ -192,6 +195,9 @@ builder.Services.AddBlazorApplicationInsights(
 
         await a.AddTelemetryInitializer(t);
     });
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Logging.AddApplicationInsights(
     configureTelemetryConfiguration: (config) => config.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"],
@@ -212,6 +218,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseStaticFiles();
 
