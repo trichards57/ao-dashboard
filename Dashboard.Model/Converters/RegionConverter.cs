@@ -55,7 +55,7 @@ public static class RegionConverter
     /// </summary>
     /// <param name="region">The string.</param>
     /// <returns>The region.</returns>
-    public static Region ToRegion(string region) => region switch
+    public static Region ToRegion(string region) => region.ToLower() switch
     {
         "all" => Region.All,
         "lon" => Region.London,

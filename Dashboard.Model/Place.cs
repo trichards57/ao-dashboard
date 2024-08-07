@@ -23,9 +23,9 @@ public class Place
     public string Hub { get; set; } = "";
 
     /// <summary>
-    /// Gets or sets the name of the regin the place is in.
+    /// Gets or sets the name of the region the place is in.
     /// </summary>
-    public Region Region { get; set; }
+    public Region Region { get; set; } = Region.All;
 
     /// <summary>
     /// Converts the place to a query string.
